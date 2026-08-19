@@ -634,7 +634,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     <div id="edScroll">
       <div id="noSel"><div class="ns-i" style="opacity:.85;margin-bottom:8px">
         <span class="ns-logo-text">MirrorFilter</span>
-      </div><div style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:.3px">&quot;AdamGs MirrorFilter&quot; &copy; 2026 by AdamGs. All rights reserved.</div><div style="text-align:center;font-size:10px;color:var(--text3);margin-bottom:20px;opacity:.75;max-width:420px;margin-left:auto;margin-right:auto">Shared for personal use only — see LICENSE.txt. Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.</div><p>Select a rule from the left panel.<br><br>Use <strong>+ Section</strong> to create a section, <strong>+ Rule</strong> to add a rule.<br><br>Refer to the <strong>Resources</strong> tab for guides, tutorials, customizations and configurations.<br><br><span style="color:var(--red)">&#9888; Install MirrorFilter itself on a plain local folder, not inside Google Drive/OneDrive/Dropbox — running it from a cloud-synced folder can cause sync conflicts and data corruption. Use Resources &rarr; Saving Your Work &rarr; Multi-Location Save to back up to a synced folder instead.</span></p></div>
+      </div><div style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:.3px">&quot;AdamGs MirrorFilter&quot; &copy; 2026 by AdamGs. All rights reserved.</div><div style="text-align:center;font-size:10px;color:var(--text3);margin-bottom:20px;opacity:.75;max-width:420px;margin-left:auto;margin-right:auto">Shared for personal use only — see LICENSE.txt. Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.</div><p>Select a rule from the left panel.<br><br>Use <strong>+ Section</strong> to create a section, <strong>+ Rule</strong> to add a rule.<br><br>Refer to the <strong>Resources</strong> tab for guides, tutorials, customizations and configurations.<br><br><span style="color:var(--accent)">&#128190; Your work is saved automatically in your browser. Click <strong>Export</strong> (or <strong>Quick-Save</strong>) to write your <code>.filter</code> to your Path of Exile 2 folder. Because your data lives in this browser, use <strong>Export/Import</strong> to back it up or move it to another computer.</span></p></div>
       <div id="edContent" style="display:none"></div>
     </div>
   </div>
@@ -1223,7 +1223,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           <strong style="color:#3dd6c4">poe2db.tw</strong>
           <span style="color:var(--text3);font-size:11px">— last resort. A live economy tracker with no public API, so this parses its pages directly for whatever the first two still missed — mainly Runes/Soul Cores/Essences/Fragments as a backup for poe.ninja's own coverage of those.</span>
         </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--text3)">Every attempt — success or failure, from all three sources — is written to <code>UserData\economy_debug.log</code> if you ever need to see exactly what happened on a given run.</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text3)">Every attempt — success or failure — is logged to your browser's developer console (press F12 &rarr; Console) if you ever need to see exactly what happened on a given run.</div>
       </div>
       <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Tier Configuration</div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Tiers are checked highest-threshold first. Items with chaos value ≥ the threshold get that tier. The lowest tier (0 threshold) is the catch-all.</div>
@@ -1346,26 +1346,22 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       <span class="coll-caret" id="ss-saving-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
     </div>
     <div class="ss-body" id="ss-saving-body" style="display:none">
-      <p>MirrorFilter saves your <strong>working session</strong> (every rule, section, and setting) automatically as you go — there's no button for that part, it's written to disk instantly on every change. The <strong>📤 Export</strong> and <strong>💾 Quick-Save</strong> buttons are a separate, deliberate action: they're what actually produces the game-readable <code>.filter</code> file. Your session auto-saving means you'll never lose in-progress work, but you still need to click Export/Quick-Save whenever you want the game itself to see your latest changes.</p>
+      <p>MirrorFilter saves your <strong>working session</strong> (every rule, section, and setting) automatically as you go — there's no button for that part, it's stored in your browser instantly on every change. The <strong>📤 Export</strong> and <strong>💾 Quick-Save</strong> buttons are a separate, deliberate action: they're what actually produces the game-readable <code>.filter</code> file in your Path of Exile 2 folder. Your session auto-saving means you'll never lose in-progress work, but you still need to click Export/Quick-Save whenever you want the game itself to see your latest changes.</p>
       <p><strong>Everything that is saved:</strong> all rules and their conditions & visuals, section order and collapsed/disabled states, tier configuration, chosen UI theme, Hiding & Progression toggle definitions, multi-save location settings, panel sizes, and your last export path — plus a mirrored copy of custom sounds/BaseTypes/Classes/Conditions (their primary home is customizations.json, explained below).</p>
-      <p><strong>Saved to:</strong> <code>UserData\filter_data.json</code> — a plain readable JSON file you can open in any text editor or back up by copying it. <strong>This still happens automatically no matter what you configure below</strong> — Multi-Location Save is always in addition to this, never a replacement for it.</p>
-      <div class="warn-box">NOT stored in browser cache. Clearing browser history, cookies, or cache has absolutely zero effect on your MirrorFilter data.</div>
-      <div class="warn-box"><strong style='color:var(--accent)'>&#9888; Don't run MirrorFilter itself from inside a cloud-synced folder</strong> (Google Drive, OneDrive, Dropbox, etc.) — install it on a normal local folder instead, and use Multi-Location Save below to copy your work TO a synced folder as a backup. Running the app's actual working folder from inside active cloud sync means the sync client is constantly watching and can grab a file the instant it changes — if that happens mid-write, the file can end up corrupted or truncated. MirrorFilter now writes every file atomically (write to a temp file, then swap it in) specifically to protect against exactly this, but running from a synced folder is still an avoidable risk that's easy to just not take.</div>
-      <div class="tip-box"><strong style='color:var(--accent)'>What filter_data.json stores:</strong><br>All rules, sections &amp; hierarchy &bull; All conditions, visuals, beams, icons &amp; sounds per rule &bull; Tier config (names, thresholds, colors) &bull; Theme choice &bull; Custom conditions, BaseTypes, Classes &amp; sounds &bull; Filter name &amp; league &bull; Export folder path &bull; Panel layout sizes<br><br><strong style='color:var(--accent)'>What it does NOT store:</strong><br>Custom Conditions/BaseTypes/Classes/Sounds live in their own file — <code>customizations.json</code> — specifically so they survive even if you delete filter_data.json for a clean slate. Your exported <code>.filter</code> files, their <code>.filter.meta.json</code> sidecars (tier config/theme/checkboxes for that specific export), and <code>todo_list.json</code> are also all separate files in <code>UserData\</code>.<br><br><strong style='color:var(--accent)'>&#9888; When installing a new version:</strong><br>Just copy the ENTIRE <code>UserData\</code> folder to safety, delete the old MirrorFilter folder, install the new version, then paste <code>UserData\</code> back in. Everything — filter_data.json, customizations.json, todo_list.json, all your .filter exports — survives together. You don't need to pick and choose individual files.</div>
+      <p><strong>Saved where:</strong> in your browser's built-in storage (IndexedDB), on this computer. It stays there between visits — close the tab, restart your PC, come back later, and your work is still here. It is private to you and never uploaded anywhere.</p>
+      <div class="warn-box"><strong style='color:var(--accent)'>&#9888; Your data lives in THIS browser on THIS computer.</strong> It does <strong>not</strong> follow you to another browser or another PC, and <strong>clearing your browser's site data / cookies for this site will erase it</strong> (a normal "clear cached images and files" does not). So whenever you finish a filter you care about, click <strong>Export</strong> — the exported <code>.filter</code> on your disk is your real backup, and you can <strong>Import</strong> it here anytime to restore or move your work.</div>
+      <div class="tip-box"><strong style='color:var(--accent)'>What's saved for you:</strong><br>All rules, sections &amp; hierarchy &bull; all conditions, visuals, beams, icons &amp; sounds per rule &bull; tier config (names, thresholds, colors) &bull; theme choice &bull; custom conditions, BaseTypes, Classes &amp; sounds &bull; filter name &amp; league &bull; panel layout sizes &bull; your to-do list and notes.<br><br><strong style='color:var(--accent)'>Moving to another computer or browser:</strong><br>Use <strong>Export</strong> to write your <code>.filter</code> (and its <code>.filter.meta.json</code> sidecar, which carries tier config / section hierarchy) to disk, then <strong>Import</strong> that file on the other machine. The sidecar is what lets a re-import restore your full nested setup, not just a flat rule list.</div>
 
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
         <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:6px">📍 Multi-Location Save</div>
-        <div class="ibox">Add up to 4 extra locations (a cloud-synced folder, the game's own folder, an external drive, etc.) and every Quick-Save/Export will also write to each one automatically — one click, several safety nets. This is on top of the normal UserData save above, not a replacement for it. <strong>Each location has its own dropdown</strong> for what to save there — a cloud backup might want everything, while the game's own folder only needs the bare .filter.</div>
-        <div class="tip-box"><strong style='color:var(--accent)'>Saving to the game's own folder</strong> (<code>...\Documents\My Games\Path of Exile 2</code>) — set that location's dropdown to <strong>"Just the .filter"</strong>. The game only ever reads the raw .filter file directly; it has no concept of the .meta.json sidecar at all, so there's nothing to gain by sending that there too (it's harmless if present, just unnecessary — the game simply ignores it).</div>
-        <div class="tip-box"><strong style='color:var(--accent)'>What each option actually gives you, in plain terms:</strong>
+        <div class="ibox">Add extra folders (a backup folder, an external drive, a cloud-synced folder, etc.) and every Quick-Save/Export will also write to each one automatically — one click, several safety nets. This is on top of your main Export folder, not a replacement for it. <strong>Each location has its own dropdown</strong> for what to save there. You'll be asked to grant access to each folder once (a one-time browser prompt per folder).</div>
+        <div class="tip-box"><strong style='color:var(--accent)'>Saving to the game's own folder</strong> (<code>...\Documents\My Games\Path of Exile 2</code>) — set that location's dropdown to <strong>"Just the .filter"</strong>. The game only ever reads the raw .filter file directly; it has no concept of the .meta.json sidecar, so there's nothing to gain by sending that there too (it's harmless if present, just ignored).</div>
+        <div class="tip-box"><strong style='color:var(--accent)'>What each option gives you, in plain terms:</strong>
           <div style="margin-top:8px;line-height:1.7">
-            <div><strong>Just the .filter</strong> — only the raw file the game reads. Nothing else.</div>
-            <div><strong>.filter + .meta.json</strong> — the file above, plus its sidecar (so reimporting into MirrorFilter later restores your tier config/section hierarchy too).</div>
-            <div><strong>Entire UserData folder</strong> — your whole working session (settings, custom sounds, tier config, etc.) as one folder copy. <em>May include an outdated .filter</em> if your export path points somewhere other than UserData (see warning below).</div>
-            <div><strong>UserData + .filter + .meta.json (recommended)</strong> — the UserData folder copy above, but with a guaranteed fresh, correctly-current .filter + sidecar written alongside it. This is the only option that's always both complete AND current, no matter where your export path points.</div>
+            <div><strong>Just the .filter</strong> — only the raw file the game reads. Best for the game's own folder.</div>
+            <div><strong>.filter + .meta.json (recommended for backups)</strong> — the .filter plus its sidecar, so re-importing into MirrorFilter later restores your tier config and section hierarchy too, not just a flat rule list.</div>
           </div>
         </div>
-        <div class="warn-box"><strong>If your export path points somewhere other than UserData</strong> (e.g. your game folder), the .filter sitting inside your own local UserData folder is just a frozen leftover — it stops updating and has nothing to do with your real, current exports. If you ever browse into UserData by hand and see an old .filter there, that's expected and harmless; it's not the one the game (or your other save locations) actually use.</div>
         <div id="multiSaveLocList" style="margin:8px 0"></div>
         <button class="sh-btn" onclick="addMultiSaveLocation()" data-tip="Pick a folder to add as an extra save destination">📁 Add Location</button>
       </div>
@@ -1558,7 +1554,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
         <input type="radio" name="exportDest" value="default" checked onchange="setExportOpt('default')" style="margin-top:2px;accent-color:var(--accent)">
         <div>
           <div style="font-size:13px;color:var(--text);font-weight:600">&#128193; Default folder (recommended)</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:2px">Saves directly to <code style="color:var(--accent)">UserData\</code> inside your MirrorFilter folder. Always works, no setup needed.</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">Downloads the <code>.filter</code> to your browser's Downloads folder. Always works, no setup needed — but picking your Path of Exile 2 folder (below) lets MirrorFilter write straight there.</div>
         </div>
       </label>
       <label style="display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer" id="exportOptCustom">
@@ -30053,7 +30049,7 @@ const HELP_TOPICS = [
       <div class="step"><div class="step-num">1</div><div class="step-txt"><strong>📋 Editor</strong> — Create and edit filter rules. A Live Preview panel sits top-right, next to the toolbar. The left panel lists all your rules. The middle panel is the rule editor. The right panel has two sections: Economy Prices and the raw .filter Output.</div></div>
       <div class="step"><div class="step-num">2</div><div class="step-txt"><strong>👁 Visuals &amp; Stats</strong> — See every rule's visual appearance at once, plus filter-health stat panels (Tier Distribution, Auto-Tier Setup, Untiered Rules, Similar-Looking, Sound Duplicates, and more). Click any row to jump to editing it.</div></div>
       <div class="step"><div class="step-num">3</div><div class="step-txt"><strong>⚙ Resources</strong> — This page. Configure themes, tiers, custom conditions/BaseTypes/Classes/sounds, define your Hiding &amp; Progression rules, run Filter Cleanup Tools, manage save locations, review your Missing Values Tracker, manage your To-Do list, and read this guide.</div></div>
-      <div class="tip-box">All your work is auto-saved to <code>UserData\filter_data.json</code> inside your MirrorFilter folder. Your exported <code>.filter</code> files also save to <code>UserData\</code>. There is no Save button — MirrorFilter saves automatically.</div>
+      <div class="tip-box">All your work is auto-saved in your browser as you go. There is no Save button — MirrorFilter saves automatically. Use <strong>Export</strong> to write the game-readable <code>.filter</code> to your Path of Exile 2 folder (and to back your work up).</div>
     `
   },
 {
@@ -30231,7 +30227,7 @@ const HELP_TOPICS = [
       <div class="tip-box"><strong>Generic BaseType-only rules get priced too</strong> — e.g. bare <code>BaseType == "Shortsword"</code>, not naming any specific unique. Since an unidentified item only shows its base type, not which unique it might be, Auto-Tier estimates the price as the highest-value specific unique currently known to use that base (poe.ninja's own data already links each unique to its base type — no extra setup needed). These estimated prices get a border around the price badge, drawn from your Price Color Gradient (toned down) so they read as "this price, but estimated" rather than a direct fetch. Control which sections actually show that border in Resources → ⚡ Tier System → 🔲 Estimated Price Border — defaults to sections named "Unique."</div>
       <div class="warn-box">Maps/Waystones aren't priced — checked, and poe.ninja has no equivalent endpoint for them. Most likely because a Waystone's value comes from its rolled modifiers, not its base type, so per-item pricing wouldn't apply cleanly there anyway.</div>
       <div class="tip-box">Only want to re-tier one section instead of everything? Right-click that section's header in the sidebar → <strong>⚡ Auto-Tier This Section</strong>. Prices still fetch for the whole league either way (that part can't be scoped), but the actual tier redistribution only touches that section — every other section's tiers stay exactly as they were.</div>
-      <div class="warn-box">If Auto-Tier fails, check <code>UserData\economy_debug.log</code> for the exact error — it logs every attempt against every source in detail.</div>
+      <div class="warn-box">If Auto-Tier fails, open your browser's developer console (F12 &rarr; Console) for the exact error — it logs every attempt in detail.</div>
     `
   },
 {
@@ -30323,15 +30319,11 @@ const HELP_TOPICS = [
     `
   },
 {
-    icon:'🚪',title:'Closing MirrorFilter — Auto-Shutdown',tags:['close','exit','quit','shutdown','process','task manager','exe','tab'],cat:'help',
+    icon:'🚪',title:'Closing MirrorFilter & Saving',tags:['close','exit','quit','save','tab','backup'],cat:'help',
     body:`
-      <p>MirrorFilter is designed to close automatically when you close the browser tab — <strong>almost instantly</strong> under normal conditions.</p>
-      <div class="step"><div class="step-num">1</div><div class="step-txt">Close the Chrome tab (or the whole browser window).</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-txt"><code>MirrorFilter.exe</code> saves your work and shuts itself down via Windows <code>taskkill</code>, typically within a second.</div></div>
-      <p>The page sends an explicit "closing now" signal the instant the tab genuinely closes (not just when you switch to another tab — that's a different, harmless event). As a backup, in case that signal never arrives — a browser crash, for example — the page also pings the backend every 2 seconds; if 90 seconds pass with no ping at all, the process assumes the tab is gone and shuts down on its own.</p>
-      <div class="tip-box">That 90-second fallback isn't arbitrary — background/minimized browser tabs get throttled by the OS and can go a while between timer ticks, so it has to outlast that before it's safe to assume the tab is genuinely gone rather than just backgrounded. You shouldn't normally see this delay at all, though — the instant "closing now" signal handles the vast majority of real closes.</div>
-      <div class="warn-box">If you open MirrorFilter in two browser tabs at once, closing <strong>either one</strong> now shuts down the shared background process almost immediately — even if the other tab is still open and in use. This is more immediate than it used to be, so it's worth being deliberate about it: stick to a single tab.</div>
-      <div class="tip-box">If the process doesn't close on its own within a couple of minutes, open Task Manager, find MirrorFilter.exe, and click End Task.</div>
+      <p>Just close the tab whenever you like — there's nothing to shut down and nothing to lose. Your work is saved in your browser automatically as you go, so it'll be waiting for you next time you open the site.</p>
+      <div class="warn-box"><strong style='color:var(--accent)'>One habit worth keeping:</strong> whenever you finish a filter you care about, click <strong>Export</strong>. Your data lives in this browser, so the exported <code>.filter</code> on disk is your real backup — and you can <strong>Import</strong> it to restore your work or move it to another computer.</div>
+      <div class="tip-box">Using the tool in two tabs at once is fine, but they don't live-sync — each reads your saved data when it loads. To avoid one tab overwriting the other's changes, stick to a single tab when actively editing.</div>
     `
   },
 {
@@ -30343,11 +30335,11 @@ const HELP_TOPICS = [
       <div class="step"><div class="step-num">▸</div><div class="step-txt">Make sure the file ends in <code>.filter</code> (not <code>.filter.txt</code>) and is saved to the correct <code>Documents\My Games\Path of Exile 2\</code> folder.</div></div>
       <p style="margin-top:10px"><strong>Auto-Tier says "Could not fetch economy data":</strong></p>
       <div class="step"><div class="step-num">▸</div><div class="step-txt">Check your internet connection. poe.ninja, poe2scout.com, and poe2db.tw are all tried — at least one needs to be reachable. Try again — these occasionally have brief outages.</div></div>
-      <p style="margin-top:10px"><strong>Cannot connect to backend error on startup:</strong></p>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt">The backend server (Python) isn't running. Make sure you launched <code>MirrorFilter.exe</code>, not opened the HTML file directly in a browser.</div></div>
+      <p style="margin-top:10px"><strong>The Export button downloads instead of saving to my game folder:</strong></p>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt">Direct-to-folder saving needs Chrome or Edge, and you have to pick your Path of Exile 2 folder once (you'll get a browser permission prompt — choose "Allow on every visit" to stop it re-asking). In other browsers, MirrorFilter downloads the <code>.filter</code> and you drop it into the folder yourself.</div></div>
       <p style="margin-top:10px"><strong>My settings/rules disappeared:</strong></p>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt">Check for <code>filter_data.json</code> next to the .exe. If it's missing or corrupted, data may have been lost. Always keep a backup copy of <code>filter_data.json</code> after building a filter you're happy with.</div></div>
-      <div class="tip-box">If something looks wrong after a change, try refreshing the browser tab (F5). The backend server stays running — only the frontend reloads.</div>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt">Your work lives in this browser's storage. Clearing the browser's site data/cookies for this site erases it, and it doesn't carry across to a different browser or computer. Always keep a backup by clicking <strong>Export</strong> after building a filter you're happy with — you can <strong>Import</strong> that <code>.filter</code> to restore everything.</div></div>
+      <div class="tip-box">If something looks wrong after a change, try refreshing the tab (F5). Your saved work reloads from browser storage — nothing is lost by refreshing.</div>
     `
   },
 {
@@ -38088,8 +38080,6 @@ function renderMultiSaveLocations(){
   const SCOPE_OPTIONS=[
     ['filter','Just the .filter'],
     ['filter_json','.filter + .meta.json'],
-    ['userdata','Entire UserData folder'],
-    ['all','UserData + .filter + .meta.json'],
   ];
   div.innerHTML=locs.map((loc,i)=>{
     const scope=loc.scope||'all';
@@ -38816,10 +38806,10 @@ document.getElementById('secMInput').addEventListener('keydown',e=>{if(e.key==='
         toast('Auto-saved \u2713','inf');
       }catch(e){
         console.warn('Auto-save failed:',e);
-        toast('Auto-save failed \u2014 check your connection to the local server','err');
+        toast('Auto-save failed \u2014 your browser may be blocking storage (private/incognito mode can do this)','err');
       }
     }
-  },120000);
+  },300000);
 })();
 
 document.getElementById('filterName').addEventListener('input',()=>{S.filterName=document.getElementById('filterName').value;saveState();setStatus(_lastStatusBase);});
