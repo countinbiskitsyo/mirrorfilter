@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>MirrorFilter v5.161 — PoE1 / PoE2 Loot Filter Editor</title>
+<title>MirrorFilter v5.151 — PoE1 / PoE2 Loot Filter Editor</title>
 <style>
 :root{--bg:#0d0d0f;--panel:#141418;--card:#1a1a20;--border:#2a2a35;--border2:#3a3a50;--accent:#c8a45a;--accent-rgb:200,164,90;--accent2:#e8c06a;--red:#c0392b;--green:#27ae60;--text:#d8d0c0;--text2:#888;--text3:#505050;--radius:6px;--shadow:0 4px 24px rgba(0,0,0,.65)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -155,10 +155,10 @@ html.shading-swapped .sec-hdr{background:linear-gradient(180deg,rgba(255,255,255
 .drag-over-above{box-shadow:inset 0 4px 0 0 var(--accent),inset 0 0 0 1px rgba(var(--accent-rgb),.6),0 0 10px 1px rgba(var(--accent-rgb),.8)!important}
 .drag-over-below{box-shadow:inset 0 -4px 0 0 var(--accent),inset 0 0 0 1px rgba(var(--accent-rgb),.6),0 0 10px 1px rgba(var(--accent-rgb),.8)!important}
 .sec-drop-target>.sec-hdr{background:rgba(var(--accent-rgb),.16)!important;outline:2px dashed var(--accent);outline-offset:-2px;border-radius:var(--radius)}
-.sec-hdr.main-expanded-pulse,html.theme-3d .sec-hdr.main-expanded-pulse,html.theme-3d-v2 .sec-hdr.main-expanded-pulse,html.theme-3d-x2 .sec-hdr.main-expanded-pulse{animation:mainSectionPulse 2.4s ease-in-out infinite}
+.sec-hdr.main-expanded-pulse{animation:mainSectionPulse 2.4s ease-in-out infinite}
 @keyframes mainSectionPulse{
-  0%,100%{outline:1px solid rgba(var(--accent-rgb),0);outline-offset:-1px}
-  50%{outline:2px solid rgba(var(--accent-rgb),.85);outline-offset:1px}
+  0%,100%{box-shadow:0 1px 2px rgba(0,0,0,.3)}
+  50%{box-shadow:0 1px 2px rgba(0,0,0,.3),0 0 10px 1px rgba(var(--accent-rgb),.55)}
 }
 .ri-drop-target{background:rgba(var(--accent-rgb),.16)!important;outline:2px dashed var(--accent);outline-offset:-2px}
 .ri{display:flex;align-items:center;gap:4px;padding:3px 5px 3px 14px;border-radius:var(--radius);cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008));border:1px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,.22);margin-bottom:2px;transition:background .12s,border-color .12s,box-shadow .08s,opacity .12s}
@@ -594,7 +594,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 <div id="middleCol">
 <div id="topbar">
   <div id="topbarSpacer" style="display:none;flex-shrink:0"></div>
-  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em>v5.161</em><em style="margin-left:6px;opacity:.7">by AdamGs</em></div>
+  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em>v5.151</em><em style="margin-left:6px;opacity:.7">by AdamGs</em></div>
   <input id="filterName" type="text" value="MyFilter" placeholder="Filter name…" data-tip="Name used when exporting your .filter file" oninput="autoSizeFilterName()">
   <span id="filterNameMeasure" style="position:absolute;visibility:hidden;white-space:pre;font-size:13px"></span>
   <select id="leagueSelect" data-tip="League used for Auto-Tier price lookups">
@@ -606,7 +606,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     <option>Hardcore</option>
     <option>Hardcore Dawn of the Hunt</option>
   </select>
-  <button class="tb-btn sec" id="autoTierBtn" onclick="runAutoTier()" data-tip="Fetch live prices from poe.ninja (primary), poe2scout (backup), and poe2db.tw (last resort). Sorts BaseTypes across Tier Sort Target rules. Never changes visuals." style="border-color:#5a9cf5;color:#5a9cf5">⚡ Auto-Tier</button>
+  <button class="tb-btn sec" id="autoTierBtn" onclick="runAutoTier()" data-tip="Fetch live prices from poe.ninja. Sorts BaseTypes across Tier Sort Target rules. Never changes visuals." style="border-color:#5a9cf5;color:#5a9cf5">⚡ Auto-Tier</button>
   <button class="tb-btn sec" onclick="openM('newM')" data-tip="Clear all rules and start a new blank filter" style="border-color:#3dd6c4;color:#3dd6c4">🗒 New Filter</button>
   <button class="tb-btn sec" onclick="openM('importM')" data-tip="Load an existing .filter file into MirrorFilter" style="border-color:#e0a030;color:#e0a030">📂 Import</button>
   <button class="tb-btn sec" onclick="exportFilter()" data-tip="Export your filter — choose a save folder" style="border-color:#c85ae0;color:#c85ae0">📤 Export</button>
@@ -1223,7 +1223,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           <strong style="color:#3dd6c4">poe2db.tw</strong>
           <span style="color:var(--text3);font-size:11px">— last resort. A live economy tracker with no public API, so this parses its pages directly for whatever the first two still missed — mainly Runes/Soul Cores/Essences/Fragments as a backup for poe.ninja's own coverage of those.</span>
         </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--text3)">Every attempt — success or failure — is logged to your browser's developer console (press F12 &rarr; Console) if you ever need to see exactly what happened on a given run.</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text3)">Every attempt — success or failure, from all three sources — is written to <code>UserData\economy_debug.log</code> if you ever need to see exactly what happened on a given run.</div>
       </div>
       <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Tier Configuration</div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Tiers are checked highest-threshold first. Items with chaos value ≥ the threshold get that tier. The lowest tier (0 threshold) is the catch-all.</div>
@@ -1348,20 +1348,24 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     <div class="ss-body" id="ss-saving-body" style="display:none">
       <p>MirrorFilter saves your <strong>working session</strong> (every rule, section, and setting) automatically as you go — there's no button for that part, it's stored in your browser instantly on every change. The <strong>📤 Export</strong> and <strong>💾 Quick-Save</strong> buttons are a separate, deliberate action: they're what actually produces the game-readable <code>.filter</code> file in your Path of Exile 2 folder. Your session auto-saving means you'll never lose in-progress work, but you still need to click Export/Quick-Save whenever you want the game itself to see your latest changes.</p>
       <p><strong>Everything that is saved:</strong> all rules and their conditions & visuals, section order and collapsed/disabled states, tier configuration, chosen UI theme, Hiding & Progression toggle definitions, multi-save location settings, panel sizes, and your last export path — plus a mirrored copy of custom sounds/BaseTypes/Classes/Conditions (their primary home is customizations.json, explained below).</p>
-      <p><strong>Saved where:</strong> in your browser's built-in storage (IndexedDB), on this computer. It stays there between visits — close the tab, restart your PC, come back later, and your work is still here. It is private to you and never uploaded anywhere.</p>
-      <div class="warn-box"><strong style='color:var(--accent)'>&#9888; Your data lives in THIS browser on THIS computer.</strong> It does <strong>not</strong> follow you to another browser or another PC, and <strong>clearing your browser's site data / cookies for this site will erase it</strong> (a normal "clear cached images and files" does not). So whenever you finish a filter you care about, click <strong>Export</strong> — the exported <code>.filter</code> on your disk is your real backup, and you can <strong>Import</strong> it here anytime to restore or move your work.</div>
-      <div class="tip-box"><strong style='color:var(--accent)'>What's saved for you:</strong><br>All rules, sections &amp; hierarchy &bull; all conditions, visuals, beams, icons &amp; sounds per rule &bull; tier config (names, thresholds, colors) &bull; theme choice &bull; custom conditions, BaseTypes, Classes &amp; sounds &bull; filter name &amp; league &bull; panel layout sizes &bull; your to-do list and notes.<br><br><strong style='color:var(--accent)'>Moving to another computer or browser:</strong><br>Use <strong>Export</strong> to write your <code>.filter</code> (and its <code>.filter.meta.json</code> sidecar, which carries tier config / section hierarchy) to disk, then <strong>Import</strong> that file on the other machine. The sidecar is what lets a re-import restore your full nested setup, not just a flat rule list.</div>
+      <p><strong>Saved where:</strong> in your browser's built-in storage (IndexedDB), on this computer. It stays there between visits and is private to you. This happens automatically on every change.</p>
+      <div class="warn-box"><strong style="color:var(--accent)">&#9888; Your data lives in THIS browser on THIS computer.</strong> It does not follow you to another browser or PC, and clearing your browser's site data / cookies for this site will erase it (a normal cache clear does not). Click <strong>Export</strong> whenever you finish a filter you care about \u2014 the exported <code>.filter</code> on disk is your real backup, and <strong>Import</strong> restores it anytime.</div>
+      <div class="warn-box"><strong style='color:var(--accent)'>&#9888; Don't run MirrorFilter itself from inside a cloud-synced folder</strong> (Google Drive, OneDrive, Dropbox, etc.) — install it on a normal local folder instead, and use Multi-Location Save below to copy your work TO a synced folder as a backup. Running the app's actual working folder from inside active cloud sync means the sync client is constantly watching and can grab a file the instant it changes — if that happens mid-write, the file can end up corrupted or truncated. MirrorFilter now writes every file atomically (write to a temp file, then swap it in) specifically to protect against exactly this, but running from a synced folder is still an avoidable risk that's easy to just not take.</div>
+      <div class="tip-box"><strong style='color:var(--accent)'>What filter_data.json stores:</strong><br>All rules, sections &amp; hierarchy &bull; All conditions, visuals, beams, icons &amp; sounds per rule &bull; Tier config (names, thresholds, colors) &bull; Theme choice &bull; Custom conditions, BaseTypes, Classes &amp; sounds &bull; Filter name &amp; league &bull; Export folder path &bull; Panel layout sizes<br><br><strong style='color:var(--accent)'>What it does NOT store:</strong><br>Custom Conditions/BaseTypes/Classes/Sounds live in their own file — <code>customizations.json</code> — specifically so they survive even if you delete filter_data.json for a clean slate. Your exported <code>.filter</code> files, their <code>.filter.meta.json</code> sidecars (tier config/theme/checkboxes for that specific export), and <code>todo_list.json</code> are also all separate files in <code>UserData\</code>.<br><br><strong style='color:var(--accent)'>&#9888; When installing a new version:</strong><br>Just copy the ENTIRE <code>UserData\</code> folder to safety, delete the old MirrorFilter folder, install the new version, then paste <code>UserData\</code> back in. Everything — filter_data.json, customizations.json, todo_list.json, all your .filter exports — survives together. You don't need to pick and choose individual files.</div>
 
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
         <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:6px">📍 Multi-Location Save</div>
-        <div class="ibox">Add extra folders (a backup folder, an external drive, a cloud-synced folder, etc.) and every Quick-Save/Export will also write to each one automatically — one click, several safety nets. This is on top of your main Export folder, not a replacement for it. <strong>Each location has its own dropdown</strong> for what to save there. You'll be asked to grant access to each folder once (a one-time browser prompt per folder).</div>
-        <div class="tip-box"><strong style='color:var(--accent)'>Saving to the game's own folder</strong> (<code>...\Documents\My Games\Path of Exile 2</code>) — set that location's dropdown to <strong>"Just the .filter"</strong>. The game only ever reads the raw .filter file directly; it has no concept of the .meta.json sidecar, so there's nothing to gain by sending that there too (it's harmless if present, just ignored).</div>
-        <div class="tip-box"><strong style='color:var(--accent)'>What each option gives you, in plain terms:</strong>
+        <div class="ibox">Add up to 4 extra locations (a cloud-synced folder, the game's own folder, an external drive, etc.) and every Quick-Save/Export will also write to each one automatically — one click, several safety nets. This is on top of the normal UserData save above, not a replacement for it. <strong>Each location has its own dropdown</strong> for what to save there — a cloud backup might want everything, while the game's own folder only needs the bare .filter.</div>
+        <div class="tip-box"><strong style='color:var(--accent)'>Saving to the game's own folder</strong> (<code>...\Documents\My Games\Path of Exile 2</code>) — set that location's dropdown to <strong>"Just the .filter"</strong>. The game only ever reads the raw .filter file directly; it has no concept of the .meta.json sidecar at all, so there's nothing to gain by sending that there too (it's harmless if present, just unnecessary — the game simply ignores it).</div>
+        <div class="tip-box"><strong style='color:var(--accent)'>What each option actually gives you, in plain terms:</strong>
           <div style="margin-top:8px;line-height:1.7">
-            <div><strong>Just the .filter</strong> — only the raw file the game reads. Best for the game's own folder.</div>
-            <div><strong>.filter + .meta.json (recommended for backups)</strong> — the .filter plus its sidecar, so re-importing into MirrorFilter later restores your tier config and section hierarchy too, not just a flat rule list.</div>
+            <div><strong>Just the .filter</strong> — only the raw file the game reads. Nothing else.</div>
+            <div><strong>.filter + .meta.json</strong> — the file above, plus its sidecar (so reimporting into MirrorFilter later restores your tier config/section hierarchy too).</div>
+            <div><strong>Entire UserData folder</strong> — your whole working session (settings, custom sounds, tier config, etc.) as one folder copy. <em>May include an outdated .filter</em> if your export path points somewhere other than UserData (see warning below).</div>
+            <div><strong>UserData + .filter + .meta.json (recommended)</strong> — the UserData folder copy above, but with a guaranteed fresh, correctly-current .filter + sidecar written alongside it. This is the only option that's always both complete AND current, no matter where your export path points.</div>
           </div>
         </div>
+        <div class="warn-box"><strong>If your export path points somewhere other than UserData</strong> (e.g. your game folder), the .filter sitting inside your own local UserData folder is just a frozen leftover — it stops updating and has nothing to do with your real, current exports. If you ever browse into UserData by hand and see an old .filter there, that's expected and harmless; it's not the one the game (or your other save locations) actually use.</div>
         <div id="multiSaveLocList" style="margin:8px 0"></div>
         <button class="sh-btn" onclick="addMultiSaveLocation()" data-tip="Pick a folder to add as an extra save destination">📁 Add Location</button>
       </div>
@@ -1554,7 +1558,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
         <input type="radio" name="exportDest" value="default" checked onchange="setExportOpt('default')" style="margin-top:2px;accent-color:var(--accent)">
         <div>
           <div style="font-size:13px;color:var(--text);font-weight:600">&#128193; Default folder (recommended)</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:2px">Downloads the <code>.filter</code> to your browser's Downloads folder. Always works, no setup needed — but picking your Path of Exile 2 folder (below) lets MirrorFilter write straight there.</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">Saves directly to <code style="color:var(--accent)">UserData\</code> inside your MirrorFilter folder. Always works, no setup needed.</div>
         </div>
       </label>
       <label style="display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer" id="exportOptCustom">
@@ -1623,7 +1627,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     <h3>&#9889; Auto-Tier &#8212; Full Explanation</h3>
     <div class="ibox" style="margin-bottom:0">
       <strong>⚡ Auto-Tier fetches live prices and sorts BaseTypes into tiers:</strong><br><br>
-      Check <strong>Tier Sort Target</strong> on rules in the Editor. Rules with this checked in the same section form a sort group. Auto-Tier collects all BaseTypes across the group, prices them via poe.ninja (with poe2scout and poe2db.tw filling gaps), then redistributes each one into the rule whose tier threshold matches its price. BaseTypes below the lowest threshold are removed. Visuals never change.<br><br>
+      Check <strong>Tier Sort Target</strong> on rules in the Editor. Rules with this checked in the same section form a sort group. Auto-Tier collects all BaseTypes across the group, prices them via poe.ninja, then redistributes each one into the rule whose tier threshold matches its price. BaseTypes below the lowest threshold are removed. Visuals never change.<br><br>
       <strong>Tier thresholds</strong> are configurable in <strong>Resources &rarr; Tier System</strong>.<br><br>
       <span class="warn">Rules always stay in their sections.</span> Auto-Tier never moves a rule between sections.
     </div>
@@ -1634,679 +1638,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 <div id="toasts"></div>
 
 <script>
-/* === MirrorFilter Web — verified engine + backend shim (by AdamGs) === */
-// JS port of app.py generate_filter() + normalize_operator_spacing().
-// Goal: byte-identical output to the Python version for the same state.
-
-function normalizeOperatorSpacing(valStr){
-  valStr = String(valStr);
-  if(/^(>=|<=|>|<|=)\s/.test(valStr)) return valStr;
-  return valStr.replace(/^(>=|<=|>|<|=)(\S)/, '$1 $2');
-}
-
-function pad2(n){ return String(n); }
-
-function generateFilter(state, versionStr, timestampStr){
-  const rules = state.rules || [];
-  const filterName = state.filterName || "MyFilter";
-  const sectionOrder = state.sectionOrder || [];
-  const sectionDisabled = state.disabledSecs || {};
-  const customConds = state.customConds || [];
-  const customBt = state.customBTs || [];
-  const theme = state.theme || "darkGold";
-  const league = state.league || "Standard";
-
-  const lines = [
-    `# PoE2 Filter: ${filterName}`,
-    `# Generated by MirrorFilter Editor Tool ${versionStr}`,
-    `# MirrorFilter Editor Tool assisted by Claude`,
-    `# Exported: ${timestampStr}`,
-    `# League: ${league} | Theme: ${theme}`,
-    `# Custom Conditions: ${customConds.length ? customConds.map(c=>c.key).join(',') : 'none'}`,
-    `# Custom BaseTypes: ${customBt.length ? customBt.map(b=>b.value).join(',') : 'none'}`,
-    ""
-  ];
-
-  const sectionTree = state.sectionTree || [];
-  function walk(nodes, prefixParts){
-    const out=[];
-    for(const node of nodes){
-      const nid = node.id;
-      if(!nid) continue;
-      const disp = node.name || nid;
-      const pathParts = prefixParts.concat([disp]);
-      out.push([nid, pathParts.join("->")]);
-      const children = node.children || [];
-      if(children.length) out.push(...walk(children, pathParts));
-    }
-    return out;
-  }
-  let orderedPairs = walk(sectionTree, []);
-  const seenIds = new Set(orderedPairs.map(p=>p[0]));
-
-  const stragglerIds=[];
-  for(const sid of sectionOrder){
-    if(!seenIds.has(sid) && !stragglerIds.includes(sid)) stragglerIds.push(sid);
-  }
-  for(const r of rules){
-    const sid = r.section || "Other";
-    if(!seenIds.has(sid) && !stragglerIds.includes(sid)) stragglerIds.push(sid);
-  }
-  for(const sid of stragglerIds) orderedPairs.push([sid, sid]);
-
-  if(orderedPairs.length===0){
-    const seen=[]; for(const r of rules){const s=r.section||"Other"; if(!seen.includes(s))seen.push(s);}
-    orderedPairs = seen.map(s=>[s,s]);
-  }
-
-  const rulesBySection={};
-  for(const rule of rules){
-    const s=rule.section||"Other";
-    (rulesBySection[s]=rulesBySection[s]||[]).push(rule);
-  }
-
-  const orderedRules=[];
-  const UNQUOTED_ARRAY_KEYS = new Set([
-    "Rarity","Corrupted","Identified","Mirrored","AnyEnchantment",
-    "HasVaalUniqueMod","IsVaalUnique","TwiceCorrupted","AlwaysShow",
-    "HasSearingExarchImplicit","HasEaterOfWorldsImplicit","HasInfluence",
-  ]);
-  const SCALAR_RANGE_KEYS = new Set([
-    "ItemLevel","DropLevel","AreaLevel","WaystoneTier","Quality",
-    "StackSize","GemLevel","Height","Width","Sockets",
-    "BaseArmour","BaseEvasion","BaseEnergyShield","UnidentifiedItemTier",
-  ]);
-
-  for(const [section, sectionPath] of orderedPairs){
-    const srules = rulesBySection[section]||[];
-    const secDisabled = !!sectionDisabled[section];
-    lines.push(`#======================================`);
-    lines.push(`# ${sectionPath}` + (secDisabled ? " [SECTION DISABLED]" : ""));
-    lines.push(`#======================================`);
-    if(srules.length===0){
-      lines.push(`# (no rules in this section)`);
-      lines.push("");
-      continue;
-    }
-    for(const rule of srules){
-      orderedRules.push(rule);
-      const ruleEnabled = (rule.enabled!==false) && !secDisabled;
-      const ruleLines=[];
-      const tierDisp = rule.tier || "\u2014";
-      ruleLines.push(`# ${rule.name} (Tier: ${tierDisp})` + (ruleEnabled ? "" : " [DISABLED]"));
-      ruleLines.push(rule.action);
-      const conds = rule.conditions || {};
-      for(const key of Object.keys(conds)){
-        const val = conds[key];
-        if(key==="ExplicitModMin") continue;
-        if(key==="BaseTypeOp"||key==="ClassOp") continue;
-        if(SCALAR_RANGE_KEYS.has(key) && Array.isArray(val)){
-          for(const constraint of val) ruleLines.push(`    ${key} ${constraint}`);
-          continue;
-        }
-        if(Array.isArray(val)){
-          if(UNQUOTED_ARRAY_KEYS.has(key)){
-            ruleLines.push(`    ${key} ${val.map(v=>String(v)).join(" ")}`);
-            continue;
-          }
-          const quoted = val.map(v=>`"${v}"`).join(" ");
-          if(key==="ExplicitMod"){
-            let op = conds["ExplicitModMin"];
-            if(op) op = normalizeOperatorSpacing(op);
-            ruleLines.push(`    HasExplicitMod ${op?(op+' '):''}${quoted}`);
-          } else if(key==="BaseType"||key==="Class"){
-            let op = conds[key+"Op"] || "";
-            if(op==="PARTIAL") op="";
-            ruleLines.push(`    ${key} ${op?(op+' '):''}${quoted}`);
-          } else {
-            ruleLines.push(`    ${key} ${quoted}`);
-          }
-        } else {
-          const valStr = normalizeOperatorSpacing(val);
-          ruleLines.push(`    ${key} ${valStr}`);
-        }
-      }
-      const v = rule.visuals || {};
-      const tc = v.textColor || [200,200,200,255];
-      const bc = v.bgColor || [0,0,0,255];
-      const bo = v.borderColor || [100,100,100,255];
-      ruleLines.push(`    SetTextColor ${tc[0]} ${tc[1]} ${tc[2]} ${tc[3]}`);
-      ruleLines.push(`    SetBackgroundColor ${bc[0]} ${bc[1]} ${bc[2]} ${bc[3]}`);
-      ruleLines.push(`    SetBorderColor ${bo[0]} ${bo[1]} ${bo[2]} ${bo[3]}`);
-      ruleLines.push(`    SetFontSize ${v.fontSize!==undefined?v.fontSize:32}`);
-      const snd = v.sound!==undefined ? v.sound : "None";
-      if(snd && snd!=="None"){
-        if(String(snd).startsWith("custom:")){
-          const path = String(snd).slice(7);
-          ruleLines.push(`    CustomAlertSound "${path}" 300`);
-        } else {
-          ruleLines.push(`    PlayAlertSound ${snd} 300`);
-        }
-      }
-      const beam = v.beam!==undefined ? v.beam : "None";
-      if(beam && beam!=="None"){
-        const temp = v.beamTemp ? " Temp" : "";
-        ruleLines.push(`    PlayEffect ${beam}${temp}`);
-      }
-      const icon = v.icon || {};
-      const shape = icon.shape!==undefined ? icon.shape : "None";
-      if(shape && shape!=="None"){
-        const sz = icon.size!==undefined ? icon.size : 1;
-        const col = icon.color!==undefined ? icon.color : "White";
-        ruleLines.push(`    MinimapIcon ${sz} ${col} ${shape}`);
-      }
-      if(ruleEnabled){
-        for(const ln of ruleLines) lines.push(ln);
-      } else {
-        lines.push(ruleLines[0]);
-        for(let i=1;i<ruleLines.length;i++) lines.push("# "+ruleLines[i]);
-      }
-      lines.push("");
-    }
-  }
-  return [lines.join("\n"), orderedRules];
-}
-
-
-// JS port of app.py parse_filter_text() + parse_quoted_values().
-// Verified to match Python parse output for the same .filter text.
-
-function parseQuotedValues(rest){
-  const out=[];
-  const re=/"([^"]+)"|([A-Za-z]\S*)/g;
-  let m;
-  while((m=re.exec(rest))!==null){
-    const v = m[1] || m[2];
-    if(v) out.push(v);
-  }
-  return out;
-}
-
-const RULE_BODY_KEYWORDS = [
-  "Show","Hide","SetTextColor","SetBackgroundColor","SetBorderColor","SetFontSize",
-  "PlayAlertSound","CustomAlertSound","PlayEffect","MinimapIcon","HasExplicitMod",
-  "BaseType","Class","Rarity","ItemLevel","DropLevel","AreaLevel","WaystoneTier",
-  "Quality","StackSize","GemLevel","Height","Width","Sockets","Corrupted","Identified",
-  "Mirrored","AlwaysShow","HasVaalUniqueMod","TwiceCorrupted","AnyEnchantment",
-  "IsVaalUnique","BaseArmour","BaseEvasion","BaseEnergyShield","UnidentifiedItemTier",
-];
-function startsWithAny(s, arr){ return arr.some(k=>s.startsWith(k)); }
-
-function parseFilterText(text){
-  const rules=[];
-  const sectionsSeen=[];
-  const sectionTree=[];
-  const sectionDisabled={};
-
-  function ensurePath(pathParts){
-    let level=sectionTree, node=null;
-    for(const part of pathParts){
-      node = level.find(n=>n.id===part) || null;
-      if(node===null){ node={id:part,children:[]}; level.push(node); }
-      level = node.children;
-    }
-    return node;
-  }
-
-  const lines=text.split("\n");
-  let rid=1000;
-  let currentSection="Imported";
-  let pendingName=null, pendingTier=null, pendingRuleDisabled=false;
-  let i=0;
-
-  while(i<lines.length){
-    let ls=lines[i].trim();
-
-    if(ls.startsWith("#===")||ls.startsWith("#---")){ i++; continue; }
-
-    if(pendingRuleDisabled){
-      if(ls===""){ pendingRuleDisabled=false; }
-      else if(ls.startsWith("# ")){
-        const candidate=ls.slice(2).trim();
-        if(startsWithAny(candidate,RULE_BODY_KEYWORDS)) ls=candidate;
-        else pendingRuleDisabled=false;
-      }
-    }
-
-    if(ls.startsWith("#")){
-      let comment=ls.slice(1).trim();
-      const headerPrefixes=["Generated by","MirrorFilter Editor Tool assisted","League:","Custom ",
-        "PoE2 Filter:","PoE Filter:","Exported:","Custom Conditions:","Custom BaseTypes:","Custom Sounds:"];
-      if(headerPrefixes.some(p=>comment.startsWith(p))){ i++; continue; }
-      if(comment.startsWith("(no rules")){ i++; continue; }
-      if(comment.startsWith("[DISABLED]")){ i++; continue; }
-      const ruleDisabledTag=comment.endsWith("[DISABLED]");
-      if(ruleDisabledTag) comment=comment.slice(0,comment.length-"[DISABLED]".length).trim();
-      const m=comment.match(/^(.+?)\s*\(Tier:\s*([^)]+)\)/);
-      if(m){
-        pendingName=m[1].trim();
-        pendingTier=m[2].trim();
-        if(pendingTier==="\u2014") pendingTier=null;
-        pendingRuleDisabled=ruleDisabledTag;
-        i++; continue;
-      }
-      const isDisabled = comment.includes("[SECTION DISABLED]");
-      const sec = comment.replace("[SECTION DISABLED]","").trim();
-      if(sec){
-        let pathParts = sec.split("->").map(p=>p.trim()).filter(Boolean);
-        if(pathParts.length===0) pathParts=[sec];
-        const leaf=pathParts[pathParts.length-1];
-        currentSection=leaf;
-        if(!sectionsSeen.includes(leaf)) sectionsSeen.push(leaf);
-        ensurePath(pathParts);
-        if(isDisabled) sectionDisabled[leaf]=true;
-      }
-      i++; continue;
-    }
-
-    if(ls.startsWith("Show")||ls.startsWith("Hide")){
-      const action=ls.split(/\s+/)[0];
-      const rule={
-        id:`imported_${rid}`,
-        name: pendingName || `Imported Rule ${rid-999}`,
-        section: currentSection,
-        enabled: !pendingRuleDisabled,
-        action: action,
-        conditions:{},
-        visuals:{
-          textColor:[200,200,200,255],
-          bgColor:[0,0,0,200],
-          borderColor:[100,100,100,255],
-          fontSize:32,
-          sound:"None",
-          beam:"None",
-          beamTemp:false,
-          icon:{shape:"None",color:"White",size:1}
-        },
-        tier: pendingTier,
-        chaosValue:0,
-        showTier:false,
-        tierSortTarget:false,
-      };
-      rid++;
-      pendingName=null; pendingTier=null;
-      i++;
-
-      while(i<lines.length){
-        let bls=lines[i].trim();
-        if(!bls){ i++; continue; }
-        if(pendingRuleDisabled && bls.startsWith("# ")){
-          const candidate=bls.slice(2).trim();
-          if(startsWithAny(candidate,RULE_BODY_KEYWORDS)) bls=candidate;
-          else pendingRuleDisabled=false;
-        }
-        if(bls.startsWith("Show")||bls.startsWith("Hide")||bls.startsWith("#")) break;
-
-        if(bls.startsWith("SetTextColor")){
-          const p=bls.split(/\s+/).slice(1);
-          rule.visuals.textColor = p.length>=4 ? p.slice(0,4).map(Number) : p.slice(0,3).map(Number).concat([255]);
-        } else if(bls.startsWith("SetBackgroundColor")){
-          const p=bls.split(/\s+/).slice(1);
-          rule.visuals.bgColor = p.length>=4 ? p.slice(0,4).map(Number) : p.slice(0,3).map(Number).concat([255]);
-        } else if(bls.startsWith("SetBorderColor")){
-          const p=bls.split(/\s+/).slice(1);
-          rule.visuals.borderColor = p.length>=4 ? p.slice(0,4).map(Number) : p.slice(0,3).map(Number).concat([255]);
-        } else if(bls.startsWith("SetFontSize")){
-          const n=parseInt(bls.split(/\s+/)[1],10); if(!isNaN(n)) rule.visuals.fontSize=n;
-        } else if(bls.startsWith("PlayAlertSound")){
-          const p=bls.split(/\s+/); if(p.length>1) rule.visuals.sound=p[1];
-        } else if(bls.startsWith("CustomAlertSound")){
-          const m2=bls.match(/CustomAlertSound\s+"([^"]+)"/); if(m2) rule.visuals.sound="custom:"+m2[1];
-        } else if(bls.startsWith("PlayEffect")){
-          const p=bls.split(/\s+/);
-          rule.visuals.beam = p.length>1 ? p[1] : "None";
-          rule.visuals.beamTemp = p.length>2 && p[2]==="Temp";
-        } else if(bls.startsWith("MinimapIcon")){
-          const p=bls.split(/\s+/);
-          if(p.length>=4){ const sz=parseInt(p[1],10); if(!isNaN(sz)) rule.visuals.icon={size:sz,color:p[2],shape:p[3]}; }
-        } else if(bls.startsWith("HasExplicitMod")){
-          let rest=bls.slice("HasExplicitMod".length).trim();
-          const m=rest.match(/^(>=|<=|>|<|=)\s*(\d+)\s*(.*)$/);
-          if(m){ rule.conditions.ExplicitModMin=m[1]+m[2]; rest=m[3]; }
-          rule.conditions.ExplicitMod=parseQuotedValues(rest);
-          i++; continue;
-        } else {
-          let matched=false;
-          const arrayKeys=["BaseType","Class","Rarity","Corrupted","Identified","Mirrored",
-            "AlwaysShow","HasVaalUniqueMod","TwiceCorrupted","AnyEnchantment",
-            "IsVaalUnique","HasSearingExarchImplicit","HasEaterOfWorldsImplicit",
-            "HasInfluence","SocketType"];
-          for(const ck of arrayKeys){
-            if(bls.startsWith(ck)){
-              let rest=bls.slice(ck.length).trim();
-              const m2=rest.match(/^(==|=)\s*(.*)$/);
-              if(m2 && (ck==="BaseType"||ck==="Class")){ rule.conditions[ck+"Op"]="=="; rest=m2[2]; }
-              rule.conditions[ck]=parseQuotedValues(rest);
-              matched=true; break;
-            }
-          }
-          if(!matched){
-            const scalarKeys=["ItemLevel","DropLevel","AreaLevel","WaystoneTier","Quality",
-              "StackSize","GemLevel","Height","Width","Sockets",
-              "BaseArmour","BaseEvasion","BaseEnergyShield","UnidentifiedItemTier"];
-            for(const ck of scalarKeys){
-              if(bls.startsWith(ck)){
-                const newVal=bls.slice(ck.length).trim();
-                const existing=rule.conditions[ck];
-                if(existing===undefined) rule.conditions[ck]=newVal;
-                else if(Array.isArray(existing)) existing.push(newVal);
-                else rule.conditions[ck]=[existing,newVal];
-                break;
-              }
-            }
-          }
-        }
-        i++;
-      }
-      rules.push(rule);
-      pendingRuleDisabled=false;
-      continue;
-    }
-    i++;
-  }
-  return {rules, sections_seen:sectionsSeen, section_tree:sectionTree, section_disabled:sectionDisabled};
-}
-
-
-
-function buildMeta(state, orderedRules){
-  var ruleFlags={}, ruleSections={};
-  orderedRules.forEach(function(r,i){
-    ruleFlags[String(i)]={
-      tierSortTarget: r.tierSortTarget!==undefined ? r.tierSortTarget : false,
-      showTier: r.showTier!==undefined ? r.showTier : false,
-      tierSortUnpriced: r.tierSortUnpriced!==undefined ? r.tierSortUnpriced : false
-    };
-    ruleSections[String(i)] = r.section!==undefined ? r.section : "";
-  });
-  return {
-    tiers: state.tiers!==undefined ? state.tiers : [],
-    theme: state.theme!==undefined ? state.theme : "darkGold",
-    sectionTree: state.sectionTree!==undefined ? state.sectionTree : [],
-    sectionOrder: state.sectionOrder!==undefined ? state.sectionOrder : [],
-    sectionDisabled: state.disabledSecs!==undefined ? state.disabledSecs : (state.sectionDisabled!==undefined ? state.sectionDisabled : {}),
-    ruleFlags: ruleFlags, ruleSections: ruleSections
-  };
-}
-
-/* ============================================================================
-   MirrorFilter Web — in-browser backend shim  (by AdamGs)
-   Replaces the Python/Flask server. The frontend's API() helper is redefined
-   to dispatch to these handlers instead of fetch()-ing a server. Every
-   /api/* contract is preserved so the existing ~12k-line UI is unchanged.
-
-   Depends on the verified ports: generateFilter(), buildMeta(),
-   parseFilterText() (injected above this file at build time).
-
-   Persistence: IndexedDB (replaces UserData/*.json).
-   Filter save : File System Access API (direct-to-folder) + download fallback.
-   ========================================================================== */
-(function(){
-"use strict";
-
-const VERSION_STR = "v5.200-web";   // web build line
-
-/* ---------- IndexedDB key-value store (replaces UserData/*.json) ---------- */
-const DB_NAME="mirrorfilter", DB_VER=1, STORE="kv";
-function _idb(){
-  return new Promise((res,rej)=>{
-    const r=indexedDB.open(DB_NAME,DB_VER);
-    r.onupgradeneeded=()=>{ if(!r.result.objectStoreNames.contains(STORE)) r.result.createObjectStore(STORE); };
-    r.onsuccess=()=>res(r.result);
-    r.onerror=()=>rej(r.error);
-  });
-}
-async function kvGet(k){ const db=await _idb(); return new Promise((res,rej)=>{ const tx=db.transaction(STORE,"readonly"); const rq=tx.objectStore(STORE).get(k); rq.onsuccess=()=>res(rq.result); rq.onerror=()=>rej(rq.error); }); }
-async function kvSet(k,v){ const db=await _idb(); return new Promise((res,rej)=>{ const tx=db.transaction(STORE,"readwrite"); tx.objectStore(STORE).put(v,k); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error); }); }
-
-// Keys used in the kv store
-const K_STATE="filter_data", K_DEFAULT="default_filter", K_TODO="todo_list",
-      K_LINKS="helpful_links", K_MISSING="missing_values", K_CUSTOM="customizations",
-      K_DIRHANDLE="dirHandle", K_METAPREFIX="meta:";  // meta:<safeName> -> sidecar object
-
-/* ---------- File System Access: linked folder for direct saves ---------- */
-const FS_SUPPORTED = ("showDirectoryPicker" in window);
-let _dirHandle=null;
-
-async function fsRestore(){ try{ const h=await kvGet(K_DIRHANDLE); if(h) _dirHandle=h; }catch(e){} }
-async function fsChooseFolder(){
-  if(!FS_SUPPORTED) throw new Error("This browser has no folder picker. Use Download instead.");
-  _dirHandle = await window.showDirectoryPicker({mode:"readwrite"});
-  await kvSet(K_DIRHANDLE,_dirHandle);
-  return _dirHandle.name;
-}
-async function fsEnsurePerm(h){
-  const opts={mode:"readwrite"};
-  if(await h.queryPermission(opts)==="granted") return true;
-  if(await h.requestPermission(opts)==="granted") return true;
-  return false;
-}
-async function fsWriteFile(handle, name, content){
-  const fh=await handle.getFileHandle(name,{create:true});
-  const w=await fh.createWritable();
-  await w.write(content); await w.close();
-}
-function downloadText(name, content){
-  const blob=new Blob([content],{type:"text/plain"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob); a.download=name; a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
-}
-
-function safeName(fname){
-  const s=String(fname||"").split("").filter(c=>/[A-Za-z0-9 _-]/.test(c)).join("").trim();
-  return s || "MyFilter";
-}
-
-/* ---------- in-memory STATE (mirrors Flask module STATE) ---------- */
-let STATE={};
-
-async function loadInitialState(embeddedState){
-  // Priority: previously-saved IndexedDB state > embedded seed (his real data) > empty
-  let saved=null;
-  try{ saved=await kvGet(K_STATE); }catch(e){}
-  STATE = saved || embeddedState || {};
-  return STATE;
-}
-async function persistState(){ try{ await kvSet(K_STATE, STATE); }catch(e){} }
-
-/* ---------- timestamp like Python datetime.now().strftime("%Y-%m-%d %H:%M") ---------- */
-function nowStamp(){
-  const d=new Date(), p=n=>String(n).padStart(2,"0");
-  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
-}
-
-/* ---------- the in-browser API() dispatcher (replaces the fetch-based one) ---------- */
-async function webAPI(path, method="GET", body=null){
-  body = body || {};
-
-  // --- GET-style reads ---
-  if(path==="/api/ping") return {ok:true};
-  if(path==="/api/state"){
-    if(method==="GET") return STATE;   // Python returns STATE directly (init() does Object.assign(defaults, loaded))
-    // POST: merge + persist (mirrors STATE.update(body) + save_customizations)
-    Object.assign(STATE, body);
-    await persistState();
-    await kvSet(K_CUSTOM,{
-      customConds: STATE.customConds||[],
-      customBTs: STATE.customBTs||[],
-      customSounds: STATE.customSounds||[],
-    });
-    return {ok:true};
-  }
-  if(path==="/api/todo"){
-    if(method==="GET") return {items:(await kvGet(K_TODO))||_defaultTodo()};
-    await kvSet(K_TODO, body.items||[]); return {ok:true};
-  }
-  if(path==="/api/links"){
-    if(method==="GET") return (await kvGet(K_LINKS))||_defaultLinks();
-    await kvSet(K_LINKS,{items:body.items||[],emptyCategories:body.emptyCategories||[]}); return {ok:true};
-  }
-  if(path==="/api/missing-values"){
-    if(method==="GET") return (await kvGet(K_MISSING))||{items:[]};
-    await kvSet(K_MISSING,{items:body.items||[]}); return {ok:true};
-  }
-  if(path==="/api/default-filter"){
-    const d=await kvGet(K_DEFAULT);
-    return d ? {exists:true,state:d} : {exists:false};
-  }
-  if(path==="/api/save-default-filter"){
-    await kvSet(K_DEFAULT, JSON.parse(JSON.stringify(STATE))); return {ok:true};
-  }
-  if(path==="/api/shutdown") return {ok:true};   // no server to stop
-
-  // --- browse-folder: pick the save-target folder via File System Access ---
-  if(path==="/api/browse-folder"){
-    if(!FS_SUPPORTED) return {path:""};   // frontend shows "type the path" toast
-    try{
-      const name=await fsChooseFolder();
-      return {path:name};   // frontend puts this in the export-path field; actual writes use the handle
-    }catch(e){
-      if(e && e.name==="AbortError") return {path:""};  // user cancelled
-      throw e;
-    }
-  }
-  // --- browse-sound-files: browser can't return real disk paths for sounds ---
-  if(path==="/api/browse-sound-files"){
-    // File System Access can pick files but exposing OS paths isn't possible;
-    // the frontend already has a manual-path fallback path. Return empty.
-    return {files:[]};
-  }
-
-  // --- export: generate + meta, write to linked folder (or download) ---
-  if(path==="/api/export"){
-    const fname=STATE.filterName||"MyFilter";
-    const safe=safeName(fname);
-    const [content, ordered]=generateFilter(STATE, VERSION_STR, nowStamp());
-    const meta=buildMeta(STATE, ordered);
-    const filterFile=safe+".filter";
-    // stash meta in kv so a later import can find its sidecar (parity with
-    // the .meta.json written beside the .filter on disk)
-    await kvSet(K_METAPREFIX+safe, meta);
-
-    let savedPath=null, method2="download";
-    if(_dirHandle){
-      if(await fsEnsurePerm(_dirHandle)){
-        await fsWriteFile(_dirHandle, filterFile, content);
-        await fsWriteFile(_dirHandle, filterFile+".meta.json", JSON.stringify(meta,null,2));
-        savedPath=(_dirHandle.name+"/"+filterFile);
-        method2="folder";
-      }
-    }
-    if(method2!=="folder"){
-      downloadText(filterFile, content);   // fallback
-      savedPath="(downloaded) "+filterFile;
-    }
-    return {ok:true, path:savedPath, content, method:method2};
-  }
-
-  // --- multi-save: write to each linked location ---
-  if(path==="/api/multi-save"){
-    // In-browser we can only write to folders the user has granted. locations
-    // carry {path, scope, handle?}. If a handle isn't present we download.
-    const locations=body.locations||[];
-    const results=[];
-    const snap=JSON.parse(JSON.stringify(STATE));
-    const safe=safeName(snap.filterName||"MyFilter");
-    const [content, ordered]=generateFilter(snap, VERSION_STR, nowStamp());
-    const meta=buildMeta(snap, ordered);
-    for(const entry of locations){
-      const loc=(entry.path||"").trim();
-      const scope=entry.scope||"filter";
-      const out={location:loc, scope, ok:false};
-      try{
-        const handle=entry.handle||_dirHandle;
-        if(handle && await fsEnsurePerm(handle)){
-          if(scope==="filter"||scope==="filter_json"||scope==="all"){
-            await fsWriteFile(handle, safe+".filter", content);
-            if(scope!=="filter") await fsWriteFile(handle, safe+".filter.meta.json", JSON.stringify(meta,null,2));
-            out.filterPath=loc+"/"+safe+".filter";
-          }
-          out.ok=true;
-        } else {
-          downloadText(safe+".filter", content);
-          out.filterPath="(downloaded)"; out.ok=true;
-        }
-      }catch(e){ out.error=String(e&&e.message||e); }
-      results.push(out);
-    }
-    return {results};
-  }
-
-  // --- import: parse text in-browser, attach meta sidecar from kv if present ---
-  if(path==="/api/import"){
-    const text=body.content||"";
-    const parsed=parseFilterText(text);
-    const rules=parsed.rules, sections=parsed.sections_seen.slice();
-    for(const r of rules){ if(!sections.includes(r.section)) sections.push(r.section); }
-    let meta=null;
-    const filename=body.filename||"";
-    if(filename){
-      let base=filename;
-      if(base.toLowerCase().endsWith(".filter")) base=base.slice(0,-7);
-      meta=(await kvGet(K_METAPREFIX+safeName(base)))||null;
-    }
-    return {rules, sections, meta, parsedTree:parsed.section_tree, parsedDisabled:parsed.section_disabled};
-  }
-
-  // --- autotier: economy (Stage 5 — placeholder until wired) ---
-  if(path==="/api/autotier"){
-    return {ok:true, rules:STATE.rules||[], prices:{}, inferred:[], error:"Economy fetch not yet wired (Stage 5)."};
-  }
-
-  throw new Error("Unknown API path: "+path);
-}
-
-/* ---------- default seed data (mirrors app.py DEFAULT_TODO_ITEMS / links) ---------- */
-function _defaultTodo(){ return []; }      // replaced at build time with real defaults if desired
-function _defaultLinks(){ return {items:[], emptyCategories:[]}; }
-
-/* ---------- expose for the app boot + folder button ---------- */
-window.MF_WEB = {
-  install(embeddedState){
-    // Replace the global API() the whole UI already calls.
-    window.API = webAPI;
-    // Also intercept raw fetch('/api/*') calls — several features (todo, links,
-    // missing-values, default-filter) call fetch() directly, not via API().
-    // We wrap fetch so ANY /api/* request is served by the in-browser shim and
-    // returned as a Response-like object the callers expect (.json(), .ok).
-    if(!window._mfFetchWrapped){
-      const realFetch = window.fetch ? window.fetch.bind(window) : null;
-      window.fetch = async function(input, opts){
-        const url = (typeof input==="string") ? input : (input && input.url) || "";
-        const pathOnly = String(url).split("?")[0];
-        if(pathOnly.indexOf("/api/")!==-1){
-          const apiPath = pathOnly.slice(pathOnly.indexOf("/api/"));
-          const method = (opts && opts.method) || "GET";
-          let body=null;
-          if(opts && opts.body){ try{ body=JSON.parse(opts.body); }catch(e){ body=opts.body; } }
-          let data;
-          try{ data = await webAPI(apiPath, method, body); }
-          catch(e){ data = {error:String(e&&e.message||e)}; }
-          const json = JSON.stringify(data);
-          return {
-            ok:true, status:200,
-            json: async()=>JSON.parse(json),
-            text: async()=>json,
-          };
-        }
-        if(realFetch) return realFetch(input, opts);
-        throw new Error("fetch unavailable for "+url);
-      };
-      window._mfFetchWrapped=true;
-    }
-    return loadInitialState(embeddedState);
-  },
-  fsChooseFolder, fsRestore,
-  get dirLinked(){ return !!_dirHandle; },
-  get dirName(){ return _dirHandle ? _dirHandle.name : null; },
-  fsSupported: FS_SUPPORTED,
-  _debug:{ get state(){return STATE;}, webAPI },
-};
-
-})();
-
-/* embedded seed state — used only on first run when IndexedDB is empty */
+/* === MirrorFilter Web config (must precede engine/shim) === */
 window.__MF_SEED__ = {
   "rules": [
     {
@@ -28531,6 +27863,676 @@ window.__MF_DEFAULT_TODO__ = [
     "done": true
   }
 ];
+window.__MF_ECON_WORKER__ = "https://mirrorfilter-econ.adamandlisag.workers.dev";
+/* === MirrorFilter Web engine + backend shim (by AdamGs) === */
+/* MirrorFilter engine — verified JS ports of app.py generate_filter,
+   parse_filter_text, buildMeta. Byte-identical to the Python output. */
+
+function normalizeOperatorSpacing(valStr){
+  valStr = String(valStr);
+  if(/^(>=|<=|>|<|=)\s/.test(valStr)) return valStr;
+  return valStr.replace(/^(>=|<=|>|<|=)(\S)/, '$1 $2');
+}
+
+function generateFilter(state, versionStr, timestampStr){
+  const rules = state.rules || [];
+  const filterName = state.filterName || "MyFilter";
+  const sectionOrder = state.sectionOrder || [];
+  const sectionDisabled = state.disabledSecs || {};
+  const customConds = state.customConds || [];
+  const customBt = state.customBTs || [];
+  const theme = state.theme || "darkGold";
+  const league = state.league || "Standard";
+
+  const lines = [
+    `# PoE2 Filter: ${filterName}`,
+    `# Generated by MirrorFilter Editor Tool ${versionStr}`,
+    `# MirrorFilter Editor Tool assisted by Claude`,
+    `# Exported: ${timestampStr}`,
+    `# League: ${league} | Theme: ${theme}`,
+    `# Custom Conditions: ${customConds.length ? customConds.map(c=>c.key).join(',') : 'none'}`,
+    `# Custom BaseTypes: ${customBt.length ? customBt.map(b=>b.value).join(',') : 'none'}`,
+    ""
+  ];
+
+  const sectionTree = state.sectionTree || [];
+  function walk(nodes, prefixParts){
+    const out=[];
+    for(const node of nodes){
+      const nid = node.id;
+      if(!nid) continue;
+      const disp = node.name || nid;
+      const pathParts = prefixParts.concat([disp]);
+      out.push([nid, pathParts.join("->")]);
+      const children = node.children || [];
+      if(children.length) out.push(...walk(children, pathParts));
+    }
+    return out;
+  }
+  let orderedPairs = walk(sectionTree, []);
+  const seenIds = new Set(orderedPairs.map(p=>p[0]));
+
+  const stragglerIds=[];
+  for(const sid of sectionOrder){
+    if(!seenIds.has(sid) && !stragglerIds.includes(sid)) stragglerIds.push(sid);
+  }
+  for(const r of rules){
+    const sid = r.section || "Other";
+    if(!seenIds.has(sid) && !stragglerIds.includes(sid)) stragglerIds.push(sid);
+  }
+  for(const sid of stragglerIds) orderedPairs.push([sid, sid]);
+
+  if(orderedPairs.length===0){
+    const seen=[]; for(const r of rules){const s=r.section||"Other"; if(!seen.includes(s))seen.push(s);}
+    orderedPairs = seen.map(s=>[s,s]);
+  }
+
+  const rulesBySection={};
+  for(const rule of rules){
+    const s=rule.section||"Other";
+    (rulesBySection[s]=rulesBySection[s]||[]).push(rule);
+  }
+
+  const orderedRules=[];
+  const UNQUOTED_ARRAY_KEYS = new Set([
+    "Rarity","Corrupted","Identified","Mirrored","AnyEnchantment",
+    "HasVaalUniqueMod","IsVaalUnique","TwiceCorrupted","AlwaysShow",
+    "HasSearingExarchImplicit","HasEaterOfWorldsImplicit","HasInfluence",
+  ]);
+  const SCALAR_RANGE_KEYS = new Set([
+    "ItemLevel","DropLevel","AreaLevel","WaystoneTier","Quality",
+    "StackSize","GemLevel","Height","Width","Sockets",
+    "BaseArmour","BaseEvasion","BaseEnergyShield","UnidentifiedItemTier",
+  ]);
+
+  for(const [section, sectionPath] of orderedPairs){
+    const srules = rulesBySection[section]||[];
+    const secDisabled = !!sectionDisabled[section];
+    lines.push(`#======================================`);
+    lines.push(`# ${sectionPath}` + (secDisabled ? " [SECTION DISABLED]" : ""));
+    lines.push(`#======================================`);
+    if(srules.length===0){
+      lines.push(`# (no rules in this section)`);
+      lines.push("");
+      continue;
+    }
+    for(const rule of srules){
+      orderedRules.push(rule);
+      const ruleEnabled = (rule.enabled!==false) && !secDisabled;
+      const ruleLines=[];
+      const tierDisp = rule.tier || "\u2014";
+      ruleLines.push(`# ${rule.name} (Tier: ${tierDisp})` + (ruleEnabled ? "" : " [DISABLED]"));
+      ruleLines.push(rule.action);
+      const conds = rule.conditions || {};
+      for(const key of Object.keys(conds)){
+        const val = conds[key];
+        if(key==="ExplicitModMin") continue;
+        if(key==="BaseTypeOp"||key==="ClassOp") continue;
+        if(SCALAR_RANGE_KEYS.has(key) && Array.isArray(val)){
+          for(const constraint of val) ruleLines.push(`    ${key} ${constraint}`);
+          continue;
+        }
+        if(Array.isArray(val)){
+          if(UNQUOTED_ARRAY_KEYS.has(key)){
+            ruleLines.push(`    ${key} ${val.map(v=>String(v)).join(" ")}`);
+            continue;
+          }
+          const quoted = val.map(v=>`"${v}"`).join(" ");
+          if(key==="ExplicitMod"){
+            let op = conds["ExplicitModMin"];
+            if(op) op = normalizeOperatorSpacing(op);
+            ruleLines.push(`    HasExplicitMod ${op?(op+' '):''}${quoted}`);
+          } else if(key==="BaseType"||key==="Class"){
+            let op = conds[key+"Op"] || "";
+            if(op==="PARTIAL") op="";
+            ruleLines.push(`    ${key} ${op?(op+' '):''}${quoted}`);
+          } else {
+            ruleLines.push(`    ${key} ${quoted}`);
+          }
+        } else {
+          const valStr = normalizeOperatorSpacing(val);
+          ruleLines.push(`    ${key} ${valStr}`);
+        }
+      }
+      const v = rule.visuals || {};
+      const tc = v.textColor || [200,200,200,255];
+      const bc = v.bgColor || [0,0,0,255];
+      const bo = v.borderColor || [100,100,100,255];
+      ruleLines.push(`    SetTextColor ${tc[0]} ${tc[1]} ${tc[2]} ${tc[3]}`);
+      ruleLines.push(`    SetBackgroundColor ${bc[0]} ${bc[1]} ${bc[2]} ${bc[3]}`);
+      ruleLines.push(`    SetBorderColor ${bo[0]} ${bo[1]} ${bo[2]} ${bo[3]}`);
+      ruleLines.push(`    SetFontSize ${v.fontSize!==undefined?v.fontSize:32}`);
+      const snd = v.sound!==undefined ? v.sound : "None";
+      if(snd && snd!=="None"){
+        if(String(snd).startsWith("custom:")){
+          const path = String(snd).slice(7);
+          ruleLines.push(`    CustomAlertSound "${path}" 300`);
+        } else {
+          ruleLines.push(`    PlayAlertSound ${snd} 300`);
+        }
+      }
+      const beam = v.beam!==undefined ? v.beam : "None";
+      if(beam && beam!=="None"){
+        const temp = v.beamTemp ? " Temp" : "";
+        ruleLines.push(`    PlayEffect ${beam}${temp}`);
+      }
+      const icon = v.icon || {};
+      const shape = icon.shape!==undefined ? icon.shape : "None";
+      if(shape && shape!=="None"){
+        const sz = icon.size!==undefined ? icon.size : 1;
+        const col = icon.color!==undefined ? icon.color : "White";
+        ruleLines.push(`    MinimapIcon ${sz} ${col} ${shape}`);
+      }
+      if(ruleEnabled){
+        for(const ln of ruleLines) lines.push(ln);
+      } else {
+        lines.push(ruleLines[0]);
+        for(let i=1;i<ruleLines.length;i++) lines.push("# "+ruleLines[i]);
+      }
+      lines.push("");
+    }
+  }
+  return [lines.join("\n"), orderedRules];
+}
+
+function buildMeta(state, orderedRules){
+  const ruleFlags={}, ruleSections={};
+  orderedRules.forEach((r,i)=>{
+    ruleFlags[String(i)]={
+      tierSortTarget: r.tierSortTarget!==undefined ? r.tierSortTarget : false,
+      showTier: r.showTier!==undefined ? r.showTier : false,
+      tierSortUnpriced: r.tierSortUnpriced!==undefined ? r.tierSortUnpriced : false,
+    };
+    ruleSections[String(i)] = r.section!==undefined ? r.section : "";
+  });
+  return {
+    tiers: state.tiers!==undefined ? state.tiers : [],
+    theme: state.theme!==undefined ? state.theme : "darkGold",
+    sectionTree: state.sectionTree!==undefined ? state.sectionTree : [],
+    sectionOrder: state.sectionOrder!==undefined ? state.sectionOrder : [],
+    sectionDisabled: state.disabledSecs!==undefined ? state.disabledSecs : (state.sectionDisabled!==undefined ? state.sectionDisabled : {}),
+    ruleFlags, ruleSections,
+  };
+}
+
+function parseQuotedValues(rest){
+  const out=[];
+  const re=/"([^"]+)"|([A-Za-z]\S*)/g;
+  let m;
+  while((m=re.exec(rest))!==null){
+    const v = m[1] || m[2];
+    if(v) out.push(v);
+  }
+  return out;
+}
+
+const RULE_BODY_KEYWORDS = [
+  "Show","Hide","SetTextColor","SetBackgroundColor","SetBorderColor","SetFontSize",
+  "PlayAlertSound","CustomAlertSound","PlayEffect","MinimapIcon","HasExplicitMod",
+  "BaseType","Class","Rarity","ItemLevel","DropLevel","AreaLevel","WaystoneTier",
+  "Quality","StackSize","GemLevel","Height","Width","Sockets","Corrupted","Identified",
+  "Mirrored","AlwaysShow","HasVaalUniqueMod","TwiceCorrupted","AnyEnchantment",
+  "IsVaalUnique","BaseArmour","BaseEvasion","BaseEnergyShield","UnidentifiedItemTier",
+];
+function startsWithAny(s, arr){ return arr.some(k=>s.startsWith(k)); }
+
+function parseFilterText(text){
+  const rules=[];
+  const sectionsSeen=[];
+  const sectionTree=[];
+  const sectionDisabled={};
+
+  function ensurePath(pathParts){
+    let level=sectionTree, node=null;
+    for(const part of pathParts){
+      node = level.find(n=>n.id===part) || null;
+      if(node===null){ node={id:part,children:[]}; level.push(node); }
+      level = node.children;
+    }
+    return node;
+  }
+
+  const lines=text.split("\n");
+  let rid=1000;
+  let currentSection="Imported";
+  let pendingName=null, pendingTier=null, pendingRuleDisabled=false;
+  let i=0;
+
+  while(i<lines.length){
+    let ls=lines[i].trim();
+
+    if(ls.startsWith("#===")||ls.startsWith("#---")){ i++; continue; }
+
+    if(pendingRuleDisabled){
+      if(ls===""){ pendingRuleDisabled=false; }
+      else if(ls.startsWith("# ")){
+        const candidate=ls.slice(2).trim();
+        if(startsWithAny(candidate,RULE_BODY_KEYWORDS)) ls=candidate;
+        else pendingRuleDisabled=false;
+      }
+    }
+
+    if(ls.startsWith("#")){
+      let comment=ls.slice(1).trim();
+      const headerPrefixes=["Generated by","MirrorFilter Editor Tool assisted","League:","Custom ",
+        "PoE2 Filter:","PoE Filter:","Exported:","Custom Conditions:","Custom BaseTypes:","Custom Sounds:"];
+      if(headerPrefixes.some(p=>comment.startsWith(p))){ i++; continue; }
+      if(comment.startsWith("(no rules")){ i++; continue; }
+      if(comment.startsWith("[DISABLED]")){ i++; continue; }
+      const ruleDisabledTag=comment.endsWith("[DISABLED]");
+      if(ruleDisabledTag) comment=comment.slice(0,comment.length-"[DISABLED]".length).trim();
+      const m=comment.match(/^(.+?)\s*\(Tier:\s*([^)]+)\)/);
+      if(m){
+        pendingName=m[1].trim();
+        pendingTier=m[2].trim();
+        if(pendingTier==="\u2014") pendingTier=null;
+        pendingRuleDisabled=ruleDisabledTag;
+        i++; continue;
+      }
+      const isDisabled = comment.includes("[SECTION DISABLED]");
+      const sec = comment.replace("[SECTION DISABLED]","").trim();
+      if(sec){
+        let pathParts = sec.split("->").map(p=>p.trim()).filter(Boolean);
+        if(pathParts.length===0) pathParts=[sec];
+        const leaf=pathParts[pathParts.length-1];
+        currentSection=leaf;
+        if(!sectionsSeen.includes(leaf)) sectionsSeen.push(leaf);
+        ensurePath(pathParts);
+        if(isDisabled) sectionDisabled[leaf]=true;
+      }
+      i++; continue;
+    }
+
+    if(ls.startsWith("Show")||ls.startsWith("Hide")){
+      const action=ls.split(/\s+/)[0];
+      const rule={
+        id:`imported_${rid}`,
+        name: pendingName || `Imported Rule ${rid-999}`,
+        section: currentSection,
+        enabled: !pendingRuleDisabled,
+        action: action,
+        conditions:{},
+        visuals:{
+          textColor:[200,200,200,255],
+          bgColor:[0,0,0,200],
+          borderColor:[100,100,100,255],
+          fontSize:32,
+          sound:"None",
+          beam:"None",
+          beamTemp:false,
+          icon:{shape:"None",color:"White",size:1}
+        },
+        tier: pendingTier,
+        chaosValue:0,
+        showTier:false,
+        tierSortTarget:false,
+      };
+      rid++;
+      pendingName=null; pendingTier=null;
+      i++;
+
+      while(i<lines.length){
+        let bls=lines[i].trim();
+        if(!bls){ i++; continue; }
+        if(pendingRuleDisabled && bls.startsWith("# ")){
+          const candidate=bls.slice(2).trim();
+          if(startsWithAny(candidate,RULE_BODY_KEYWORDS)) bls=candidate;
+          else pendingRuleDisabled=false;
+        }
+        if(bls.startsWith("Show")||bls.startsWith("Hide")||bls.startsWith("#")) break;
+
+        if(bls.startsWith("SetTextColor")){
+          const p=bls.split(/\s+/).slice(1);
+          rule.visuals.textColor = p.length>=4 ? p.slice(0,4).map(Number) : p.slice(0,3).map(Number).concat([255]);
+        } else if(bls.startsWith("SetBackgroundColor")){
+          const p=bls.split(/\s+/).slice(1);
+          rule.visuals.bgColor = p.length>=4 ? p.slice(0,4).map(Number) : p.slice(0,3).map(Number).concat([255]);
+        } else if(bls.startsWith("SetBorderColor")){
+          const p=bls.split(/\s+/).slice(1);
+          rule.visuals.borderColor = p.length>=4 ? p.slice(0,4).map(Number) : p.slice(0,3).map(Number).concat([255]);
+        } else if(bls.startsWith("SetFontSize")){
+          const n=parseInt(bls.split(/\s+/)[1],10); if(!isNaN(n)) rule.visuals.fontSize=n;
+        } else if(bls.startsWith("PlayAlertSound")){
+          const p=bls.split(/\s+/); if(p.length>1) rule.visuals.sound=p[1];
+        } else if(bls.startsWith("CustomAlertSound")){
+          const m2=bls.match(/CustomAlertSound\s+"([^"]+)"/); if(m2) rule.visuals.sound="custom:"+m2[1];
+        } else if(bls.startsWith("PlayEffect")){
+          const p=bls.split(/\s+/);
+          rule.visuals.beam = p.length>1 ? p[1] : "None";
+          rule.visuals.beamTemp = p.length>2 && p[2]==="Temp";
+        } else if(bls.startsWith("MinimapIcon")){
+          const p=bls.split(/\s+/);
+          if(p.length>=4){ const sz=parseInt(p[1],10); if(!isNaN(sz)) rule.visuals.icon={size:sz,color:p[2],shape:p[3]}; }
+        } else if(bls.startsWith("HasExplicitMod")){
+          let rest=bls.slice("HasExplicitMod".length).trim();
+          const m=rest.match(/^(>=|<=|>|<|=)\s*(\d+)\s*(.*)$/);
+          if(m){ rule.conditions.ExplicitModMin=m[1]+m[2]; rest=m[3]; }
+          rule.conditions.ExplicitMod=parseQuotedValues(rest);
+          i++; continue;
+        } else {
+          let matched=false;
+          const arrayKeys=["BaseType","Class","Rarity","Corrupted","Identified","Mirrored",
+            "AlwaysShow","HasVaalUniqueMod","TwiceCorrupted","AnyEnchantment",
+            "IsVaalUnique","HasSearingExarchImplicit","HasEaterOfWorldsImplicit",
+            "HasInfluence","SocketType"];
+          for(const ck of arrayKeys){
+            if(bls.startsWith(ck)){
+              let rest=bls.slice(ck.length).trim();
+              const m2=rest.match(/^(==|=)\s*(.*)$/);
+              if(m2 && (ck==="BaseType"||ck==="Class")){ rule.conditions[ck+"Op"]="=="; rest=m2[2]; }
+              rule.conditions[ck]=parseQuotedValues(rest);
+              matched=true; break;
+            }
+          }
+          if(!matched){
+            const scalarKeys=["ItemLevel","DropLevel","AreaLevel","WaystoneTier","Quality",
+              "StackSize","GemLevel","Height","Width","Sockets",
+              "BaseArmour","BaseEvasion","BaseEnergyShield","UnidentifiedItemTier"];
+            for(const ck of scalarKeys){
+              if(bls.startsWith(ck)){
+                const newVal=bls.slice(ck.length).trim();
+                const existing=rule.conditions[ck];
+                if(existing===undefined) rule.conditions[ck]=newVal;
+                else if(Array.isArray(existing)) existing.push(newVal);
+                else rule.conditions[ck]=[existing,newVal];
+                break;
+              }
+            }
+          }
+        }
+        i++;
+      }
+      rules.push(rule);
+      pendingRuleDisabled=false;
+      continue;
+    }
+    i++;
+  }
+  return {rules, sections_seen:sectionsSeen, section_tree:sectionTree, section_disabled:sectionDisabled};
+}
+
+
+/* ============================================================================
+   MirrorFilter Web — in-browser backend shim (by AdamGs)
+   Replaces the Python/Flask server. Redefines window.API + wraps window.fetch
+   so every /api/* call is served in-browser. Depends on engine.js functions
+   (generateFilter, buildMeta, parseFilterText) injected above at build time.
+   Persistence: IndexedDB. Filter save: File System Access + download fallback.
+   ========================================================================== */
+(function(){
+"use strict";
+
+const VERSION_STR = "Web";
+
+/* ---------- IndexedDB kv store ---------- */
+const DB_NAME="mirrorfilter", DB_VER=1, STORE="kv";
+function _idb(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(DB_NAME,DB_VER);
+    r.onupgradeneeded=()=>{ if(!r.result.objectStoreNames.contains(STORE)) r.result.createObjectStore(STORE); };
+    r.onsuccess=()=>res(r.result);
+    r.onerror=()=>rej(r.error);
+  });
+}
+async function kvGet(k){ const db=await _idb(); return new Promise((res,rej)=>{ const tx=db.transaction(STORE,"readonly"); const rq=tx.objectStore(STORE).get(k); rq.onsuccess=()=>res(rq.result); rq.onerror=()=>rej(rq.error); }); }
+async function kvSet(k,v){ const db=await _idb(); return new Promise((res,rej)=>{ const tx=db.transaction(STORE,"readwrite"); tx.objectStore(STORE).put(v,k); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error); }); }
+
+const K_STATE="filter_data", K_DEFAULT="default_filter", K_TODO="todo_list",
+      K_LINKS="helpful_links", K_MISSING="missing_values", K_CUSTOM="customizations",
+      K_DIRHANDLE="dirHandle", K_METAPREFIX="meta:";
+
+/* ---------- File System Access ---------- */
+const FS_SUPPORTED = ("showDirectoryPicker" in window);
+let _dirHandle=null;
+async function fsRestore(){ try{ const h=await kvGet(K_DIRHANDLE); if(h) _dirHandle=h; }catch(e){} }
+async function fsChooseFolder(){
+  if(!FS_SUPPORTED) throw new Error("This browser has no folder picker. Use Download instead.");
+  _dirHandle = await window.showDirectoryPicker({mode:"readwrite"});
+  await kvSet(K_DIRHANDLE,_dirHandle);
+  return _dirHandle.name;
+}
+async function fsEnsurePerm(h){
+  const opts={mode:"readwrite"};
+  if(await h.queryPermission(opts)==="granted") return true;
+  if(await h.requestPermission(opts)==="granted") return true;
+  return false;
+}
+async function fsWriteFile(handle, name, content){
+  const fh=await handle.getFileHandle(name,{create:true});
+  const w=await fh.createWritable();
+  await w.write(content); await w.close();
+}
+function downloadText(name, content){
+  const blob=new Blob([content],{type:"text/plain"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+}
+function safeName(fname){
+  const s=String(fname||"").split("").filter(c=>/[A-Za-z0-9 _-]/.test(c)).join("").trim();
+  return s || "MyFilter";
+}
+
+/* ---------- STATE ---------- */
+let STATE={};
+async function loadInitialState(embeddedState){
+  let saved=null;
+  try{ saved=await kvGet(K_STATE); }catch(e){}
+  STATE = saved || embeddedState || {};
+  return STATE;
+}
+async function persistState(){ try{ await kvSet(K_STATE, STATE); }catch(e){} }
+
+function nowStamp(){
+  const d=new Date(), p=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+/* ---------- economy (Auto-Tier) ---------- */
+const ECON_WORKER_URL = window.__MF_ECON_WORKER__ || "";
+function parseNinjaOverview(data, results){
+  const core = data.core || {};
+  let itemMap = {};
+  for(const i of (data.items||[])) if(i.id && i.name) itemMap[i.id]=i.name;
+  if(Object.keys(itemMap).length===0)
+    for(const i of (core.items||[])) if(i.id && i.name) itemMap[i.id]=i.name;
+  const secondaryId = core.secondary || "chaos";
+  const lines = data.lines || [];
+  let chaosPv=null;
+  for(const l of lines) if(l.id===secondaryId){ chaosPv=l.primaryValue; break; }
+  if(chaosPv==null){ const rate=(core.rates||{})[secondaryId]; chaosPv=rate?(1/rate):null; }
+  if(chaosPv && chaosPv>0){
+    for(const line of lines){
+      const name=itemMap[line.id]; const rawPv=line.primaryValue||0;
+      if(!name||!rawPv||rawPv<=0) continue;
+      const chaos=rawPv/chaosPv;
+      if(chaos<=0) continue;
+      if(!(name in results)) results[name]=Math.round(chaos*100)/100;
+    }
+  }
+}
+async function econTryDirect(league){
+  const cats=["Currency","Runes","SoulCores","Essences","Fragments","Breach","Ritual",
+    "Delirium","Expedition","Abyss","UncutGems","LineageSupportGems","Idols","Verisium"];
+  const results={};
+  const lq=encodeURIComponent(league);
+  const rf = window._realFetch || window.fetch;
+  for(const type of cats){
+    const url=`https://poe.ninja/poe2/api/economy/exchange/current/overview?league=${lq}&type=${type}`;
+    const r=await rf(url,{headers:{"Accept":"application/json"}});
+    if(!r.ok) continue;
+    const data=await r.json();
+    parseNinjaOverview(data, results);
+  }
+  if(Object.keys(results).length===0) throw new Error("direct returned no data");
+  return {prices:results, inferred:[]};
+}
+async function econTryWorker(league){
+  if(!ECON_WORKER_URL) throw new Error("no economy worker configured");
+  const rf = window._realFetch || window.fetch;
+  const r = await rf(ECON_WORKER_URL + "?league=" + encodeURIComponent(league));
+  if(!r.ok) throw new Error("worker HTTP " + r.status);
+  const j = await r.json();
+  if(!j.ok) throw new Error(j.error || "worker error");
+  return {prices: j.prices || {}, inferred: j.inferred || []};
+}
+
+/* ---------- the API dispatcher ---------- */
+async function webAPI(path, method="GET", body=null){
+  body = body || {};
+
+  if(path==="/api/ping") return {ok:true};
+  if(path==="/api/state"){
+    if(method==="GET") return STATE;   // Python returns STATE directly
+    Object.assign(STATE, body);
+    await persistState();
+    await kvSet(K_CUSTOM,{ customConds: STATE.customConds||[], customBTs: STATE.customBTs||[], customSounds: STATE.customSounds||[] });
+    return {ok:true};
+  }
+  if(path==="/api/todo"){
+    if(method==="GET") return {items:(await kvGet(K_TODO))|| (window.__MF_DEFAULT_TODO__||[]) };
+    await kvSet(K_TODO, body.items||[]); return {ok:true};
+  }
+  if(path==="/api/links"){
+    if(method==="GET") return (await kvGet(K_LINKS))|| (window.__MF_DEFAULT_LINKS__||{items:[],emptyCategories:[]});
+    await kvSet(K_LINKS,{items:body.items||[],emptyCategories:body.emptyCategories||[]}); return {ok:true};
+  }
+  if(path==="/api/missing-values"){
+    if(method==="GET") return (await kvGet(K_MISSING))||{items:[]};
+    await kvSet(K_MISSING,{items:body.items||[]}); return {ok:true};
+  }
+  if(path==="/api/default-filter"){
+    const d=await kvGet(K_DEFAULT);
+    return d ? {exists:true,state:d} : {exists:false};
+  }
+  if(path==="/api/save-default-filter"){
+    await kvSet(K_DEFAULT, JSON.parse(JSON.stringify(STATE))); return {ok:true};
+  }
+  if(path==="/api/shutdown") return {ok:true};
+
+  if(path==="/api/browse-folder"){
+    if(!FS_SUPPORTED) return {path:""};
+    try{ const name=await fsChooseFolder(); return {path:name}; }
+    catch(e){ if(e && e.name==="AbortError") return {path:""}; throw e; }
+  }
+  if(path==="/api/browse-sound-files"){ return {files:[]}; }
+
+  if(path==="/api/export"){
+    const fname=STATE.filterName||"MyFilter";
+    const safe=safeName(fname);
+    const [content, ordered]=generateFilter(STATE, VERSION_STR, nowStamp());
+    const meta=buildMeta(STATE, ordered);
+    const filterFile=safe+".filter";
+    await kvSet(K_METAPREFIX+safe, meta);
+    let savedPath=null, method2="download";
+    if(_dirHandle){
+      if(await fsEnsurePerm(_dirHandle)){
+        await fsWriteFile(_dirHandle, filterFile, content);
+        await fsWriteFile(_dirHandle, filterFile+".meta.json", JSON.stringify(meta,null,2));
+        savedPath=(_dirHandle.name+"/"+filterFile);
+        method2="folder";
+      }
+    }
+    if(method2!=="folder"){ downloadText(filterFile, content); savedPath="(downloaded) "+filterFile; }
+    return {ok:true, path:savedPath, content, method:method2};
+  }
+
+  if(path==="/api/multi-save"){
+    const locations=body.locations||[];
+    const results=[];
+    const snap=JSON.parse(JSON.stringify(STATE));
+    const safe=safeName(snap.filterName||"MyFilter");
+    const [content, ordered]=generateFilter(snap, VERSION_STR, nowStamp());
+    const meta=buildMeta(snap, ordered);
+    for(const entry of locations){
+      const loc=(entry.path||"").trim();
+      const scope=entry.scope||"filter";
+      const out={location:loc, scope, ok:false};
+      try{
+        const handle=entry.handle||_dirHandle;
+        if(handle && await fsEnsurePerm(handle)){
+          await fsWriteFile(handle, safe+".filter", content);
+          if(scope!=="filter") await fsWriteFile(handle, safe+".filter.meta.json", JSON.stringify(meta,null,2));
+          out.filterPath=loc+"/"+safe+".filter"; out.ok=true;
+        } else { downloadText(safe+".filter", content); out.filterPath="(downloaded)"; out.ok=true; }
+      }catch(e){ out.error=String(e&&e.message||e); }
+      results.push(out);
+    }
+    return {results};
+  }
+
+  if(path==="/api/import"){
+    const text=body.content||"";
+    const parsed=parseFilterText(text);
+    const rules=parsed.rules, sections=parsed.sections_seen.slice();
+    for(const r of rules){ if(!sections.includes(r.section)) sections.push(r.section); }
+    let meta=null;
+    const filename=body.filename||"";
+    if(filename){
+      let base=filename;
+      if(base.toLowerCase().endsWith(".filter")) base=base.slice(0,-7);
+      meta=(await kvGet(K_METAPREFIX+safeName(base)))||null;
+    }
+    return {rules, sections, meta, parsedTree:parsed.section_tree, parsedDisabled:parsed.section_disabled};
+  }
+
+  if(path==="/api/autotier"){
+    const league=(body && body.league) || "Standard";
+    const rulesNow=STATE.rules || [];   // never let a failed fetch wipe these
+    let prices={}, inferred=[], err=null;
+    try{
+      let got;
+      try{ got=await econTryDirect(league); }
+      catch(_){ got=await econTryWorker(league); }
+      prices=got.prices; inferred=got.inferred;
+      try{ await kvSet("econ:"+league, {prices, inferred, ts:Date.now()}); }catch(_){}
+    }catch(e){
+      err=String(e && e.message || e);
+      try{ const c=await kvGet("econ:"+league); if(c && c.prices){ prices=c.prices; inferred=c.inferred||[]; err=null; } }catch(_){}
+    }
+    return { ok:true, rules: rulesNow, prices, inferred, error: err };
+  }
+
+  throw new Error("Unknown API path: "+path);
+}
+
+/* ---------- install ---------- */
+window.MF_WEB = {
+  install(embeddedState){
+    window.API = webAPI;
+    if(!window._mfFetchWrapped){
+      const realFetch = window.fetch ? window.fetch.bind(window) : null;
+      window._realFetch = realFetch;   // used by economy direct-fetch
+      window.fetch = async function(input, opts){
+        const url = (typeof input==="string") ? input : (input && input.url) || "";
+        const pathOnly = String(url).split("?")[0];
+        if(pathOnly.indexOf("/api/")!==-1){
+          const apiPath = pathOnly.slice(pathOnly.indexOf("/api/"));
+          const method = (opts && opts.method) || "GET";
+          let body=null;
+          if(opts && opts.body){ try{ body=JSON.parse(opts.body); }catch(e){ body=opts.body; } }
+          let data;
+          try{ data = await webAPI(apiPath, method, body); }
+          catch(e){ data = {error:String(e&&e.message||e)}; }
+          const json = JSON.stringify(data);
+          return { ok:true, status:200, json: async()=>JSON.parse(json), text: async()=>json };
+        }
+        if(realFetch) return realFetch(input, opts);
+        throw new Error("fetch unavailable for "+url);
+      };
+      window._mfFetchWrapped=true;
+    }
+    return loadInitialState(embeddedState);
+  },
+  fsChooseFolder, fsRestore,
+  get dirLinked(){ return !!_dirHandle; },
+  get dirName(){ return _dirHandle ? _dirHandle.name : null; },
+  fsSupported: FS_SUPPORTED,
+  _debug:{ get state(){return STATE;}, webAPI },
+};
+
+})();
+
 </script>
 <script>
 'use strict';
@@ -28545,7 +28547,7 @@ const DEFAULT_TIERS=[
 let S={rules:[],filterName:'MyFilter',league:'Runes of Aldur',sectionOrder:[],collapsedSecs:{},disabledSecs:{},customConds:[],customBTs:[],customSounds:[],theme:'darkGold',exportPath:'',tiers:JSON.parse(JSON.stringify(DEFAULT_TIERS)),uiLayout:{sidebarW:340,previewW:310,pvEconH:null},sectionTree:[],econScope:'rule'};
 let activeId=null,econData={},secMode='add',secTarget=null;
 let _inferredPriceKeys=new Set();
-const API=async(path,method='GET',body=null)=>window.API(path,method,body);  /* routed to in-browser shim */
+const API=async(path,method='GET',body=null)=>window.API(path,method,body);
 function getTiers(){
   const t=(S.tiers&&S.tiers.length)?S.tiers:JSON.parse(JSON.stringify(DEFAULT_TIERS));
   // Ensure minChaos is always a number (old saves may have strings)
@@ -30049,7 +30051,7 @@ const HELP_TOPICS = [
       <div class="step"><div class="step-num">1</div><div class="step-txt"><strong>📋 Editor</strong> — Create and edit filter rules. A Live Preview panel sits top-right, next to the toolbar. The left panel lists all your rules. The middle panel is the rule editor. The right panel has two sections: Economy Prices and the raw .filter Output.</div></div>
       <div class="step"><div class="step-num">2</div><div class="step-txt"><strong>👁 Visuals &amp; Stats</strong> — See every rule's visual appearance at once, plus filter-health stat panels (Tier Distribution, Auto-Tier Setup, Untiered Rules, Similar-Looking, Sound Duplicates, and more). Click any row to jump to editing it.</div></div>
       <div class="step"><div class="step-num">3</div><div class="step-txt"><strong>⚙ Resources</strong> — This page. Configure themes, tiers, custom conditions/BaseTypes/Classes/sounds, define your Hiding &amp; Progression rules, run Filter Cleanup Tools, manage save locations, review your Missing Values Tracker, manage your To-Do list, and read this guide.</div></div>
-      <div class="tip-box">All your work is auto-saved in your browser as you go. There is no Save button — MirrorFilter saves automatically. Use <strong>Export</strong> to write the game-readable <code>.filter</code> to your Path of Exile 2 folder (and to back your work up).</div>
+      <div class="tip-box">All your work is auto-saved to <code>UserData\filter_data.json</code> inside your MirrorFilter folder. Your exported <code>.filter</code> files also save to <code>UserData\</code>. There is no Save button — MirrorFilter saves automatically.</div>
     `
   },
 {
@@ -30217,17 +30219,17 @@ const HELP_TOPICS = [
     body:`
       <p><strong>⚡ Auto-Tier</strong> — sorts BaseTypes into tiers by live price when you click the button:</p>
       <div class="step"><div class="step-num">1</div><div class="step-txt">Enable a rule by checking <strong>Tier Sort Target</strong> in the Editor's Basic Info panel.</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-txt">All rules with Tier Sort Target checked in the <strong>same section</strong> form a sort group. When Auto-Tier runs, it collects every BaseType across all rules in that group, looks up each item's price via poe.ninja (with poe2scout and poe2db.tw filling gaps), then redistributes them: each BaseType goes into the rule whose tier threshold its price meets (set in the Tier Configuration panel on the Resources tab). For a genuinely unpriced rule (one with <strong>only</strong> Unpriced Catch-All checked, not Tier Sort Target), cheap-but-priced items land in your lowest tier rule (e.g. E) instead — kept separate from items with no price data at all, which go to the Unpriced Catch-All rule. Checking both boxes on the same rule still merges the two, same as before, since that rule is then genuinely its own lowest-value tier. Visuals are never touched — only the BaseType lists change.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-txt">All rules with Tier Sort Target checked in the <strong>same section</strong> form a sort group. When Auto-Tier runs, it collects every BaseType across all rules in that group, looks up each item's price via poe.ninja, then redistributes them: each BaseType goes into the rule whose tier threshold its price meets (set in the Tier Configuration panel on the Resources tab). For a genuinely unpriced rule (one with <strong>only</strong> Unpriced Catch-All checked, not Tier Sort Target), cheap-but-priced items land in your lowest tier rule (e.g. E) instead — kept separate from items with no price data at all, which go to the Unpriced Catch-All rule. Checking both boxes on the same rule still merges the two, same as before, since that rule is then genuinely its own lowest-value tier. Visuals are never touched — only the BaseType lists change.</div></div>
       <p style="margin-top:10px"><strong>Example:</strong> You have 6 rules in "Currency": A, B, C, D, E, and ∅ — all with Tier Sort Target ✓ (∅ also has Unpriced Catch-All ✓). You add Divine Orb, Exalted Orb, Chaos Orb, Orb of Alteration etc. across them. Click ⚡ Auto-Tier — prices are fetched, and each item moves to the correct tier rule automatically. A Chaos Orb that was in B yesterday may move to C today.</p>
       <div class="warn-box">Rules always stay in their sections. Auto-Tier never moves a rule from Currency to Uniques or anywhere else — only BaseTypes move, between rules already in the same section.</div>
       <div class="tip-box">Requires an internet connection. Prices are cached server-side for 5 minutes per league — clicking Auto-Tier again sooner reuses the cached numbers instantly; after 5 minutes, the next click fetches fresh prices.</div>
       <div class="tip-box">Configure tier names and chaos thresholds in Resources → ⚡ Tier System. After running Auto-Tier, each BaseType chip shows its live price next to it (e.g. <code>Albino Rhoa Feather (650c)</code>) — hover for the exact value.</div>
       <div class="tip-box">The <strong>Economy Prices</strong> panel at the top of the preview pane shows priced BaseTypes after a fetch — use the <strong>Rule / Section</strong> toggle in its top-right corner to switch between prices for just the selected rule, or every rule in its section.</div>
-      <div class="tip-box">poe.ninja is the primary price source, covering Currency, Runes, Soul Cores, Essences, Fragments, Breach, Ritual, Delirium, Expedition, Abyss, and Uncut Gems, plus Tablets/Relics/Flasks/Charms/Jewels/Weapons/Armours/Accessories via its separate per-item Equipment tracking. poe2scout (currency, uniques, jewels, idols, runes, gems, gear) and poe2db.tw fill in anything poe.ninja doesn't have.</div>
+      <div class="tip-box">Prices come from poe.ninja, covering Currency, Runes, Soul Cores, Essences, Fragments, Breach, Ritual, Delirium, Expedition, Abyss, and Uncut Gems, plus Tablets/Relics/Flasks/Charms/Jewels/Weapons/Armours/Accessories via its separate per-item Equipment tracking. Pricing is served through MirrorFilter's shared economy service so it works instantly with no setup on your end.</div>
       <div class="tip-box"><strong>Generic BaseType-only rules get priced too</strong> — e.g. bare <code>BaseType == "Shortsword"</code>, not naming any specific unique. Since an unidentified item only shows its base type, not which unique it might be, Auto-Tier estimates the price as the highest-value specific unique currently known to use that base (poe.ninja's own data already links each unique to its base type — no extra setup needed). These estimated prices get a border around the price badge, drawn from your Price Color Gradient (toned down) so they read as "this price, but estimated" rather than a direct fetch. Control which sections actually show that border in Resources → ⚡ Tier System → 🔲 Estimated Price Border — defaults to sections named "Unique."</div>
       <div class="warn-box">Maps/Waystones aren't priced — checked, and poe.ninja has no equivalent endpoint for them. Most likely because a Waystone's value comes from its rolled modifiers, not its base type, so per-item pricing wouldn't apply cleanly there anyway.</div>
       <div class="tip-box">Only want to re-tier one section instead of everything? Right-click that section's header in the sidebar → <strong>⚡ Auto-Tier This Section</strong>. Prices still fetch for the whole league either way (that part can't be scoped), but the actual tier redistribution only touches that section — every other section's tiers stay exactly as they were.</div>
-      <div class="warn-box">If Auto-Tier fails, open your browser's developer console (F12 &rarr; Console) for the exact error — it logs every attempt in detail.</div>
+      <div class="warn-box">If Auto-Tier fails, check <code>UserData\economy_debug.log</code> for the exact error — it logs every attempt against every source in detail.</div>
     `
   },
 {
@@ -30334,12 +30336,12 @@ const HELP_TOPICS = [
       <p style="margin-top:10px"><strong>My filter isn't showing in PoE's dropdown:</strong></p>
       <div class="step"><div class="step-num">▸</div><div class="step-txt">Make sure the file ends in <code>.filter</code> (not <code>.filter.txt</code>) and is saved to the correct <code>Documents\My Games\Path of Exile 2\</code> folder.</div></div>
       <p style="margin-top:10px"><strong>Auto-Tier says "Could not fetch economy data":</strong></p>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt">Check your internet connection. poe.ninja, poe2scout.com, and poe2db.tw are all tried — at least one needs to be reachable. Try again — these occasionally have brief outages.</div></div>
-      <p style="margin-top:10px"><strong>The Export button downloads instead of saving to my game folder:</strong></p>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt">Direct-to-folder saving needs Chrome or Edge, and you have to pick your Path of Exile 2 folder once (you'll get a browser permission prompt — choose "Allow on every visit" to stop it re-asking). In other browsers, MirrorFilter downloads the <code>.filter</code> and you drop it into the folder yourself.</div></div>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt">Check your internet connection. Prices are fetched live from poe.ninja via MirrorFilter's shared economy service — try again, as poe.ninja occasionally has brief outages.</div></div>
+      <p style="margin-top:10px"><strong>Export downloads instead of saving to my game folder:</strong></p>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt">Direct-to-folder saving needs Chrome or Edge, and you pick your Path of Exile 2 folder once (choose "Allow on every visit" so it stops re-asking). Other browsers download the <code>.filter</code> and you drop it into the folder yourself.</div></div>
       <p style="margin-top:10px"><strong>My settings/rules disappeared:</strong></p>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt">Your work lives in this browser's storage. Clearing the browser's site data/cookies for this site erases it, and it doesn't carry across to a different browser or computer. Always keep a backup by clicking <strong>Export</strong> after building a filter you're happy with — you can <strong>Import</strong> that <code>.filter</code> to restore everything.</div></div>
-      <div class="tip-box">If something looks wrong after a change, try refreshing the tab (F5). Your saved work reloads from browser storage — nothing is lost by refreshing.</div>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt">Your work lives in this browser's storage. Clearing the browser's site data erases it, and it doesn't carry to a different browser or PC. Keep a backup by clicking <strong>Export</strong> after building a filter you like \u2014 <strong>Import</strong> that <code>.filter</code> to restore.</div></div>
+      <div class="tip-box">If something looks wrong after a change, try refreshing the browser tab (F5). The backend server stays running — only the frontend reloads.</div>
     `
   },
 {
@@ -30400,43 +30402,6 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
-  {v:'5.161',changes:[
-    'Root cause of the v5.160 build abort: your Python 3.14 ships Tcl 9.0, but the spec only searched for tcl8.x/tk8.x folders, so it found nothing and correctly refused. Spec now asks a live Tcl interpreter for $tcl_library / $tk_library at build time - version-agnostic, works for Tcl 8.6 and 9.0 - with the old folder scan kept only as a fallback.',
-    'Caveat: Python 3.14 + Tcl 9.0 + PyInstaller is very new; bundling may still be flaky. If this build still won\\u2019t produce a working exe, the rock-solid route is to build with Python 3.12 (ships Tcl 8.6): install it and run  py -3.12 -m PyInstaller MirrorFilter.spec --noconfirm --clean  . Your 3.14 can stay your default. The abort message now says this too.'
-  ]},
-  {v:'5.160',changes:[
-    'Native folder/file Browse buttons restored: tkinter is bundled again. The spec now locates this Python\\u2019s real tcl8.x/tk8.x trees (verifying init.tcl / tk.tcl exist) and maps them to the _tcl_data/_tk_data layout the runtime hook needs - the step that was unreliable before.',
-    'Safety net so a broken build can never ship again: if the spec can\\u2019t find valid Tcl/Tk data, it ABORTS the build with fix instructions instead of producing an exe that only crashes at launch. BUILD.bat also checks tkinter up front and points you to Python\\u2019s \\u201cModify > tcl/tk and IDLE\\u201d if it\\u2019s missing.',
-    'REQUIRES: a Python install that has tkinter working. Check with: python -c \\"import tkinter,_tkinter\\". If that errors, run the Python installer > Modify > enable \\u201ctcl/tk and IDLE\\u201d, then BUILD.bat.'
-  ]},
-  {v:'5.159',changes:[
-    'Definitive fix for the _tcl_data startup crash: tkinter is now UNCONDITIONALLY EXCLUDED from the frozen exe. The v5.157/158 detect-and-bundle path still shipped the pyi_rth_tkinter runtime hook, and after your Python reinstall the collected Tcl/Tk data was missing/mismatched, so the hook kept crashing at launch. With tkinter excluded there is no hook and no Tcl data to find - the exe cannot hit this error anymore. Only cost: the native folder/file pickers are gone in the exe; app.py imports tkinter lazily in try/except so nothing else is affected.',
-    'Picker buttons (Export folder, multi-save location, alert-sound files) now show a clear \\u201cunavailable in this build - type/paste the path\\u201d message instead of a raw error. The custom-path text field already accepts a typed/pasted path. REBUILD via BUILD.bat; the new exe launches without any tkinter/Tcl dependency.'
-  ]},
-  {v:'5.158',changes:[
-    'Fixed BUILD.bat crashing during the build. The v5.157 spec had an em-dash inside a print() that runs at build time; on a Windows cp1252 console that raises UnicodeEncodeError and aborts PyInstaller. Stripped all non-ASCII from the executable parts of the spec.',
-    'BUILD.bat now tees everything to build_log.txt, guards every step, and never closes silently on failure - so if anything still breaks you get a readable error + a log to send. Reports the final exe size on success.'
-  ]},
-  {v:'5.157',changes:[
-    'Hardened the exe against the tkinter/_tcl_data startup crash after a Python reinstall. The pickers are the only thing that need tkinter and they already fail-safe, so the build no longer depends on a working Tcl/Tk: the spec detects the building Python\\u2019s tkinter, and if it\\u2019s present bundles the real Tcl/Tk trees as _tcl_data/_tk_data; if it\\u2019s missing/broken it EXCLUDES tkinter entirely so PyInstaller\\u2019s crashing runtime hook is never installed \\u2014 the app still launches, pickers fall back to manual path entry. UPX stays off.',
-    'BUILD.bat now prints the Python version, checks whether tkinter actually works (and tells you to re-enable \\u201ctcl/tk and IDLE\\u201d in the Python installer if not), clears the PyInstaller cache with --clean, and reports the new exe size. NOTE: your last rebuild came out the same ~15 MB size as the broken one \\u2014 a correct UPX-free build is LARGER; if the size doesn\\u2019t grow, the rebuild didn\\u2019t use the new spec. REBUILD via BUILD.bat.'
-  ]},
-  {v:'5.156',changes:[
-    'Fixed the frozen .exe crashing on launch with \\u201cTcl data directory \\u2026 _tcl_data not found\\u201d (pyi_rth_tkinter). Cause: the build had UPX compression on, which corrupts the bundled Tcl/Tk data tkinter needs for the native folder/file pickers. Build spec now disables UPX and explicitly collects Tcl/Tk data + tkinter submodules; BUILD.bat adds --clean to drop any stale cached bundle. REBUILD REQUIRED: run BUILD.bat again to regenerate MirrorFilter.exe \\u2014 the old exe stays broken until you do.'
-  ]},
-  {v:'5.155',changes:[
-    'Found why the main-section pulse never showed: the 3D themes set box-shadow on .sec-hdr with !important, and the pulse animated box-shadow \\u2014 an !important declaration beats a keyframe, so the glow was silently overridden on every 3D theme. The JS was toggling the class correctly all along. Pulse now animates outline instead (no theme sets outline), with theme-scoped selectors, so it shows on default and all 3D themes.'
-  ]},
-  {v:'5.154',changes:[
-    'Fixed disabled Show rules keeping bright, un-faded name text in Colorful sidebar mode (e.g. an emptied Twice-Corrupted Gems). The colorful branch was painting the rule\\u2019s in-game text color inline even when the rule was disabled, so .ri.off\\u2019s dimming read differently on it than on other disabled rules. It now skips the in-game name coloring for any disabled rule, so every disabled row fades uniformly.'
-  ]},
-  {v:'5.153',changes:[
-    'Actually fixed the main-section pulse. v5.152\\u2019s live refresh iterated S.sectionTree directly \\u2014 but the sidebar renders from an effectiveTree that falls back to sectionOrder when sectionTree is empty, so on those filters the refresh looped over nothing and no header ever lit. Now it resolves the same tree the list uses, so the parent main section pulses the moment you select any rule/sub-section inside it.',
-    'Note on \\u201ctransparent rules\\u201d (e.g. Twice-Corrupted Gems in a dimmed state): that\\u2019s the normal .off styling for a disabled rule. Auto-Tier auto-disables tier rules that end up with zero BaseTypes (an empty tier rule left enabled would match its whole Class). The v5.151 guard still protects the currently-selected rule from this mid-run; non-selected empty rules dimming is intended, not the old under-cursor bug.'
-  ]},
-  {v:'5.152',changes:[
-    'Fixed the v5.151 main-section pulse: it was pulsing every expanded depth-0 section unconditionally. Now only the main section containing the currently selected rule (child or grandchild, any depth) pulses \\u2014 and it updates live on select/deselect without a full list re-render.'
-  ]},
   {v:'5.151',changes:[
     'Sidebar main sections (depth 0) now pulse softly with an accent glow, but only when expanded \u2014 makes them stand out from same-colored sub-sections at a glance',
     'Selected rule: replaced pulsing glow with a bold 2px accent border (padding compensated so the row doesn\u2019t shift 1px on select/deselect)',
@@ -31773,7 +31738,7 @@ async function init(){
     });
     renderList();renderSettingsLists();initResizers();initColorPicker();syncShadingSwapToggle();renderBuildToggleDefs();renderBuildPresetLibrary();syncMultiSaveUI();syncDefaultSnapshotStatus();initBulkVisualDropdowns();renderBulkVisualSectionList();renderRemovedValuesLog();renderPasteExclusions();
     setStatus('Ready \u2713');
-  }catch(e){toast('Cannot connect to backend \u2014 is the app running?','err');}
+  }catch(e){toast('Could not load saved data \u2014 try refreshing the page.','err');}
 }
 // ── Section Tree Helpers ──
 // sectionTree: [{id:'Currency',children:[{id:'High-Value Currency',children:[]},...]}]
@@ -32231,16 +32196,6 @@ function ruleMatchesSearch(rule,q){
     })
   );
 }
-function nodeContainsSection(node,targetSec){
-  if(node.id===targetSec)return true;
-  return (node.children||[]).some(c=>nodeContainsSection(c,targetSec));
-}
-function activeRuleInNode(node){
-  if(!activeId)return false;
-  const r=byId(activeId);
-  if(!r)return false;
-  return nodeContainsSection(node,r.section);
-}
 function renderSecNode(node, container, q, depth, rulesBySection, aggregates){
   const sec=node.id;
   const dispName=secName(sec);
@@ -32254,7 +32209,7 @@ function renderSecNode(node, container, q, depth, rulesBySection, aggregates){
   if(depth>0)wrap.className='sec-depth-'+(depth);
 
   const hdr=document.createElement('div');
-  hdr.className='sec-hdr'+(depth===0&&!S.collapsedSecs[sec]&&activeRuleInNode(node)?' main-expanded-pulse':'');
+  hdr.className='sec-hdr'+(depth===0&&!S.collapsedSecs[sec]?' main-expanded-pulse':'');
   hdr.dataset.sec=sec;
   let hdrTextColor=null;
   if(getSidebarColorMode()==='colorful'){
@@ -32542,7 +32497,7 @@ function buildRI(rule){
   vis.style.borderColor=rgba(v.borderColor||[100,100,100,255]);
   vis.setAttribute('data-tip','Item label color preview');
   const nm=ce('div','ri-name');nm.textContent=rule.name;
-  if(getSidebarColorMode()==='colorful'&&rule.action==='Show'&&rule.id!==activeId&&!off){
+  if(getSidebarColorMode()==='colorful'&&rule.action==='Show'&&rule.id!==activeId){
     // Same idea as the section header treatment: a solid background if
     // this specific rule has one configured, or — if it doesn't — the row
     // stays transparent and the rule's own NAME text is colored to match
@@ -33076,25 +33031,9 @@ function selectRule(id){
   document.getElementById('pasteCondBtn').style.display=_conditionsClipboard?'':'none';
   renderEditor(r);updatePv(r);renderRaw(r);
   renderEconBox(econData);  // refresh price panel scoped to this rule's section
-  refreshMainSectionPulse();
-}
-// Pulse only the depth-0 main section that contains the active rule (child
-// or grandchild). Updates class in place without a full list re-render.
-function refreshMainSectionPulse(){
-  const r=activeId?byId(activeId):null;
-  const tree=(!S.sectionTree||!S.sectionTree.length)
-    ?(S.sectionOrder||[]).map(sec=>({id:sec,children:[]}))
-    :S.sectionTree;
-  tree.forEach(node=>{
-    const hdr=document.querySelector('.sec-hdr[data-sec="'+CSS.escape(node.id)+'"]');
-    if(!hdr)return;
-    const on=!!r&&!S.collapsedSecs[node.id]&&nodeContainsSection(node,r.section);
-    hdr.classList.toggle('main-expanded-pulse',on);
-  });
 }
 function clearEditor(){
   activeId=null;
-  if(typeof refreshMainSectionPulse==='function')refreshMainSectionPulse();
   document.getElementById('noSel').style.display='';
   document.getElementById('edContent').style.display='none';
   document.getElementById('edTitle').textContent='Select a rule to edit';
@@ -33357,7 +33296,7 @@ function renderEditor(rule){
   '<div class="er"><label class="elabel" data-tip="Tier Sort Target: this rule acts as a sort bucket for ⚡ Auto-Tier Sorting. All BaseTypes across tier-target rules in this section will be re-sorted into the correct tier rule based on poe.ninja prices. Indicated by the colored tier letter on the rule.">Tier Sort Target</label>'+
   '<input type="checkbox" id="cb-tierSortTarget" '+(rule.tierSortTarget===true?'checked':'')+' onchange="pr(\'tierSortTarget\',this.checked);toggleTierDropdown()">'+
   '<span style="font-size:12px;color:var(--text2);margin-left:4px">Sort BaseTypes into this tier bucket via ⚡ Auto-Tier — indicated by '+tierChipsHtml+' on the rule</span></div>'+
-'<div class="er"><label class="elabel" data-tip="If checked, this rule becomes the catch-all for BaseTypes that NONE of poe.ninja, poe2scout, or poe2db.tw have price data for in this section — instead of those items being silently lumped into the cheapest priced tier. Works independently of Tier Sort Target — you do NOT need to also check that box for this to function; check it too only if you also want to give this rule a tier name/badge (e.g. ∅) via the dropdown above. Only one rule per section should have this checked. Indicated by ∅ on the rule.">Unpriced Catch-All</label>'+
+'<div class="er"><label class="elabel" data-tip="If checked, this rule becomes the catch-all for BaseTypes that poe.ninja has no price data for in this section — instead of those items being silently lumped into the cheapest priced tier. Works independently of Tier Sort Target — you do NOT need to also check that box for this to function; check it too only if you also want to give this rule a tier name/badge (e.g. ∅) via the dropdown above. Only one rule per section should have this checked. Indicated by ∅ on the rule.">Unpriced Catch-All</label>'+
   '<input type="checkbox" id="cb-tierSortUnpriced" '+(rule.tierSortUnpriced===true?'checked':'')+' onchange="pr(\'tierSortUnpriced\',this.checked);toggleTierDropdown()">'+
   '<span style="font-size:12px;color:var(--text2);margin-left:4px">Catch BaseTypes with no price data via ⚡ Auto-Tier (separate from priced tiers) — indicated by <span style="color:#9c8cff;font-weight:700">∅</span> on the rule</span></div>'+
 '<div class="er"><label class="elabel" data-tip="Uncheck to hide the tier badge on this rule in the sidebar. Indicated by the colored tier letter on the rule.">Show Tier Badge</label>'+
@@ -38020,7 +37959,7 @@ async function browseExportFolder(btn){
     }
     // d.path empty means the user cancelled the dialog — leave the field as-is
   }catch(e){
-    toast('Could not open the folder picker - you can type or paste the path into the field instead.','inf');
+    toast('Could not open folder picker: '+(e.message||e),'err');
   }
   if(btn){btn.textContent=origText;btn.disabled=false;}
 }
@@ -38056,7 +37995,7 @@ async function addMultiSaveLocation(){
     saveState();
     toast('Added save location','ok');
   }catch(e){
-    toast('Could not open the folder picker - you can type or paste the path into the field instead.','inf');
+    toast('Could not open folder picker: '+(e.message||e),'err');
   }
 }
 function removeMultiSaveLocation(i){
@@ -38139,7 +38078,7 @@ async function runAutoTier(onlySection){
   const btn=document.getElementById('autoTierBtn');
   if(btn)btn.classList.add('attention-pulse');
   const scopeLabel=onlySection?(' for '+secName(onlySection)):'';
-  setStatus('Fetching prices from poe.ninja, poe2scout, and poe2db.tw'+scopeLabel+'\u2026');
+  setStatus('Fetching prices from poe.ninja'+scopeLabel+'\u2026');
   try{
     const d=await API('/api/autotier','POST',{league,tiers:getTiers()});
     S.rules=d.rules;econData=d.prices||{};S.lastEconData=econData;recomputeGlobalPriceRange();
@@ -38737,7 +38676,7 @@ async function browseMultipleSoundFiles(){
   try{
     const d=await API('/api/browse-sound-files','POST',{});
     if(!d.paths||!d.paths.length){
-      if(d.error)toast('Could not open the file picker - paste the full file path manually instead.','inf');
+      if(d.error)toast('Could not open file picker: '+d.error,'err');
       return;  // user cancelled — nothing to do
     }
     _sndStaging=d.paths.map(p=>{
@@ -38793,7 +38732,7 @@ function addAllStagedSounds(){
 document.getElementById('secMInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSection();});
 // ── Heartbeat: tell the backend the tab is still open ──
 // Pings every 2s. If backend gets no ping for 90 seconds it closes the .exe.
-/* heartbeat removed — no server in web build */
+/* heartbeat removed — no server */
 (function startAutoSave(){
   setInterval(async()=>{
     if(S.rules&&S.rules.length>0){
