@@ -31906,6 +31906,10 @@ function initResizers(){
     if(bgModeEl)bgModeEl.value=lay.lootSimBgMode;
     applyLootSimBgMode(lay.lootSimBgMode);
   }
+  // Match the Editor Live Preview stage to the restored loot-sim backdrop.
+  // applyLootSimBgMode already does this when a mode is present; this covers
+  // the solid-color-only case (slider set, no image mode) and first load.
+  applyPreviewStageBg();
   if(lay.lootSimCount!==undefined){
     const countSlider=document.getElementById('lootSimCount');
     const countVal=document.getElementById('lootSimCountVal');
@@ -36324,6 +36328,46 @@ function applyLootSimBgMode(mode){
     applyLootSimBg(slider?slider.value:100);
     if(sidebar)sidebar.style.backgroundImage='';
   }
+  // Keep the Editor tab's Live Preview stage visually matched to whatever the
+  // Loot Drop Simulator is showing — same image, or same solid gray shade.
+  // Pass the mode explicitly since S.uiLayout.lootSimBgMode may not be updated
+  // until after this function returns (see updateLootSimBgMode).
+  applyPreviewStageBg(mode);
+}
+// Paints #itemBox (the Editor-tab Live Preview stage) with the same backdrop
+// the Loot Drop Simulator ground currently uses, so the two previews match.
+// Optional explicit args let callers that already know the new mode/value pass
+// them directly — important because updateLootSimBgMode applies the visuals
+// BEFORE it writes the new mode into S.uiLayout, so reading saved state here
+// would lag one change behind. When args are omitted (e.g. restore-on-load)
+// it falls back to the saved loot-sim state.
+function applyPreviewStageBg(explicitMode,explicitVal){
+  const box=document.getElementById('itemBox');
+  if(!box)return;
+  const lay=(S&&S.uiLayout)||{};
+  const mode=(explicitMode!==undefined)?explicitMode:lay.lootSimBgMode;
+  if(mode&&LOOT_SIM_BG_IMAGES.has(mode)){
+    // Cover (not 88%) here: the preview stage is small and framed, so filling
+    // it edge-to-edge reads cleaner than leaving a border of backing color the
+    // way the large loot-sim panel does.
+    box.style.backgroundImage='url(loot_bg/'+mode+'.jpg)';
+    box.style.backgroundSize='cover';
+    box.style.backgroundRepeat='no-repeat';
+    box.style.backgroundPosition='center';
+    box.style.backgroundColor='rgb(20,20,20)';
+  } else {
+    // Solid-color mode: mirror the same gray the slider produces for the loot
+    // sim ground, so moving the slider moves both in lockstep. Falls back to
+    // the original #181818 stage color if no slider value is set yet.
+    box.style.backgroundImage='';
+    const v=(explicitVal!==undefined)?explicitVal:(lay.lootSimBg!==undefined?lay.lootSimBg:null);
+    if(v!==null&&v!==undefined){
+      const gray=Math.round(160*(1-v/100));
+      box.style.backgroundColor='rgb('+gray+','+gray+','+gray+')';
+    } else {
+      box.style.backgroundColor='#181818';
+    }
+  }
 }
 function updateLootSimBgMode(mode){
   applyLootSimBgMode(mode);
@@ -36335,6 +36379,9 @@ function updateLootSimBg(val){
   applyLootSimBg(val);
   if(!S.uiLayout)S.uiLayout={};
   S.uiLayout.lootSimBg=+val;
+  // Mode is already current in state here (the slider only moves while in
+  // solid mode), so an explicit value plus the saved mode is correct.
+  applyPreviewStageBg(S.uiLayout.lootSimBgMode,+val);
   saveState();
 }
 function generateLootSim(){
