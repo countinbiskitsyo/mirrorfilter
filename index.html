@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>MirrorFilter v5.151 — PoE1 / PoE2 Loot Filter Editor</title>
+<title>MirrorFilter — PoE2 Loot Filter Editor</title>
 <style>
 :root{--bg:#0d0d0f;--panel:#141418;--card:#1a1a20;--border:#2a2a35;--border2:#3a3a50;--accent:#c8a45a;--accent-rgb:200,164,90;--accent2:#e8c06a;--red:#c0392b;--green:#27ae60;--text:#d8d0c0;--text2:#888;--text3:#505050;--radius:6px;--shadow:0 4px 24px rgba(0,0,0,.65)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -594,7 +594,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 <div id="middleCol">
 <div id="topbar">
   <div id="topbarSpacer" style="display:none;flex-shrink:0"></div>
-  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em>v5.151</em><em style="margin-left:6px;opacity:.7">by AdamGs</em></div>
+  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em>Web</em><em style="margin-left:6px;opacity:.7">by AdamGs</em></div>
   <input id="filterName" type="text" value="MyFilter" placeholder="Filter name…" data-tip="Name used when exporting your .filter file" oninput="autoSizeFilterName()">
   <span id="filterNameMeasure" style="position:absolute;visibility:hidden;white-space:pre;font-size:13px"></span>
   <select id="leagueSelect" data-tip="League used for Auto-Tier price lookups">
@@ -612,7 +612,8 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   <button class="tb-btn sec" onclick="exportFilter()" data-tip="Export your filter — choose a save folder" style="border-color:#c85ae0;color:#c85ae0">📤 Export</button>
   <button class="tb-btn sec" onclick="openTestItemModal()" data-tip="Paste an item's copied text (Ctrl+C in-game) or fill in attributes manually, and see exactly which rule would match it and why" style="border-color:#b478f5;color:#b478f5">🧪 Test Item</button>
   <button class="tb-btn sec" id="quickSaveBtn" onclick="quickSave()" data-tip="One-click save to the same location as your last export" style="border-color:var(--green);color:var(--green)">💾 Quick-Save</button>
-  <span id="statusBar" data-tip="Auto-saves every 30s. Shuts down 90s after tab is closed. Returning to the tab resets the timer.">Ready</span>
+  <span id="statusBar" data-tip="Your work auto-saves in your browser as you go. Click Export or Quick-Save to write your .filter to disk.">Ready</span>
+  <span id="editingIndicator" data-tip="The .filter file that Export / Quick-Save writes. Change it by editing the filter name field on the left." style="font-size:11px;color:var(--text3);white-space:nowrap;flex-shrink:0;margin-left:10px">📄 <span id="editingFileName">—</span></span>
   <div class="tb-spacer"></div>
 </div>
 <div id="tabBar">
@@ -1479,12 +1480,14 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   </div>
 </div>
 <div class="moverlay" id="newM">
-  <div class="mdlg" style="width:370px">
+  <div class="mdlg" style="width:400px">
     <h3>&#128220; Start New Filter?</h3>
-    <p>This clears all rules and starts fresh. Data remains in <code style="color:var(--accent)">filter_data.json</code> until you export and overwrite it.</p>
-    <div class="mbtns">
+    <p>This clears all rules and starts you with a blank filter. Your current work stays in your browser until you replace it — and if you've exported a <code>.filter</code>, that copy on disk is unaffected.</p>
+    <p style="font-size:12px;color:var(--text3);margin-top:10px">New here? You can also load <strong>AdamGs's example filter</strong> — a full 360+ rule PoE2 filter — as a starting point to explore and customize.</p>
+    <div class="mbtns" style="flex-wrap:wrap;gap:6px">
       <button class="tb-btn sec" onclick="closeM('newM')">Cancel</button>
-      <button class="tb-btn danger" onclick="doNewFilter()">Yes, Start Fresh</button>
+      <button class="tb-btn" onclick="loadExampleFilter()" style="border-color:var(--accent);color:var(--accent)">&#10024; Load Example Filter</button>
+      <button class="tb-btn danger" onclick="doNewFilter()">Start Blank</button>
     </div>
   </div>
 </div>
@@ -1639,7 +1642,8 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
 <script>
 /* === MirrorFilter Web config (must precede engine/shim) === */
-window.__MF_SEED__ = {
+window.__MF_SEED__ = {"rules":[],"filterName":"MyFilter","league":"Runes of Aldur","sectionOrder":[],"collapsedSecs":{},"disabledSecs":{},"customConds":[],"customBTs":[],"customSounds":[],"theme":"darkGold","exportPath":"","sectionTree":[],"econScope":"rule"};
+window.__MF_EXAMPLE__ = {
   "rules": [
     {
       "id": "imported_1000",
@@ -35807,6 +35811,15 @@ function autoSizeFilterName(){
   // never feels cramped right up against the edges.
   const w=Math.max(80,Math.min(260,measure.getBoundingClientRect().width+24));
   inp.style.width=w+'px';
+  updateEditingIndicator();
+}
+function updateEditingIndicator(){
+  const inp=document.getElementById('filterName');
+  const el=document.getElementById('editingFileName');
+  if(!inp||!el)return;
+  // mirror the export safeName: keep letters/digits/space/_/-; fall back to MyFilter
+  const raw=(inp.value||'').split('').filter(c=>/[A-Za-z0-9 _-]/.test(c)).join('').trim();
+  el.textContent=(raw||'MyFilter')+'.filter';
 }
 function onTierValueChange(val){
   const r=byId(activeId);if(!r)return;
@@ -37750,6 +37763,24 @@ async function addRule(){
 }
 
 function doNewFilter(){S.rules=[];S.sectionOrder=[];S.collapsedSecs={};S.disabledSecs={};activeId=null;closeM('newM');saveState();renderList();clearEditor();toast('Started new filter','inf');}
+function loadExampleFilter(){
+  if(!window.__MF_EXAMPLE__){toast('Example filter not available','err');return;}
+  try{
+    const ex=JSON.parse(JSON.stringify(window.__MF_EXAMPLE__));
+    S=Object.assign({rules:[],filterName:'MyFilter',league:'Runes of Aldur',sectionOrder:[],collapsedSecs:{},disabledSecs:{},customConds:[],customBTs:[],customSounds:[],theme:'darkGold',exportPath:'',tiers:JSON.parse(JSON.stringify(DEFAULT_TIERS)),uiLayout:{sidebarW:340,previewW:310,pvEconH:null},sectionTree:[],econScope:'rule'},ex);
+    activeId=null;
+    closeM('newM');
+    document.getElementById('filterName').value=S.filterName||'MyFilter';
+    autoSizeFilterName();
+    if(document.getElementById('leagueSelect'))document.getElementById('leagueSelect').value=S.league||'Runes of Aldur';
+    if(typeof applyTheme==='function'&&S.theme)applyTheme(S.theme);
+    saveState();
+    renderList();
+    clearEditor();
+    setStatus('Ready \\u2713');
+    toast('Loaded AdamGs\\u2019s example filter \\u2014 explore and customize freely','ok');
+  }catch(e){console.warn('loadExample failed',e);toast('Could not load example filter','err');}
+}
 function handleImportFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{document.getElementById('importTxt').value=ev.target.result;_importFileName=f.name;};r.readAsText(f);}
 let _importFileName=null;
 function setImportOpt(val){
