@@ -36690,35 +36690,75 @@ function renderVizStatsRight(){
   // Duplicates panels below — Sections is the default since a whole
   // section quietly missing Auto-Tier setup is usually the more useful
   // thing to notice at a glance, with the per-rule breakdown one click away.
+  // Each flagged rule falls into exactly one of three distinct causes —
+  // surfaced per-rule (and rolled up per-section) as a tooltip so "why is
+  // this untiered" never requires opening the rule and reverse-engineering
+  // its checkboxes:
+  //  'unpriced' — this IS the section's designated Unpriced Catch-All
+  //               (tierSortUnpriced checked). Its BaseTypes are exactly the
+  //               ones Auto-Tier tried to price and found nothing for from
+  //               any of the three sources. Usually not a mistake — just
+  //               low-liquidity/rarely-traded items — but worth a manual
+  //               spot-check on poe.ninja/poe2scout if one surprises you.
+  //  'badTier'  — tierSortTarget IS checked (it's meant to be a real sort
+  //               bucket) but its Tier field isn't one of the currently
+  //               configured tiers (blank, or a tier renamed/deleted since).
+  //               Auto-Tier has nowhere valid to file these into.
+  //  'orphan'   — neither box is checked at all. Auto-Tier ignores this
+  //               rule completely; its BaseTypes were added by hand (or are
+  //               leftover from before Auto-Tier was set up on this
+  //               section) and will never move or clear on their own.
+  const untieredReasonKey=r=>{
+    if(r.tierSortUnpriced)return 'unpriced';
+    if(r.tierSortTarget)return 'badTier';
+    return 'orphan';
+  };
+  const untieredReasonText={
+    unpriced:'This is the section\u2019s Unpriced Catch-All \u2014 Auto-Tier found no price data for these BaseTypes from poe.ninja, poe2scout, or poe2db.tw, so they landed here instead of a priced tier. Often just low-liquidity or rarely-traded items \u2014 worth a manual check on a price site before assuming anything\u2019s wrong.',
+    badTier:'Tier Sort Target is checked on this rule, but its Tier field isn\u2019t set to one of your currently configured tiers (blank, or a tier that\u2019s since been renamed or removed) \u2014 Auto-Tier can\u2019t file items into a bucket it can\u2019t identify. Open the rule and re-pick its Tier dropdown.',
+    orphan:'Neither Tier Sort Target nor Unpriced Catch-All is checked on this rule \u2014 \u26a1 Auto-Tier skips it entirely. These BaseTypes were added by hand, or are leftover from before Auto-Tier was set up on this section, and won\u2019t move or clear on their own.'
+  };
+  const untieredReasonLabel={unpriced:'Unpriced Catch-All',badTier:'Unrecognized tier',orphan:'Not part of Auto-Tier group'};
   const untieredWithBTs=rules.filter(r=>{
     if(!targetSecs.has(r.section))return false;
     const isReallyTiered=!r.tierSortUnpriced&&r.tier&&knownTierNames.has(r.tier);
     if(isReallyTiered)return false;
     const n=(r.conditions&&r.conditions.BaseType||[]).length;
     return n>0;
-  }).map(r=>({r,count:(r.conditions.BaseType||[]).length})).sort((a,b)=>b.count-a.count);
+  }).map(r=>{
+    const count=(r.conditions.BaseType||[]).length;
+    const reasonKey=untieredReasonKey(r);
+    return {r,count,reasonKey,reason:untieredReasonText[reasonKey]};
+  }).sort((a,b)=>b.count-a.count);
+  const untieredTotalBTs=untieredWithBTs.reduce((s,x)=>s+x.count,0);
   const untieredScope=S.vizUntieredScope==='rules'?'rules':'sections';  // default sections
   html+='<div class="vstat-card" style="border-left:3px solid #e0965a;background:#e0965a14"><div class="vstat-title" style="display:flex;align-items:center;gap:6px">';
-  html+='<span data-tip="Rules with no REAL priced tier, sitting inside a section that IS configured for Auto-Tier (has at least one Tier Sort Target rule) — this deliberately includes the Unpriced Catch-All rule itself (often literally named &quot;Untiered&quot;), since that\u2019s exactly where garbage/unpriceable BaseTypes pile up. Sections with no Auto-Tier setup at all are excluded, since a plain untiered rule there is completely normal.">\ud83d\udccb Untiered Rules With BaseTypes <span style="font-weight:400;color:var(--text3);font-size:10px">(Auto-Tier sections only)</span></span><span style="flex:1"></span>';
+  html+='<span data-tip="Rules with no REAL priced tier, sitting inside a section that IS configured for Auto-Tier (has at least one Tier Sort Target rule) — this deliberately includes the Unpriced Catch-All rule itself (often literally named &quot;Untiered&quot;), since that\u2019s exactly where garbage/unpriceable BaseTypes pile up. Sections with no Auto-Tier setup at all are excluded, since a plain untiered rule there is completely normal.">\ud83d\udccb Untiered Rules With BaseTypes <span style="font-weight:400;color:var(--text3);font-size:10px">(Auto-Tier sections only)</span></span>';
+  if(untieredTotalBTs)html+='<b style="color:var(--text)" data-tip="Total BaseType entries currently sitting untiered across every Auto-Tier section — the sum of every row below.">'+untieredTotalBTs+'</b>';
+  html+='<span style="flex:1"></span>';
   html+='<label class="econ-scope-toggle" data-tip="Show individual rules, or roll counts up by whole section">';
   html+='<input type="checkbox" '+(untieredScope==='sections'?'checked':'')+' onchange="S.vizUntieredScope=this.checked?\'sections\':\'rules\';saveState();renderVizStatsRight()">';
   html+='<span class="econ-scope-lbl-l">Rules</span><span class="econ-scope-lbl-r">Sections</span></label></div>';
   if(untieredWithBTs.length){
     if(untieredScope==='sections'){
       const bySection={};
-      untieredWithBTs.forEach(({r,count})=>{
-        if(!bySection[r.section])bySection[r.section]={count:0,ruleCount:0};
+      untieredWithBTs.forEach(({r,count,reasonKey})=>{
+        if(!bySection[r.section])bySection[r.section]={count:0,ruleCount:0,byReason:{}};
         bySection[r.section].count+=count;
         bySection[r.section].ruleCount++;
+        bySection[r.section].byReason[reasonKey]=(bySection[r.section].byReason[reasonKey]||0)+count;
       });
       const secList=Object.entries(bySection).sort((a,b)=>b[1].count-a[1].count);
       secList.slice(0,15).forEach(([secId,d])=>{
-        html+='<div class="vstat-row"><span class="vsim-link" onclick="switchTab(\'editor\')" style="color:var(--text);cursor:pointer;text-decoration:underline" data-tip="'+d.ruleCount+' Untiered rule'+(d.ruleCount!==1?'s':'')+' in this section">'+esc(secName(secId))+'</span><b>'+d.count+'</b></div>';
+        const reasonBits=Object.entries(d.byReason).sort((a,b)=>b[1]-a[1]).map(([k,n])=>n+' '+untieredReasonLabel[k]).join(', ');
+        const tip=d.ruleCount+' Untiered rule'+(d.ruleCount!==1?'s':'')+' in this section \u2014 '+reasonBits+'.';
+        html+='<div class="vstat-row"><span class="vsim-link" onclick="switchTab(\'editor\')" style="color:var(--text);cursor:pointer;text-decoration:underline" data-tip="'+esc(tip)+'">'+esc(secName(secId))+'</span><b>'+d.count+'</b></div>';
       });
       if(secList.length>15)html+='<div style="margin-top:5px;font-size:10px;color:var(--text3)">+ '+(secList.length-15)+' more</div>';
     } else {
-      untieredWithBTs.slice(0,15).forEach(({r,count})=>{
-        html+='<div class="vstat-row"><span class="vsim-link" onclick="switchTab(\'editor\');setTimeout(()=>selectRule(\''+r.id+'\'),55)" style="color:var(--text);cursor:pointer;text-decoration:underline" data-tip="'+esc(secName(r.section))+'">'+esc(r.name)+'</span><b>'+count+'</b></div>';
+      untieredWithBTs.slice(0,15).forEach(({r,count,reason})=>{
+        const tip='In section: '+secName(r.section)+'. '+reason;
+        html+='<div class="vstat-row"><span class="vsim-link" onclick="switchTab(\'editor\');setTimeout(()=>selectRule(\''+r.id+'\'),55)" style="color:var(--text);cursor:pointer;text-decoration:underline" data-tip="'+esc(tip)+'">'+esc(r.name)+'</span><b>'+count+'</b></div>';
       });
       if(untieredWithBTs.length>15)html+='<div style="margin-top:5px;font-size:10px;color:var(--text3)">+ '+(untieredWithBTs.length-15)+' more</div>';
     }
