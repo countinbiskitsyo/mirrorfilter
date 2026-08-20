@@ -36733,12 +36733,15 @@ function renderVizStatsRight(){
   const untieredTotalBTs=untieredWithBTs.reduce((s,x)=>s+x.count,0);
   const untieredScope=S.vizUntieredScope==='rules'?'rules':'sections';  // default sections
   html+='<div class="vstat-card" style="border-left:3px solid #e0965a;background:#e0965a14"><div class="vstat-title" style="display:flex;align-items:center;gap:6px">';
-  html+='<span data-tip="Rules with no REAL priced tier, sitting inside a section that IS configured for Auto-Tier (has at least one Tier Sort Target rule) — this deliberately includes the Unpriced Catch-All rule itself (often literally named &quot;Untiered&quot;), since that\u2019s exactly where garbage/unpriceable BaseTypes pile up. Sections with no Auto-Tier setup at all are excluded, since a plain untiered rule there is completely normal.">\ud83d\udccb Untiered Rules With BaseTypes <span style="font-weight:400;color:var(--text3);font-size:10px">(Auto-Tier sections only)</span></span>';
-  if(untieredTotalBTs)html+='<b style="color:var(--text)" data-tip="Total BaseType entries currently sitting untiered across every Auto-Tier section — the sum of every row below.">'+untieredTotalBTs+'</b>';
-  html+='<span style="flex:1"></span>';
+  html+='<span data-tip="Rules with no REAL priced tier, sitting inside a section that IS configured for Auto-Tier (has at least one Tier Sort Target rule) — this deliberately includes the Unpriced Catch-All rule itself (often literally named &quot;Untiered&quot;), since that\u2019s exactly where garbage/unpriceable BaseTypes pile up. Sections with no Auto-Tier setup at all are excluded, since a plain untiered rule there is completely normal.">\ud83d\udccb Untiered Rules With BaseTypes <span style="font-weight:400;color:var(--text3);font-size:10px">(Auto-Tier sections only)</span></span><span style="flex:1"></span>';
   html+='<label class="econ-scope-toggle" data-tip="Show individual rules, or roll counts up by whole section">';
   html+='<input type="checkbox" '+(untieredScope==='sections'?'checked':'')+' onchange="S.vizUntieredScope=this.checked?\'sections\':\'rules\';saveState();renderVizStatsRight()">';
   html+='<span class="econ-scope-lbl-l">Rules</span><span class="econ-scope-lbl-r">Sections</span></label></div>';
+  // Total row — its own full-width line directly under the title so the number
+  // sits in the same right-hand column as every section/rule count below it,
+  // rather than being crammed into the title row next to the toggle. Bordered
+  // off from the list beneath it so it reads as a header total, not another row.
+  if(untieredTotalBTs)html+='<div class="vstat-row" style="font-weight:700;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:6px"><span data-tip="Total BaseType entries currently sitting untiered across every Auto-Tier section — the sum of every row below.">Total untiered BaseTypes</span><b>'+untieredTotalBTs+'</b></div>';
   if(untieredWithBTs.length){
     if(untieredScope==='sections'){
       const bySection={};

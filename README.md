@@ -83,3 +83,14 @@ This repo hosts the app via **GitHub Pages**. The live tool is the Pages URL abo
 - `loot_bg/` — the loot-simulation background images.
 
 **To update the live site:** upload a new `index.html` (Add file → Upload files → commit). GitHub Pages redeploys in about a minute; hard-refresh with **Ctrl+Shift+R** to bypass the browser cache. `loot_bg/` only needs re-uploading if the images change.
+
+### Maintainer reference
+
+- **Live app:** https://countinbiskitsyo.github.io/mirrorfilter/
+- **Economy backend (Cloudflare Worker):** https://mirrorfilter-econ.adamandlisag.workers.dev/
+  Powers Auto-Tier for every user. If Auto-Tier suddenly breaks for everyone at
+  once, check this Worker first — it's the single shared dependency.
+
+> The Cloudflare **dashboard** link for editing this Worker contains the account
+> ID, so it's deliberately kept out of this public repo. It lives in a local
+> maintainer note instead.
