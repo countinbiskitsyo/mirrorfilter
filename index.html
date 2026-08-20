@@ -28558,12 +28558,38 @@ function getTiers(){
   return t.map(tier=>({...tier,minChaos:Number(tier.minChaos)||0}));
 }
 function tierStyle(name){return getTiers().find(t=>t.name===name)||{textColor:'#888',bgColor:'#1a1a1a'};}
+// The ∅ tier is the designated "no price data at all" bucket — identified by
+// its name being the ∅ symbol, NOT by its 0 threshold (a lowest priced tier
+// like E is also at 0). Auto-Tier routes truly-unpriced items to ∅ via the
+// per-rule tierSortUnpriced flag, and cheap-but-priced items to the lowest
+// PRICED tier instead — so E at 0 and ∅ at 0 mean two different things and
+// must read differently in the UI, or they look like duplicates.
+const UNPRICED_TIER_NAME='\u2205';
+function isUnpricedTier(t){return t&&t.name===UNPRICED_TIER_NAME;}
+// Range/label text for a tier, shared by the config panel and the badge tip so
+// they never drift. Distinguishes: ∅ (no price) / lowest priced tier at 0
+// (any price up to next threshold) / a normal banded tier / an open-topped
+// highest tier.
+function tierRangeLabel(t){
+  const tiers=[...getTiers()].sort((a,b)=>b.minChaos-a.minChaos);
+  const idx=tiers.findIndex(t2=>t2.name===t.name);
+  const above=idx>0?tiers[idx-1]:null;
+  if(isUnpricedTier(t))return 'No price';
+  if(t.minChaos===0){
+    // Lowest priced tier: catches any item with a real price, from just above
+    // zero up to (but not including) the next tier's threshold.
+    return above?('any price \u2013 '+(above.minChaos-1)+'c'):'any price';
+  }
+  if(above)return t.minChaos+'c \u2013 '+(above.minChaos-1)+'c';
+  return t.minChaos+'c+';
+}
 function tierTip(name){
   const t=getTiers().find(t2=>t2.name===name);if(!t)return name;
+  if(isUnpricedTier(t))return name+'-Tier \u2014 items with NO price data from any source land here (not the same as cheap items, which go to your lowest priced tier)';
   const sorted=[...getTiers()].sort((a,b)=>b.minChaos-a.minChaos);
   const idx=sorted.findIndex(t2=>t2.name===name);
   const above=idx>0?sorted[idx-1]:null;
-  if(t.minChaos===0)return name+'-Tier \u2014 catches all remaining items (0+ chaos)';
+  if(t.minChaos===0)return name+'-Tier \u2014 lowest priced tier: any item with a real price up to '+(above?(above.minChaos-1)+'c':'the next tier')+' lands here; items with no price go to '+UNPRICED_TIER_NAME+' instead';
   if(above)return name+'-Tier \u2014 '+t.minChaos+'c to '+(above.minChaos-1)+'c';
   return name+'-Tier \u2014 '+t.minChaos+'+ chaos';
 }
@@ -28610,10 +28636,19 @@ function renderTierCfg(){
       saveState();renderList();const ar=byId(activeId);if(ar)renderEditor(ar);
     };
     const chaosI=document.createElement('input');chaosI.className='tcfg-i';chaosI.type='number';chaosI.min='0';chaosI.value=t.minChaos;
-    const rangeL=document.createElement('span');rangeL.style.cssText='font-size:11px;color:var(--text2)';
-    const updateRange=()=>{rangeL.textContent=t.minChaos===0?'Catch-all':t.minChaos+'+ chaos';};
+    const rangeL=document.createElement('span');rangeL.style.cssText='font-size:11px;color:var(--text2)';rangeL.className='tcfg-range';
+    const updateRange=()=>{rangeL.textContent=tierRangeLabel(t);};
     updateRange();
-    chaosI.oninput=()=>{t.minChaos=parseFloat(chaosI.value)||0;updateRange();saveState();};
+    // A tier's range label depends on the NEXT tier up's threshold, so editing
+    // one threshold changes the neighbor's displayed range too. Refresh every
+    // range label in the panel on any change — but only the label <span>s, never
+    // the inputs, so the field being typed in keeps focus.
+    const refreshAllRanges=()=>{
+      div.querySelectorAll('.tcfg-range').forEach((el,ri)=>{
+        if(S.tiers[ri])el.textContent=tierRangeLabel(S.tiers[ri]);
+      });
+    };
+    chaosI.oninput=()=>{t.minChaos=parseFloat(chaosI.value)||0;refreshAllRanges();saveState();};
     const tcDiv=document.createElement('div');tcDiv.className='tcfg-c';tcDiv.style.background=t.textColor;
     const tcInp=document.createElement('input');tcInp.type='color';tcInp.value=t.textColor;
     tcInp.oninput=()=>{t.textColor=tcInp.value;tcDiv.style.background=tcInp.value;const p=row.querySelector('.tier-lbl-prev');if(p)p.style.color=tcInp.value;saveState();renderList();const ar2=byId(activeId);if(ar2)renderEditor(ar2);};
@@ -38237,7 +38272,19 @@ async function runAutoTier(onlySection){
         :('No Auto-Tier rules found'+scopeLabel+' — check Tier Sort Target on your rules.');
     }
     toast(msg,'ok');
-    setStatus('Auto-Tier complete \u2713');
+    // Soft "prices may be incomplete" indicator — set by the hardened economy
+    // Worker when poe.ninja returned data but at least one category failed
+    // (timeout / 5xx after retry). The sort still ran on whatever DID come
+    // back, so this is a caveat, not an error. Older Worker versions don't send
+    // `partial` at all, so this is a no-op there — nothing breaks if absent.
+    if(d.partial){
+      const missing=Array.isArray(d.notes)?d.notes.filter(n=>/timeout|neterr|HTTP 5/i.test(n)):[];
+      const detail=missing.length?(' ('+missing.length+' price source'+(missing.length!==1?'s':'')+' failed this run)'):'';
+      setTimeout(()=>toast('\u26a0 Prices may be incomplete'+detail+' \u2014 some items could be mistiered. Try Auto-Tier again in a moment.','inf'),400);
+      setStatus('Auto-Tier complete \u2014 \u26a0 prices may be incomplete');
+    } else {
+      setStatus('Auto-Tier complete \u2713');
+    }
   }catch(e){
     console.error(e);
     toast('Could not fetch economy data \u2014 check internet connection.','err');
