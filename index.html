@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <!--
-  "AdamGs MirrorFilter" © 2026 by AdamGs. All rights reserved.
+  MirrorFilter Web — VERSION 5.152
+  (The version shown here always matches the newest Changelog entry, which the
+   app also displays live next to "Web" in the header. To confirm which build a
+   given index.html is, check this line or the header in the running app.)
+
+  "Adamg MirrorFilter" © 2026 by Adamg. All rights reserved.
   Shared for personal use only — see LICENSE.txt for the full terms
   and the GGG/Tencent disclaimer before redistributing this file or
   any part of it. Do not remove this notice.
@@ -242,13 +247,13 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 .hres-pv{position:absolute;left:0;top:0;bottom:0;width:5px;cursor:col-resize;z-index:20;background:transparent}
 .hres-pv:hover,.hres-pv.dragging{background:var(--accent)}
 
-#pvEcon{flex:0 0 180px;overflow-y:auto;padding:10px;min-height:70px}
+#pvEcon{flex:1 1 auto;overflow-y:auto;padding:10px;min-height:120px}
 #pvEcon::-webkit-scrollbar{width:4px}
 #pvEcon::-webkit-scrollbar-thumb{background:var(--border2)}
 
 .vres{height:5px;background:var(--border);cursor:row-resize;flex-shrink:0}
 .vres:hover,.vres.dragging{background:var(--accent)}
-#pvBot{overflow-y:auto;padding:10px;min-height:60px;height:190px;max-height:60vh}
+#pvBot{flex:0 0 auto;overflow-y:auto;padding:10px;min-height:60px;height:150px;max-height:60vh}
 #pvBot::-webkit-scrollbar{width:4px}
 #pvBot::-webkit-scrollbar-thumb{background:var(--border2)}
 .econ-scope-toggle{display:flex;align-items:center;gap:2px;cursor:pointer;font-size:9px;color:var(--text3);user-select:none;flex-shrink:0}
@@ -477,7 +482,7 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
    theme-3d (v1, original/lightest), theme-3d-v2 (a genuine midpoint between
    v1 and v3), theme-3d-x2 (v3, the deepest/widest-coverage tier). Kept the
    internal class name theme-3d-x2 for v3 rather than renaming it, since
-   Adam's already-saved theme selection points at this exact class and
+   Adamg's already-saved theme selection points at this exact class and
    renaming it would silently change what he sees on next load. ── */
 html.theme-3d .ri:not(.active),html.theme-3d .vrow,html.theme-3d .sec-hdr,html.theme-3d .tb-btn,
 html.theme-3d .sh-btn,html.theme-3d .ss,html.theme-3d .vstat-card{
@@ -594,7 +599,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 <div id="middleCol">
 <div id="topbar">
   <div id="topbarSpacer" style="display:none;flex-shrink:0"></div>
-  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em>Web</em><em style="margin-left:6px;opacity:.7">by AdamGs</em></div>
+  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em id="mfVerLabel">Web</em><em style="margin-left:6px;opacity:.7">by Adamg</em></div>
   <input id="filterName" type="text" value="MyFilter" placeholder="Filter name…" data-tip="Name used when exporting your .filter file" oninput="autoSizeFilterName()">
   <span id="filterNameMeasure" style="position:absolute;visibility:hidden;white-space:pre;font-size:13px"></span>
   <select id="leagueSelect" data-tip="League used for Auto-Tier price lookups">
@@ -635,7 +640,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     <div id="edScroll">
       <div id="noSel"><div class="ns-i" style="opacity:.85;margin-bottom:8px">
         <span class="ns-logo-text">MirrorFilter</span>
-      </div><div style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:.3px">&quot;AdamGs MirrorFilter&quot; &copy; 2026 by AdamGs. All rights reserved.</div><div style="text-align:center;font-size:10px;color:var(--text3);margin-bottom:20px;opacity:.75;max-width:420px;margin-left:auto;margin-right:auto">Shared for personal use only — see LICENSE.txt. Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.</div><p>Select a rule from the left panel.<br><br>Use <strong>+ Section</strong> to create a section, <strong>+ Rule</strong> to add a rule.<br><br>Refer to the <strong>Resources</strong> tab for guides, tutorials, customizations and configurations.<br><br><span style="color:var(--accent)">&#128190; Your work is saved automatically in your browser. Click <strong>Export</strong> (or <strong>Quick-Save</strong>) to write your <code>.filter</code> to your Path of Exile 2 folder. Because your data lives in this browser, use <strong>Export/Import</strong> to back it up or move it to another computer.</span></p></div>
+      </div><div style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:.3px">&quot;Adamg MirrorFilter&quot; &copy; 2026 by Adamg. All rights reserved.</div><div style="text-align:center;font-size:10px;color:var(--text3);margin-bottom:20px;opacity:.75;max-width:420px;margin-left:auto;margin-right:auto">Shared for personal use only — see LICENSE.txt. Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.</div><p>Select a rule from the left panel.<br><br>Use <strong>+ Section</strong> to create a section, <strong>+ Rule</strong> to add a rule.<br><br>Refer to the <strong>Resources</strong> tab for guides, tutorials, customizations and configurations.<br><br><span style="color:var(--accent)">&#128190; Your work is saved automatically in your browser. Click <strong>Export</strong> (or <strong>Quick-Save</strong>) to write your <code>.filter</code> to your Path of Exile 2 folder. Because your data lives in this browser, use <strong>Export/Import</strong> to back it up or move it to another computer.</span></p></div>
       <div id="edContent" style="display:none"></div>
     </div>
   </div>
@@ -1483,7 +1488,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   <div class="mdlg" style="width:400px">
     <h3>&#128220; Start New Filter?</h3>
     <p>This clears all rules and starts you with a blank filter. Your current work stays in your browser until you replace it — and if you've exported a <code>.filter</code>, that copy on disk is unaffected.</p>
-    <p style="font-size:12px;color:var(--text3);margin-top:10px">New here? You can also load <strong>AdamGs's example filter</strong> — a full 360+ rule PoE2 filter — as a starting point to explore and customize.</p>
+    <p style="font-size:12px;color:var(--text3);margin-top:10px">New here? You can also load <strong>Adamg's example filter</strong> — a full 360+ rule PoE2 filter — as a starting point to explore and customize.</p>
     <div class="mbtns" style="flex-wrap:wrap;gap:6px">
       <button class="tb-btn sec" onclick="closeM('newM')">Cancel</button>
       <button class="tb-btn sec" onclick="loadExampleFilter()" style="border-color:var(--accent);color:var(--text)">&#10024; Load Example Filter</button>
@@ -27868,7 +27873,7 @@ window.__MF_DEFAULT_TODO__ = [
   }
 ];
 window.__MF_ECON_WORKER__ = "https://mirrorfilter-econ.adamandlisag.workers.dev";
-/* === MirrorFilter Web engine + backend shim (by AdamGs) === */
+/* === MirrorFilter Web engine + backend shim (by Adamg) === */
 /* MirrorFilter engine — verified JS ports of app.py generate_filter,
    parse_filter_text, buildMeta. Byte-identical to the Python output. */
 
@@ -28257,7 +28262,7 @@ function parseFilterText(text){
 
 
 /* ============================================================================
-   MirrorFilter Web — in-browser backend shim (by AdamGs)
+   MirrorFilter Web — in-browser backend shim (by Adamg)
    Replaces the Python/Flask server. Redefines window.API + wraps window.fetch
    so every /api/* call is served in-browser. Depends on engine.js functions
    (generateFilter, buildMeta, parseFilterText) injected above at build time.
@@ -28578,7 +28583,7 @@ function tierRangeLabel(t){
   if(t.minChaos===0){
     // Lowest priced tier: catches any item with a real price, from just above
     // zero up to (but not including) the next tier's threshold.
-    return above?('any price \u2013 '+(above.minChaos-1)+'c'):'any price';
+    return above?('.001c \u2013 '+(above.minChaos-1)+'c'):'.001c+';
   }
   if(above)return t.minChaos+'c \u2013 '+(above.minChaos-1)+'c';
   return t.minChaos+'c+';
@@ -29206,7 +29211,7 @@ async function applyBulkVisualAssign(){
   // trusting that whatever was there before is still what they want.
   S.bulkVisualCheckedSections={};
   // Restore the default-checked state on "Also include Hide and disabled
-  // rules" too — Adam's typical workflow with Auto-Tier depends on this
+  // rules" too — Adamg's typical workflow with Auto-Tier depends on this
   // being on, and having it silently stay off after a run where it was
   // manually turned off is exactly the kind of forgotten-state trap this
   // reset is meant to avoid on the section list above.
@@ -30085,7 +30090,7 @@ const HELP_TOPICS = [
     icon:'🗺',title:'Overview — What is MirrorFilter?',tags:['overview','intro','about','what'],cat:'basics',
     body:`
       <p>MirrorFilter is an <strong>offline loot filter editor</strong> for <strong>Path of Exile 1 and Path of Exile 2</strong>. It lets you create, edit, and export <code>.filter</code> files that control which items you see on the ground, how they look, what sounds they make, and how they appear on the minimap.</p>
-      <p style="color:var(--text3);font-size:11px">&quot;AdamGs MirrorFilter&quot; &copy; 2026 by AdamGs. All rights reserved. Shared for personal use only — see LICENSE.txt for the full terms. Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.</p>
+      <p style="color:var(--text3);font-size:11px">&quot;Adamg MirrorFilter&quot; &copy; 2026 by Adamg. All rights reserved. Shared for personal use only — see LICENSE.txt for the full terms. Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.</p>
       <p>The tool has three main tabs:</p>
       <div class="step"><div class="step-num">1</div><div class="step-txt"><strong>📋 Editor</strong> — Create and edit filter rules. A Live Preview panel sits top-right, next to the toolbar. The left panel lists all your rules. The middle panel is the rule editor. The right panel has two sections: Economy Prices and the raw .filter Output.</div></div>
       <div class="step"><div class="step-num">2</div><div class="step-txt"><strong>👁 Visuals &amp; Stats</strong> — See every rule's visual appearance at once, plus filter-health stat panels (Tier Distribution, Auto-Tier Setup, Untiered Rules, Similar-Looking, Sound Duplicates, and more). Click any row to jump to editing it.</div></div>
@@ -30441,6 +30446,17 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.152',changes:[
+    'Auto-Tier economy backend hardened (Cloudflare Worker): every price fetch now has an explicit timeout (Workers give fetch no default one, so one hung upstream could previously stall the whole run), transient failures (network error / 5xx) get one automatic retry with backoff, and a 404 is treated as "this category doesn\u2019t exist" rather than retried. Prices poe.ninja already returned can no longer be lost if a later source fails \u2014 poe.ninja\u2019s results are locked in before poe2scout/poe2db run, each of which is independently guarded. Partial success is now a success: if 13 of 14 categories return and one times out, you still get the 13.',
+    'Added the inferred base-type max-price merge to the web economy backend (it was previously only in the desktop app) \u2014 generic-base Unique rules that name no specific unique are now priced by the highest-value unique known to use that base, so they tier correctly instead of falling to Unpriced.',
+    'poe2scout and poe2db.tw are now wired as supplemental gap-fill sources behind poe.ninja (matching the desktop app), using the corrected poe2scout endpoints from its own BREAKING_API_CHANGES.md. Both currently return little or nothing (poe2scout down since its Cloudflare migration; poe2db markup changed) but will contribute automatically if either recovers \u2014 never overwriting a poe.ninja price.',
+    'New "\u26a0 Prices may be incomplete" indicator: when the economy backend returns data but a price source failed mid-run, Auto-Tier now tells you the sort ran on partial data instead of silently proceeding.',
+    'Default tier thresholds retuned to match real PoE2 economy scale: A 800c+ (genuinely elite \u2014 Mirror-tier and top chase uniques), B 250c, C 50c, D 10c, E .001c\u2013(catches any priced item below D), \u2205 for items with no price at all. Reset Defaults now applies these.',
+    'Tier Configuration panel: the lowest priced tier (E) and the no-price catch-all (\u2205) no longer both read "Catch-all / 0" \u2014 E now shows its real ".001c\u2013" range and \u2205 shows "No price", so the two are no longer confusable. Range labels also update live as you edit any neighbouring threshold.',
+    'Untiered Rules stat panel (Visuals & Stats): added a total BaseType count at the top, and per-rule hover tooltips explaining exactly WHY each rule is untiered \u2014 Unpriced Catch-All vs unrecognized tier vs not part of an Auto-Tier group.',
+    'Editor Live Preview stage now matches the Loot Drop Simulator backdrop (same image or same gray shade), kept in sync automatically.',
+    'Right-side panel default layout: Economy Prices now takes more height by default and the .filter Output sits compactly at the bottom.'
+  ]},
   {v:'5.151',changes:[
     'Sidebar main sections (depth 0) now pulse softly with an accent glow, but only when expanded \u2014 makes them stand out from same-colored sub-sections at a glance',
     'Selected rule: replaced pulsing glow with a bold 2px accent border (padding compensated so the row doesn\u2019t shift 1px on select/deselect)',
@@ -31709,6 +31725,17 @@ const debouncedFilterHelpTopics=debounce(filterHelpTopics,150);
 
 async function init(){
   try{
+    // Show the build version in the header, sourced from the newest Changelog
+    // entry so the two can never disagree — bump the changelog and the header
+    // follows automatically. Lets you tell at a glance which index.html build
+    // is loaded (there's no other on-screen version indicator otherwise).
+    try{
+      const vEl=document.getElementById('mfVerLabel');
+      if(vEl&&typeof CHANGELOG!=='undefined'&&CHANGELOG[0]&&CHANGELOG[0].v){
+        vEl.textContent='Web v'+CHANGELOG[0].v;
+        vEl.setAttribute('data-tip','MirrorFilter Web build '+CHANGELOG[0].v+' \u2014 see Resources \u2192 Changelog for what\u2019s new. This matches the newest changelog entry.');
+      }
+    }catch(_){}
     await window.MF_WEB.install(window.__MF_SEED__);
     await window.MF_WEB.fsRestore();
     const loaded=await API('/api/state');
@@ -36346,7 +36373,7 @@ function applyLootSimBgMode(mode){
     ground.style.backgroundPosition='center';
     ground.style.backgroundColor='rgb(20,20,20)';
     if(slider){slider.disabled=true;slider.style.opacity='.4';slider.style.cursor='not-allowed';}
-    // Same backdrop applied to the rules sidebar too, per Adam's request —
+    // Same backdrop applied to the rules sidebar too, per Adamg's request —
     // but darkened with a gradient overlay baked into the same
     // background-image declaration, since section headers and rule text
     // need to stay legible sitting on top of it, unlike the purely
@@ -37903,7 +37930,7 @@ function loadExampleFilter(){
     renderList();
     clearEditor();
     setStatus('Ready \\u2713');
-    toast('Loaded AdamGs\\u2019s example filter \\u2014 explore and customize freely','ok');
+    toast('Loaded Adamg\\u2019s example filter \\u2014 explore and customize freely','ok');
   }catch(e){console.warn('loadExample failed',e);toast('Could not load example filter','err');}
 }
 function handleImportFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{document.getElementById('importTxt').value=ev.target.result;_importFileName=f.name;};r.readAsText(f);}
