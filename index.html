@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.156
+  MirrorFilter Web — VERSION 5.157
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -28623,6 +28623,27 @@ window.MF_WEB = {
   get dirLinked(){ return !!_dirHandle; },
   get dirName(){ return _dirHandle ? _dirHandle.name : null; },
   fsSupported: FS_SUPPORTED,
+  // Disk auto-backup bridge — lets code in the second <script> block (which can't
+  // see this block's lexically-scoped _dirHandle/kvSet/K_DIRHANDLE) pick a folder
+  // and write to it. pickAndWrite runs the picker AND the first write in one
+  // gesture-preserving call; write reuses the stored handle for later saves.
+  async fsPickBackupFolder(filename, content){
+    _dirHandle = await window.showDirectoryPicker({mode:'readwrite'});
+    try{ await kvSet(K_DIRHANDLE,_dirHandle); }catch(_){}
+    const fh=await _dirHandle.getFileHandle(filename,{create:true});
+    const w=await fh.createWritable(); await w.write(content); await w.close();
+    return _dirHandle.name;
+  },
+  async fsWriteBackup(filename, content){
+    if(!_dirHandle) return false;
+    const opts={mode:'readwrite'};
+    let perm = await _dirHandle.queryPermission(opts);
+    if(perm!=='granted'){ perm = await _dirHandle.requestPermission(opts); }
+    if(perm!=='granted') return false;
+    const fh=await _dirHandle.getFileHandle(filename,{create:true});
+    const w=await fh.createWritable(); await w.write(content); await w.close();
+    return true;
+  },
   _debug:{ get state(){return STATE;}, webAPI },
 };
 
@@ -30532,6 +30553,10 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.157',changes:[
+    'Fixed "Could not enable disk auto-backup" when choosing a folder. The folder picker now runs directly from your click (so the browser keeps the required user gesture) and writes the first backup immediately with the just-granted access. If a write ever does fail, the message now tells you the actual reason instead of a generic error.',
+    'Cancelling the folder picker is now silent (no error toast).'
+  ]},
   {v:'5.156',changes:[
     'Reorganized everything about protecting your work into ONE place: Resources → Saving Your Work now flows as three clearly separated stages — ① Save (your game .filter, with Multi-Location Save), ② Back up (snapshots of your whole editor state, in-browser and on disk), and ③ Restore (load any backup back). The old separate "Backups & Filter Health" section was folded in, removing the overlap and back-and-forth.',
     'First-run prompt: if you haven\u2019t set up any off-browser protection yet, MirrorFilter now offers, right at the start, to pick a backup folder you control — one click and you\u2019re protected. You can choose "remind me later" or "no thanks", and change it anytime.',
@@ -38543,13 +38568,8 @@ function buildFullSnapshot(){
 async function writeDiskAutoBackup(reason){
   if(!S.__autoBackupDisk) return false;      // feature off
   try{
-    if(typeof _dirHandle!=='undefined' && _dirHandle){
-      if(await fsEnsurePerm(_dirHandle)){
-        await fsWriteFile(_dirHandle, AUTO_BACKUP_FILENAME, JSON.stringify(buildFullSnapshot(),null,2));
-        S.__lastDiskBackup=Date.now();
-        return true;
-      }
-    }
+    const ok = await window.MF_WEB.fsWriteBackup(AUTO_BACKUP_FILENAME, JSON.stringify(buildFullSnapshot(),null,2));
+    if(ok){ S.__lastDiskBackup=Date.now(); return true; }
   }catch(e){ console.warn('[MirrorFilter] disk auto-backup failed:',e); }
   return false;
 }
@@ -38566,7 +38586,8 @@ async function maybePromptFirstRunBackup(){
   // Defer if they picked "later" in this same browser session.
   if(window.__backupPromptDeferred) return;
   const choice = await backupSetupDialog();
-  if(choice==='setup'){ await enableDiskAutoBackup(); S.__backupPromptChoice='done'; await saveState(); }
+  if(choice==='setup-inline'){ /* handled inside the dialog to keep the click gesture */ }
+  else if(choice==='setup'){ await enableDiskAutoBackup(); }   // fallback path
   else if(choice==='never'){ S.__backupPromptChoice='never'; await saveState(); }
   else { window.__backupPromptDeferred=true; }        // "later" — ask again next load
 }
@@ -38593,7 +38614,12 @@ function backupSetupDialog(){
     ov.appendChild(box); document.body.appendChild(ov);
     let settled=false;
     const done=(v)=>{ if(settled)return; settled=true; try{document.body.removeChild(ov);}catch(_){} resolve(v); };
-    box.querySelector('#_bkSetup').onclick=(e)=>{ e.stopPropagation(); done('setup'); };
+    // IMPORTANT: run the folder picker straight from this click so it keeps the
+    // user gesture (showDirectoryPicker requires one). We close the dialog first,
+    // then invoke enable — enableDiskAutoBackup itself calls the picker.
+    box.querySelector('#_bkSetup').onclick=(e)=>{ e.stopPropagation(); if(settled)return; settled=true; try{document.body.removeChild(ov);}catch(_){}
+      // call synchronously within the gesture
+      enableDiskAutoBackup().then(()=>{ try{ if(S.__autoBackupDisk){ S.__backupPromptChoice='done'; saveState(); } }catch(_){}}); resolve('setup-inline'); };
     box.querySelector('#_bkLater').onclick=(e)=>{ e.stopPropagation(); done('later'); };
     box.querySelector('#_bkNever').onclick=(e)=>{ e.stopPropagation(); done('never'); };
     box.onclick=(e)=>{ e.stopPropagation(); };  // clicks inside the box never count as backdrop
@@ -38601,19 +38627,29 @@ function backupSetupDialog(){
   });
 }
 async function enableDiskAutoBackup(){
+  // Must run synchronously from the click so the folder picker keeps its user
+  // gesture. showDirectoryPicker() already grants readwrite, so we write the
+  // first backup with the fresh handle directly instead of re-requesting
+  // permission (which can throw right after the picker).
+  if(!("showDirectoryPicker" in window)){
+    try{ downloadText(AUTO_BACKUP_FILENAME, JSON.stringify(buildFullSnapshot(),null,2));
+      toast('Your browser can\u2019t auto-write to a folder; downloaded a backup file instead.','ok'); }catch(_){}
+    return;
+  }
+  let name;
   try{
-    if(typeof fsChooseFolder==='function'){
-      const name=await fsChooseFolder();
-      S.__autoBackupDisk=true;
-      await saveState();
-      await writeDiskAutoBackup('enable');
-      toast('Auto-backup to \u201C'+name+'\u201D is on. A full backup file will be kept there automatically.','ok');
-    } else {
-      // No folder access — do a one-off download instead.
-      downloadText(AUTO_BACKUP_FILENAME, JSON.stringify(buildFullSnapshot(),null,2));
-      toast('Your browser can\u2019t auto-write to a folder; downloaded a backup file instead.','ok');
-    }
-  }catch(e){ if(e&&e.name!=='AbortError') toast('Could not enable disk auto-backup','err'); }
+    name = await window.MF_WEB.fsPickBackupFolder(AUTO_BACKUP_FILENAME, JSON.stringify(buildFullSnapshot(),null,2));
+  }catch(e){
+    if(e && e.name==='AbortError') return;             // user cancelled the picker — silent
+    console.error('[MirrorFilter] disk backup setup failed:',e);
+    toast('Couldn\u2019t set up that folder ('+(e&&e.name||'error')+'). Try a normal local folder (not a system/protected one).','err');
+    return;
+  }
+  try{
+    S.__autoBackupDisk=true; S.__lastDiskBackup=Date.now();
+    await saveState();
+    toast('Auto-backup to \u201C'+name+'\u201D is on. A full backup is kept there and updated on every save.','ok');
+  }catch(e){ console.warn(e); }
   if(typeof refreshBackupPanel==='function')refreshBackupPanel();
 }
 function disableDiskAutoBackup(){ S.__autoBackupDisk=false; saveState(); if(typeof refreshBackupPanel==='function')refreshBackupPanel(); toast('Disk auto-backup turned off','ok'); }
