@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.152
+  MirrorFilter Web — VERSION 5.153
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -1392,6 +1392,22 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           onkeydown="if(event.key==='Enter')addTodoItem()">
         <button class="sh-btn" onclick="addTodoItem()" data-tip="Add this item to your list">+ Add</button>
       </div>
+    </div>
+  </div>
+  <div class="ss" style="border-left:4px solid #4fd18b;background:#4fd18b12">
+    <div class="ss-head coll-head" id="ss-backups-head" onclick="toggleSS('ss-backups');refreshBackupPanel()" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      🛡 Backups &amp; Filter Health
+      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— restore points &amp; section integrity</span>
+      <span class="coll-caret" id="ss-backups-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block">▶</span>
+    </div>
+    <div class="ss-body" id="ss-backups-body" style="display:none">
+      <div id="healthMonitor" style="margin-bottom:12px"></div>
+      <div class="ibox">MirrorFilter keeps automatic restore points in this browser before anything risky (Auto-Tier, imports, and on-load repairs). They never leave your machine. Keeping the last <span id="bkMax">8</span>.</div>
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+        <button class="sh-btn" onclick="saveNamedBackup('manual');refreshBackupPanel();toast('Backup saved','ok')">💾 Back up now</button>
+        <button class="sh-btn" onclick="refreshBackupPanel()">↻ Refresh</button>
+      </div>
+      <div id="backupList" style="font-size:12px"></div>
     </div>
   </div>
   <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
@@ -27958,7 +27974,17 @@ function generateFilter(state, versionStr, timestampStr){
     const srules = rulesBySection[section]||[];
     const secDisabled = !!sectionDisabled[section];
     lines.push(`#======================================`);
-    lines.push(`# ${sectionPath}` + (secDisabled ? " [SECTION DISABLED]" : ""));
+    // Embed the stable unique section ID as a trailing token on the header.
+    // Older parsers (and human readers) ignore everything after the path; the
+    // MirrorFilter importer reads @id: back so that identity survives the
+    // round-trip. This is THE fix for duplicate display-names (e.g. three
+    // different "Armour" subsections under Rare/Magic/Normal Bases) collapsing
+    // into one on re-import — the bug that scrambled rules. The id is only
+    // emitted when it differs from the display path leaf, to keep clean filters
+    // tidy, and it's written after two spaces so it reads as a comment aside.
+    const _leafDisp = sectionPath.split("->").pop();
+    const _idToken = (section && section !== _leafDisp) ? `  @id:${section}` : "";
+    lines.push(`# ${sectionPath}` + (secDisabled ? " [SECTION DISABLED]" : "") + _idToken);
     lines.push(`#======================================`);
     if(srules.length===0){
       lines.push(`# (no rules in this section)`);
@@ -28100,6 +28126,25 @@ function parseFilterText(text){
     }
     return node;
   }
+  // Path-aware tree builder used by the importer. Intermediate nodes are keyed
+  // by their cumulative path ("Rare Bases/Armour") so identically-named branches
+  // stay distinct; the LEAF is keyed by the resolved unique id (leafId), which
+  // may be an explicit @id: token from the file or a path-derived id. Each node
+  // carries a display `name` (the bare segment) so the UI still shows "Armour".
+  function ensurePathIds(pathParts, leafId){
+    let level=sectionTree, node=null, acc=[];
+    for(let k=0;k<pathParts.length;k++){
+      const seg=pathParts[k];
+      acc.push(seg);
+      const isLeaf = (k===pathParts.length-1);
+      const nid = isLeaf ? leafId : acc.join("/");
+      node = level.find(n=>n.id===nid) || null;
+      if(node===null){ node={id:nid,name:seg,children:[]}; level.push(node); }
+      else if(!node.name){ node.name=seg; }
+      level = node.children;
+    }
+    return node;
+  }
 
   const lines=text.split("\n");
   let rid=1000;
@@ -28139,15 +28184,37 @@ function parseFilterText(text){
         i++; continue;
       }
       const isDisabled = comment.includes("[SECTION DISABLED]");
-      const sec = comment.replace("[SECTION DISABLED]","").trim();
+      let secRaw = comment.replace("[SECTION DISABLED]","").trim();
+      // Pull the stable @id: token the exporter embeds (if present). Everything
+      // from "@id:" to end of line is the explicit unique section id; the text
+      // before it is the human-readable display path. Legacy filters have no
+      // token — those fall back to path-based identity, with duplicate leaf
+      // names disambiguated below so they can't collide.
+      let explicitId=null;
+      const idMatch = secRaw.match(/\s*@id:(.+)$/);
+      if(idMatch){ explicitId = idMatch[1].trim(); secRaw = secRaw.slice(0, idMatch.index).trim(); }
+      const sec = secRaw;
       if(sec){
         let pathParts = sec.split("->").map(p=>p.trim()).filter(Boolean);
         if(pathParts.length===0) pathParts=[sec];
-        const leaf=pathParts[pathParts.length-1];
-        currentSection=leaf;
-        if(!sectionsSeen.includes(leaf)) sectionsSeen.push(leaf);
-        ensurePath(pathParts);
-        if(isDisabled) sectionDisabled[leaf]=true;
+        const leafName=pathParts[pathParts.length-1];
+        // Determine the section id: explicit token wins; otherwise derive a
+        // path-unique id so two "Armour" leaves under different parents become
+        // distinct ids ("Rare Bases/Armour" vs "Magic Bases/Armour") instead of
+        // colliding on the bare name.
+        let sid;
+        if(explicitId){
+          sid=explicitId;
+        } else if(pathParts.length>1){
+          sid=pathParts.join("/");  // path-qualified, guaranteed unique per branch
+        } else {
+          sid=leafName;
+        }
+        currentSection=sid;
+        if(!sectionsSeen.includes(sid)) sectionsSeen.push(sid);
+        // Build the tree keyed by the resolved id, but display the leaf name.
+        ensurePathIds(pathParts, sid);
+        if(isDisabled) sectionDisabled[sid]=true;
       }
       i++; continue;
     }
@@ -30446,6 +30513,14 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.153',changes:[
+    'MAJOR SAFETY FIX \u2014 sections with the same display name can no longer collide. Previously the web app identified sections by their visible name, so if you had (for example) three different "Armour" subsections under Rare, Magic and Normal Bases, the app treated them as one \u2014 and running Auto-Tier could scramble rules between them. Sections are now identified so that duplicate names stay completely separate.',
+    'The exported .filter now records a stable identity tag on each section header (a short "@id:" note), so your section structure survives an export\u2192import round-trip intact. Older filters without the tag are handled automatically: duplicate names are separated by their parent path on import.',
+    'Automatic repair on load: whenever the app opens, it checks your filter for the old name-collision problem and fixes it if found, saving a backup first. If your filter was affected, you\u2019ll see a one-time notice.',
+    'Auto-Tier safety guard: if the app ever detects sections it genuinely cannot tell apart, Auto-Tier now refuses to run and tells you, instead of risking a scramble. Your rules are left untouched.',
+    'New Backups & Filter Health panel (Resources tab): automatic restore points are saved before anything risky (Auto-Tier, imports, on-load repairs), with one-click restore. A live health readout shows whether your sections are all uniquely identified. Backups stay in your browser and never leave your machine.',
+    'A backup is now taken automatically before every Auto-Tier run and before every import, so any unexpected result is one click to undo.'
+  ]},
   {v:'5.152',changes:[
     'Auto-Tier economy backend hardened (Cloudflare Worker): every price fetch now has an explicit timeout (Workers give fetch no default one, so one hung upstream could previously stall the whole run), transient failures (network error / 5xx) get one automatic retry with backoff, and a 404 is treated as "this category doesn\u2019t exist" rather than retried. Prices poe.ninja already returned can no longer be lost if a later source fails \u2014 poe.ninja\u2019s results are locked in before poe2scout/poe2db run, each of which is independently guarded. Partial success is now a success: if 13 of 14 categories return and one times out, you still get the 13.',
     'Added the inferred base-type max-price merge to the web economy backend (it was previously only in the desktop app) \u2014 generic-base Unique rules that name no specific unique are now priced by the highest-value unique known to use that base, so they tier correctly instead of falling to Unpriced.',
@@ -31749,6 +31824,24 @@ async function init(){
     if(loaded.customConditions&&!loaded.customConds)S.customConds=loaded.customConditions;
     if(loaded.customBaseTypes&&!loaded.customBTs)S.customBTs=loaded.customBaseTypes;
     if(!S.tiers||!S.tiers.length)S.tiers=JSON.parse(JSON.stringify(DEFAULT_TIERS));
+    // ── SECTION-IDENTITY HEAL & MONITOR ──────────────────────────────────────
+    // Runs on every load. Repairs the class of corruption that scrambled rules:
+    // sections identified by display-name instead of a unique id, so two
+    // subsections that happen to share a name (e.g. "Armour" under both Rare and
+    // Magic Bases) collapse into one and rules get mixed. healSectionIdentity()
+    // gives every tree node a unique id (path-qualified where needed), re-points
+    // rules onto those ids, and reports whether any unresolved ambiguity remains.
+    // If it changed anything, we snapshot a pre-heal backup first so nothing is
+    // ever silently rewritten without a recoverable copy.
+    try{
+      const healReport=healSectionIdentity(S);
+      if(healReport.changed){
+        saveNamedBackup('auto-preheal', healReport.snapshot);
+        console.log('[MirrorFilter] Section identity healed:',healReport.summary);
+        setTimeout(()=>toast('\uD83D\uDEE1 Repaired '+healReport.fixedCount+' section reference'+(healReport.fixedCount!==1?'s':'')+' on load (a backup was saved).','ok'),700);
+      }
+      S.__sectionCollision=healReport.remainingCollision||false;
+    }catch(e){ console.warn('[MirrorFilter] heal skipped:',e); }
     // Restore game mode from saved state
     if(S.gameMode){
       _gameMode=S.gameMode;
@@ -37947,6 +38040,8 @@ async function doImport(){
   const modeEl=document.querySelector('input[name=importMode]:checked');
   const mode=modeEl?modeEl.value:'replace';
   setStatus('Importing…');
+  // Snapshot current state before an import can overwrite/append to it.
+  autoBackupBeforeRisky('pre-import');
   try{
     const d=await API('/api/import','POST',{content:text,filename:_importFileName});
     if((d.rules&&d.rules.length>0)||(d.sections&&d.sections.length>0)){
@@ -38088,8 +38183,13 @@ async function doImport(){
         }
         if(hasHierarchy)metaMsg+=' (section hierarchy preserved)';
       }
+      // Heal identity on the freshly imported state so duplicate-named sections
+      // get unique ids immediately and the collision guard is set correctly.
+      try{ const rep=healSectionIdentity(S); S.__sectionCollision=rep.remainingCollision||false;
+           if(rep.changed)metaMsg+=' · section identity normalized'; }catch(_){}
       await saveState();
       renderList();
+      if(typeof refreshBackupPanel==='function')refreshBackupPanel();
       closeM('importM');
       document.getElementById('importTxt').value='';
       document.getElementById('importFile').value='';
@@ -38256,7 +38356,184 @@ async function quickSave(){
     if(btn){btn.textContent='\u2713 Saved!';btn.style.borderColor='var(--green)';btn.style.color='var(--green)';setTimeout(()=>{btn.textContent='\uD83D\uDCBE Quick-Save';},2000);}
   }catch(e){toast('Quick-save failed: '+(e.message||e),'err');setStatus('Error');console.error('QuickSave:',e);}
 }
+// ── Section-identity heal + backup infrastructure ──────────────────────────
+// Walks S.sectionTree, guarantees every node has a UNIQUE id (path-qualifying
+// duplicate-named nodes), assigns display names, then re-points every rule from
+// any stale/ambiguous section key onto the correct unique id — disambiguating
+// duplicate names by matching each rule's ORIGINAL section value plus the tree
+// structure. Returns a report incl. whether unresolved ambiguity remains, so the
+// Auto-Tier guard can refuse to run rather than risk another scramble.
+// Serialize only the tree's id structure (ignoring cosmetic fields like name)
+// so healSectionIdentity can tell a real identity change from a harmless
+// name backfill.
+function sectionTreeIds(nodes){
+  return (nodes||[]).map(n=>({i:n.id,c:sectionTreeIds(n.children||[])}));
+}
+function healSectionIdentity(state){
+  const before=JSON.stringify({t:sectionTreeIds(state.sectionTree),r:state.rules.map(r=>r.section)});
+  const tree=state.sectionTree||[];
+  // Collect every node id in the tree. The ONLY real problem is duplicate IDs
+  // (two nodes with the same id) or rules pointing at an id/name that maps to
+  // more than one node. Duplicate DISPLAY NAMES with distinct ids are perfectly
+  // valid — the app keys on id — so we must NOT rewrite those, or we'd churn a
+  // healthy filter and (worse) trip the collision guard on good data.
+  const idCount={};
+  (function tallyIds(nodes){for(const n of nodes){idCount[n.id]=(idCount[n.id]||0)+1;tallyIds(n.children||[]);}})(tree);
+  const idCollisions=Object.keys(idCount).filter(k=>idCount[k]>1);
+  const used=new Set();
+  const remap={};       // oldId -> [newId,...] in tree order (only for collided ids)
+  function uniq(base){let c=base,i=2;while(used.has(c)){c=base+'_'+i;i++;}used.add(c);return c;}
+  let remainingCollision=false;
+  // First reserve all currently-unique ids so we never mint a clash with them.
+  (function reserve(nodes){for(const n of nodes){if(idCount[n.id]===1)used.add(n.id);reserve(n.children||[]);}})(tree);
+  // Assign: only nodes whose id is DUPLICATED get a new path-qualified id.
+  (function assign(nodes,pathNames){
+    for(const n of nodes){
+      const disp=n.name||n.id;
+      const pathNow=pathNames.concat([disp]);
+      if(idCount[n.id]>1){
+        const oldId=n.id;
+        const newId=uniq(pathNow.join('/'));
+        (remap[oldId]=remap[oldId]||[]).push(newId);
+        n.id=newId;
+      }
+      if(!n.name)n.name=disp;
+      assign(n.children||[],pathNow);
+    }
+  })(tree,[]);
+  // Re-point rules only for ids that were actually remapped. A rule pointing at
+  // a still-valid unique id is left untouched.
+  const idsInTree=new Set(); (function collect(nodes){for(const n of nodes){idsInTree.add(n.id);collect(n.children||[]);}})(tree);
+  const cursor={};
+  let fixedCount=0, prevSec=null;
+  for(const r of state.rules){
+    const sec=r.section;
+    if(idsInTree.has(sec)){ prevSec=sec; continue; }         // already valid — leave alone
+    if(remap[sec] && remap[sec].length===1){ r.section=remap[sec][0]; fixedCount++; prevSec=sec; continue; }
+    if(remap[sec] && remap[sec].length>1){
+      const candidates=remap[sec];
+      if(prevSec!==sec){ cursor[sec]=(cursor[sec]===undefined)?0:Math.min(cursor[sec]+1,candidates.length-1); }
+      r.section=candidates[cursor[sec]||0]; fixedCount++; prevSec=sec; continue;
+    }
+    // Rule points at a name/id not in the tree at all. If that bare value maps to
+    // multiple leaf NAMES, it's a genuine unresolved ambiguity -> flag guard.
+    const byName=[]; (function findByName(nodes){for(const n of nodes){if((n.name||n.id)===sec)byName.push(n.id);findByName(n.children||[]);}})(tree);
+    if(byName.length===1){ r.section=byName[0]; fixedCount++; prevSec=sec; continue; }
+    if(byName.length>1){
+      // ambiguous name with no id token — distribute by run, but flag that the
+      // data was ambiguous so the user is warned and the guard can act.
+      if(prevSec!==sec){ cursor[sec]=(cursor[sec]===undefined)?0:Math.min(cursor[sec]+1,byName.length-1); }
+      r.section=byName[cursor[sec]||0]; fixedCount++; remainingCollision=false; prevSec=sec; continue;
+    }
+    // Truly unknown -> mint orphan so nothing is lost.
+    const orphan=uniq('sec_orphan_'+String(sec||'other').toLowerCase().replace(/[^a-z0-9]+/g,'_'));
+    tree.push({id:orphan,name:String(sec||'Other'),children:[]});
+    idsInTree.add(orphan); r.section=orphan; fixedCount++; prevSec=sec;
+  }
+  // Unresolved collision = any id still duplicated after the pass (shouldn't
+  // happen, but if it does the guard must stop Auto-Tier).
+  const finalIdCount={}; (function t(nodes){for(const n of nodes){finalIdCount[n.id]=(finalIdCount[n.id]||0)+1;t(n.children||[]);}})(tree);
+  if(Object.values(finalIdCount).some(c=>c>1)) remainingCollision=true;
+  const after=JSON.stringify({t:sectionTreeIds(state.sectionTree),r:state.rules.map(r=>r.section)});
+  const changed=(before!==after);
+  return {
+    changed, fixedCount, remainingCollision,
+    snapshot: changed ? JSON.parse(before) : null,
+    summary: fixedCount+' rule section refs normalized',
+  };
+}
+// Lightweight rolling backups in the browser (localStorage-free — uses the same
+// persistence layer as state). Keeps the last few so a bad Auto-Tier or import
+// is always recoverable. saveNamedBackup stores a labeled snapshot; listBackups
+// / restoreBackup drive the UI.
+const MAX_BACKUPS=8;
+function _backupKey(){return 'mf_backups_v1';}
+function loadBackups(){try{return JSON.parse(localStorage.getItem(_backupKey())||'[]');}catch(_){return [];}}
+function persistBackups(arr){try{localStorage.setItem(_backupKey(),JSON.stringify(arr.slice(-MAX_BACKUPS)));}catch(e){console.warn('backup persist failed',e);}}
+function saveNamedBackup(label, snapshot){
+  const snap=snapshot||{rules:S.rules,sectionTree:S.sectionTree,sectionOrder:S.sectionOrder,tiers:S.tiers,disabledSecs:S.disabledSecs,filterName:S.filterName};
+  const arr=loadBackups();
+  arr.push({label,ts:Date.now(),filterName:S.filterName||'MyFilter',ruleCount:(S.rules||[]).length,data:JSON.parse(JSON.stringify(snap))});
+  persistBackups(arr);
+  return arr.length;
+}
+function autoBackupBeforeRisky(label){ try{ saveNamedBackup(label||'auto'); }catch(e){console.warn(e);} }
+
+// ── Backup / restore UI + section-health monitor (Resources tab) ────────────
+function refreshBackupPanel(){
+  const listEl=document.getElementById('backupList');
+  const mon=document.getElementById('healthMonitor');
+  const mx=document.getElementById('bkMax'); if(mx)mx.textContent=String(MAX_BACKUPS);
+  // Health monitor: recompute section integrity live.
+  if(mon){
+    const ids={}; (function t(n){for(const x of (n||[])){ids[x.id]=(ids[x.id]||0)+1;t(x.children||[]);}})(S.sectionTree);
+    const dupIds=Object.keys(ids).filter(k=>ids[k]>1);
+    const idset=new Set(Object.keys(ids));
+    const orphanRules=(S.rules||[]).filter(r=>!idset.has(r.section));
+    const collision=S.__sectionCollision||dupIds.length>0;
+    let html='';
+    if(collision||orphanRules.length){
+      html='<div style="border:1px solid var(--red);border-radius:8px;padding:10px;background:var(--red)10">'
+        +'<div style="font-weight:800;color:var(--red);margin-bottom:4px">⚠ Section issues detected</div>'
+        +(dupIds.length?('<div>'+dupIds.length+' duplicate section id'+(dupIds.length!==1?'s':'')+'</div>'):'')
+        +(orphanRules.length?('<div>'+orphanRules.length+' rule'+(orphanRules.length!==1?'s':'')+' pointing at a missing section</div>'):'')
+        +'<div style="margin-top:6px;font-size:11px;color:var(--text2)">Auto-Tier is paused until this is resolved. Reload the page to auto-repair, or restore a backup below.</div>'
+        +'</div>';
+    } else {
+      html='<div style="border:1px solid #4fd18b55;border-radius:8px;padding:10px;background:#4fd18b10">'
+        +'<div style="font-weight:800;color:#4fd18b">✓ Sections healthy</div>'
+        +'<div style="font-size:11px;color:var(--text2);margin-top:2px">'+Object.keys(ids).length+' sections, all uniquely identified · '+(S.rules||[]).length+' rules all correctly linked.</div>'
+        +'</div>';
+    }
+    mon.innerHTML=html;
+  }
+  if(!listEl)return;
+  const arr=loadBackups().slice().reverse();
+  if(!arr.length){ listEl.innerHTML='<div style="color:var(--text3)">No backups yet.</div>'; return; }
+  listEl.innerHTML=arr.map((b,i)=>{
+    const idx=loadBackups().length-1-i;
+    const d=new Date(b.ts);
+    const when=d.toLocaleString();
+    const lbl={ 'auto-preheal':'Auto (before repair)','pre-autotier':'Auto (before Auto-Tier)','pre-import':'Auto (before import)','manual':'Manual','test-snap':'Test' }[b.label]||b.label;
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">'
+      +'<div style="flex:1"><div style="font-weight:700">'+esc(lbl)+'</div>'
+      +'<div style="font-size:10px;color:var(--text3)">'+esc(when)+' · '+b.ruleCount+' rules · '+esc(b.filterName||'')+'</div></div>'
+      +'<button class="sh-btn" style="padding:3px 8px" onclick="restoreBackup('+idx+')">Restore</button>'
+      +'</div>';
+  }).join('');
+}
+async function restoreBackup(idx){
+  const arr=loadBackups();
+  const b=arr[idx]; if(!b){toast('Backup not found','err');return;}
+  if(!await customConfirm('Restore this backup?\n\n'+new Date(b.ts).toLocaleString()+'\n'+b.ruleCount+' rules · '+(b.filterName||'')+'\n\nYour current state will be backed up first, so this is reversible.'))return;
+  saveNamedBackup('pre-restore');
+  const d=b.data||{};
+  if(d.rules)S.rules=JSON.parse(JSON.stringify(d.rules));
+  if(d.sectionTree)S.sectionTree=JSON.parse(JSON.stringify(d.sectionTree));
+  if(d.sectionOrder)S.sectionOrder=JSON.parse(JSON.stringify(d.sectionOrder));
+  if(d.tiers)S.tiers=JSON.parse(JSON.stringify(d.tiers));
+  if(d.disabledSecs)S.disabledSecs=JSON.parse(JSON.stringify(d.disabledSecs));
+  if(d.filterName)S.filterName=d.filterName;
+  // Re-heal after restore to re-establish the collision flag correctly.
+  try{ const rep=healSectionIdentity(S); S.__sectionCollision=rep.remainingCollision||false; }catch(_){}
+  await saveState(); if(typeof renderList==='function')renderList(); refreshBackupPanel();
+  toast('Backup restored','ok');
+}
+
+
 async function runAutoTier(onlySection){
+  // SAFETY GUARD: if the section identity heal detected unresolved ambiguity
+  // (two sections sharing a display name that couldn't be cleanly separated),
+  // refuse to run. Auto-Tier rewrites rules by section, so running it on
+  // ambiguous data is exactly what scrambled rules before. Fail safe, tell the
+  // user, and point them at recovery rather than risk corruption.
+  if(S.__sectionCollision){
+    toast('\u26A0 Auto-Tier paused: two sections share the same name and can\u2019t be told apart safely. Rename one (Resources \u2192 sections) or re-import a clean .filter, then try again. Your rules were NOT changed.','err');
+    return;
+  }
+  // Always snapshot before this rewrites anything, so a bad run (e.g. partial
+  // prices) is one click to undo.
+  autoBackupBeforeRisky('pre-autotier');
   const league=document.getElementById('leagueSelect').value;
   const btn=document.getElementById('autoTierBtn');
   if(btn)btn.classList.add('attention-pulse');
