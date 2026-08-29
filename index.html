@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.159
+  MirrorFilter Web — VERSION 5.161
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -1384,7 +1384,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
             </div>
           </div>
           <div id="multiSaveLocList" style="margin:8px 0"></div>
-          <button class="sh-btn" onclick="addMultiSaveLocation()" data-tip="Pick a folder to add as an extra save destination">📁 Add Location</button>
+          <button class="sh-btn" onclick="addMultiSaveLocation()" data-tip="Pick a folder to add as an extra save destination">📁 Add save location</button>
         </div>
       </div>
 
@@ -1394,9 +1394,9 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
         <p style="font-size:12.5px">A backup captures <em>everything</em> in the editor — all rules, sections, tier config, custom sounds, and settings — not just the game <code>.filter</code>. MirrorFilter takes these automatically before anything risky (Auto-Tier, imports, on-load repairs). You can also keep a copy on disk in a folder you control.</p>
         <div id="healthMonitor" style="margin:12px 0"></div>
         <div id="diskBackupCtl"></div>
-        <div class="ibox">Automatic in-browser restore points are kept before risky actions — the last <span id="bkMax">8</span>. The disk backup above additionally keeps a full copy as a real file outside the browser.</div>
+        <div class="ibox">Backing up saves <strong>both</strong> safety nets at once: an <strong>in-browser restore point</strong> (the last <span id="bkMax">8</span> are also kept automatically before risky actions) and, when disk auto-backup is on, a <strong>timestamped file in your own folder</strong>. This happens automatically on Quick-Save and every 5 minutes — or on demand with the button below.</div>
         <div style="display:flex;gap:6px;margin:10px 0;flex-wrap:wrap">
-          <button class="sh-btn" onclick="saveNamedBackup('manual');refreshBackupPanel();toast('Backup created','ok')">💾 Create a backup now</button>
+          <button class="sh-btn" onclick="backupNowFromButton()" data-tip="Saves an in-browser restore point AND a timestamped file to your folder (if disk backup is on)">💾 Back up now</button>
         </div>
       </div>
 
@@ -30601,6 +30601,13 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.161',changes:[
+    'Combined the two backup buttons into one. "💾 Back up now" now does BOTH at once — saves an in-browser restore point AND writes a timestamped file to your folder (when disk backup is on). Quick-Save does both too, and the 5-minute timer keeps the disk history going. The separate disk-only and in-browser-only buttons are gone; nothing was lost, it\u2019s just one clear action now.',
+    'The disk backup box keeps a simple on/off; writing on demand is handled by the single "Back up now" button.'
+  ]},
+  {v:'5.160',changes:[
+    'Clearer backup button labels. The two "back up now" buttons do different things, so they now say which: "Create a backup now (in browser)" makes an in-browser restore point, and "Save a disk backup now" writes a timestamped file to your disk folder. "Add Location" is now "Add save location" so it\u2019s self-explanatory.'
+  ]},
   {v:'5.159',changes:[
     'Disk auto-backup now keeps TIMESTAMPED history instead of one overwriting file. Each save (and every 5 minutes) writes mirrorfilter-backup-YYYY-MM-DD_HHMMSS.json, so you can roll back to any recent point in time, not just the latest. The newest 20 are kept automatically and older ones are pruned, so the folder never grows without bound.',
     'Restore now guides you to the timestamped files: the date & time are right in the filename, so the newest backup is simply the one with the latest date. If you pick a .filter, its sidecar, or any other file by mistake, it still tells you exactly what that file is and points you to the right one.',
@@ -38403,7 +38410,7 @@ async function doExport(){
     snapshotExportedRules();
     saveState();
     runMultiSave();
-    writeDiskAutoBackup('export');
+    backupNow('quicksave');
     renderList();
     var btn=document.getElementById('quickSaveBtn');
     if(btn){btn.textContent='Saved!';setTimeout(function(){btn.textContent='Quick-Save';},2000);}
@@ -38639,6 +38646,25 @@ async function writeDiskAutoBackup(reason){
   }catch(e){ console.warn('[MirrorFilter] disk auto-backup failed:',e); }
   return false;
 }
+// ── UNIFIED BACKUP ──────────────────────────────────────────────────────────
+// One call that does BOTH: an in-browser restore point AND (if disk auto-backup
+// is on) a timestamped file written to your folder. This is what the single
+// "Back up now" button, Quick-Save/Export, and the 5-minute timer all use, so a
+// backup always means "both safety nets at once." Returns {inBrowser, disk}.
+async function backupNow(label){
+  let inBrowser=false, disk=false;
+  try{ saveNamedBackup(label||'manual'); inBrowser=true; }catch(e){ console.warn('in-browser backup failed',e); }
+  try{ disk = await writeDiskAutoBackup(label||'manual'); }catch(e){ console.warn('disk backup failed',e); }
+  return {inBrowser, disk};
+}
+// Button handler: run both, then report clearly what happened.
+async function backupNowFromButton(){
+  const r=await backupNow('manual');
+  if(typeof refreshBackupPanel==='function')refreshBackupPanel();
+  if(r.disk) toast('Backed up \u2014 in-browser restore point + timestamped file saved to your folder.','ok');
+  else if(S.__autoBackupDisk) toast('In-browser restore point saved. Couldn\u2019t write the disk file (folder permission?) \u2014 check the folder in \u2461 Back up.','err');
+  else toast('In-browser restore point saved. Turn on disk auto-backup above to also keep a file in your own folder.','ok');
+}
 // First-run: if the user has never set up any off-browser protection (no disk
 // auto-backup folder AND no multi-save locations), offer to set up a backup
 // folder right away — before they start real work. Shown once; a "remind me
@@ -38720,7 +38746,11 @@ async function enableDiskAutoBackup(){
   if(typeof refreshBackupPanel==='function')refreshBackupPanel();
 }
 function disableDiskAutoBackup(){ S.__autoBackupDisk=false; saveState(); if(typeof refreshBackupPanel==='function')refreshBackupPanel(); toast('Disk auto-backup turned off','ok'); }
-// Periodic safety write (every 5 min) when enabled and something changed.
+// Periodic safety backup (every 5 min): writes a timestamped disk file when disk
+// backup is on. It deliberately does NOT add an in-browser restore point each
+// time — those slots (last 8) are reserved for meaningful "before risky action"
+// markers and your manual "Back up now", so routine timer snapshots don't push
+// them out. Disk history is where the every-5-min timeline lives (newest 20).
 setInterval(()=>{ if(S && S.__autoBackupDisk){ writeDiskAutoBackup('timer'); } }, 5*60*1000);
 
 // ── Backup / restore UI + section-health monitor (Resources tab) ────────────
@@ -38761,7 +38791,7 @@ function refreshBackupPanel(){
       +'<div style="font-weight:800;color:'+(on?'#4fd18b':'var(--accent)')+';margin-bottom:3px">💽 Auto-backup to a folder you control '+(on?'· ON':'· off')+'</div>'
       +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px">Saves a new timestamped backup (<code>'+BACKUP_PREFIX+'DATE_TIME.json</code>) to a real folder you pick — on every save and every 5 minutes, keeping the newest '+KEEP_DISK_BACKUPS+'. This is your data in <em>your</em> hands, not just the browser\u2019s.'+(on?(' Last written: '+esc(last)+(S.__lastDiskBackupName?(' ('+esc(S.__lastDiskBackupName)+')'):'')+'.'):'')+'</div>'
       +(on
-        ? '<button class="sh-btn" onclick="writeDiskAutoBackup(\'manual\').then(ok=>toast(ok?\'Backup written to disk\':\'Could not write (folder permission?)\',ok?\'ok\':\'err\')).then(()=>refreshBackupPanel())">Write now</button> <button class="sh-btn" onclick="disableDiskAutoBackup()">Turn off</button>'
+        ? '<button class="sh-btn" onclick="disableDiskAutoBackup()">Turn off disk backup</button> <span style="font-size:11px;color:var(--text2);margin-left:6px">Use \u201C\uD83D\uDCBE Back up now\u201D below to write immediately.</span>'
         : '<button class="sh-btn" style="background:#ffb347;color:#1a1205;border-color:#ffb347;font-weight:800" onclick="enableDiskAutoBackup()">Choose a folder…</button>')
       +'</div>';
   }
