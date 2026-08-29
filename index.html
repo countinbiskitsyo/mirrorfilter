@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.157
+  MirrorFilter Web — VERSION 5.159
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -1404,9 +1404,10 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       <div id="stageRestore">
         <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)">③ Restore — load a backup back</div>
         <p style="font-size:12.5px">Pick any saved backup and load it. Your current state is backed up first, so restoring is always reversible. Restoring replaces what's in the editor now with the chosen snapshot.</p>
+        <div class="tip-box" style="margin-bottom:8px"><strong style="color:var(--accent)">Restoring from your backup folder?</strong> Backups are named <code>mirrorfilter-backup-YYYY-MM-DD_HHMMSS.json</code> — the date &amp; time are in the filename, so the <strong>newest is the one with the latest date</strong>. Pick the point in time you want to go back to. (The <code>.filter</code> and <code>.filter.meta.json</code> in the folder are the game filter and its sidecar, not full backups — to load a <code>.filter</code>, use <strong>Import</strong> at the top.)</div>
         <div style="display:flex;gap:6px;margin:8px 0;flex-wrap:wrap">
           <button class="sh-btn" onclick="refreshBackupPanel()">↻ Refresh list</button>
-          <button class="sh-btn" onclick="restoreFromDiskFile()" data-tip="Load a mirrorfilter-autobackup.json file from disk">📂 Restore from a backup file…</button>
+          <button class="sh-btn" onclick="restoreFromDiskFile()" data-tip="Load a timestamped mirrorfilter-backup-*.json from disk">📂 Restore from a backup file…</button>
         </div>
         <div id="backupList" style="font-size:12px"></div>
       </div>
@@ -28644,6 +28645,53 @@ window.MF_WEB = {
     const w=await fh.createWritable(); await w.write(content); await w.close();
     return true;
   },
+  // Write a timestamped backup file, then prune the folder to the newest `keep`
+  // MirrorFilter backup files (matched by the given prefix) so it never grows
+  // without bound. Returns {ok, filename, pruned} or {ok:false}.
+  async fsWriteTimestampedBackup(prefix, filename, content, keep){
+    if(!_dirHandle) return {ok:false};
+    const opts={mode:'readwrite'};
+    let perm = await _dirHandle.queryPermission(opts);
+    if(perm!=='granted'){ perm = await _dirHandle.requestPermission(opts); }
+    if(perm!=='granted') return {ok:false};
+    // write the new file
+    const fh=await _dirHandle.getFileHandle(filename,{create:true});
+    const w=await fh.createWritable(); await w.write(content); await w.close();
+    // list existing backups matching the prefix
+    const names=[];
+    try{
+      for await (const [name,handle] of _dirHandle.entries()){
+        if(handle.kind==='file' && name.startsWith(prefix) && name.endsWith('.json')) names.push(name);
+      }
+    }catch(_){ /* entries() unsupported — skip prune */ return {ok:true, filename, pruned:0}; }
+    // filenames sort lexicographically == chronologically because the timestamp
+    // is zero-padded YYYY-MM-DD_HHMMSS. Keep the newest `keep`.
+    names.sort();
+    let pruned=0;
+    const excess = names.length - (keep||20);
+    if(excess>0){
+      for(let i=0;i<excess;i++){
+        try{ await _dirHandle.removeEntry(names[i]); pruned++; }catch(_){}
+      }
+    }
+    return {ok:true, filename, pruned};
+  },
+  // List MirrorFilter timestamped backups in the folder, newest first.
+  async fsListBackups(prefix){
+    if(!_dirHandle) return null;
+    const opts={mode:'read'};
+    try{
+      let perm = await _dirHandle.queryPermission(opts);
+      if(perm!=='granted'){ perm = await _dirHandle.requestPermission(opts); }
+      if(perm!=='granted') return null;
+      const names=[];
+      for await (const [name,handle] of _dirHandle.entries()){
+        if(handle.kind==='file' && name.startsWith(prefix) && name.endsWith('.json')) names.push(name);
+      }
+      names.sort().reverse();  // newest first
+      return names;
+    }catch(_){ return null; }
+  },
   _debug:{ get state(){return STATE;}, webAPI },
 };
 
@@ -30553,6 +30601,15 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.159',changes:[
+    'Disk auto-backup now keeps TIMESTAMPED history instead of one overwriting file. Each save (and every 5 minutes) writes mirrorfilter-backup-YYYY-MM-DD_HHMMSS.json, so you can roll back to any recent point in time, not just the latest. The newest 20 are kept automatically and older ones are pruned, so the folder never grows without bound.',
+    'Restore now guides you to the timestamped files: the date & time are right in the filename, so the newest backup is simply the one with the latest date. If you pick a .filter, its sidecar, or any other file by mistake, it still tells you exactly what that file is and points you to the right one.',
+    'The confirmation before restoring shows the backup\u2019s saved date/time and rule count so you can be sure you\u2019re loading the point you intend.'
+  ]},
+  {v:'5.158',changes:[
+    'Restore is now explicit about exactly which file you need. The Restore step names the file directly \u2014 mirrorfilter-autobackup.json \u2014 and the button says so too. If you accidentally pick the game .filter, the .filter.meta.json sidecar, or any other JSON, MirrorFilter now tells you precisely what that file is and points you to the right one (or to the Import button for a .filter).',
+    'The restore confirmation now shows the backup\u2019s saved date/time and rule count, so you can be sure you\u2019re loading the copy you intend.'
+  ]},
   {v:'5.157',changes:[
     'Fixed "Could not enable disk auto-backup" when choosing a folder. The folder picker now runs directly from your click (so the browser keeps the required user gesture) and writes the first backup immediately with the just-granted access. If a write ever does fail, the message now tells you the actual reason instead of a generic error.',
     'Cancelling the folder picker is now silent (no error toast).'
@@ -38552,7 +38609,15 @@ function autoBackupBeforeRisky(label){ try{ saveNamedBackup(label||'auto'); }cat
 // timer — so an actual file you control always holds your work. Uses the same
 // File System Access handle the app already persists. Falls back to a Download
 // if the browser lacks folder access.
-const AUTO_BACKUP_FILENAME='mirrorfilter-autobackup.json';
+const AUTO_BACKUP_FILENAME='mirrorfilter-autobackup.json';  // legacy single-file name (still recognized on restore)
+const BACKUP_PREFIX='mirrorfilter-backup-';                  // timestamped files: mirrorfilter-backup-YYYY-MM-DD_HHMMSS.json
+const KEEP_DISK_BACKUPS=20;                                  // newest N kept in the folder; older pruned automatically
+function _backupTimestamp(d){
+  d=d||new Date();
+  const p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds());
+}
+function currentBackupFilename(){ return BACKUP_PREFIX+_backupTimestamp()+'.json'; }
 function buildFullSnapshot(){
   return {
     _kind:'mirrorfilter-full-backup', _version:(typeof CHANGELOG!=='undefined'&&CHANGELOG[0]?CHANGELOG[0].v:'?'),
@@ -38568,8 +38633,9 @@ function buildFullSnapshot(){
 async function writeDiskAutoBackup(reason){
   if(!S.__autoBackupDisk) return false;      // feature off
   try{
-    const ok = await window.MF_WEB.fsWriteBackup(AUTO_BACKUP_FILENAME, JSON.stringify(buildFullSnapshot(),null,2));
-    if(ok){ S.__lastDiskBackup=Date.now(); return true; }
+    const res = await window.MF_WEB.fsWriteTimestampedBackup(
+      BACKUP_PREFIX, currentBackupFilename(), JSON.stringify(buildFullSnapshot(),null,2), KEEP_DISK_BACKUPS);
+    if(res && res.ok){ S.__lastDiskBackup=Date.now(); S.__lastDiskBackupName=res.filename; return true; }
   }catch(e){ console.warn('[MirrorFilter] disk auto-backup failed:',e); }
   return false;
 }
@@ -38603,7 +38669,7 @@ function backupSetupDialog(){
     box.innerHTML=
       '<div style="font-size:17px;font-weight:700;color:var(--accent);margin-bottom:10px">💾 Protect your work before you start</div>'
       +'<div style="font-size:13px;line-height:1.65;margin-bottom:10px">MirrorFilter keeps your filter in this browser. To make sure you never lose it, you can keep a complete backup file in a real folder <strong>you</strong> control (a cloud-synced folder, a drive, anywhere). It updates automatically every time you save.</div>'
-      +'<div style="font-size:12px;line-height:1.6;color:var(--text2);margin-bottom:16px">Pick a folder once and you\u2019re protected — a <code>mirrorfilter-autobackup.json</code> file is kept there and can be restored anytime. You can change or turn this off later in Resources → Saving Your Work.</div>'
+      +'<div style="font-size:12px;line-height:1.6;color:var(--text2);margin-bottom:16px">Pick a folder once and you\u2019re protected — a fresh timestamped backup is saved there on every save and every few minutes (the newest '+KEEP_DISK_BACKUPS+' are kept), so you can roll back to any recent point. You can change or turn this off later in Resources → Saving Your Work.</div>'
       +'<div style="display:flex;flex-direction:column;gap:8px">'
         +'<button id="_bkSetup" class="sh-btn" style="background:var(--accent);color:#1a1205;border-color:var(--accent);font-weight:700;padding:9px;font-size:13px">📁 Choose a backup folder now</button>'
         +'<div style="display:flex;gap:8px">'
@@ -38638,7 +38704,8 @@ async function enableDiskAutoBackup(){
   }
   let name;
   try{
-    name = await window.MF_WEB.fsPickBackupFolder(AUTO_BACKUP_FILENAME, JSON.stringify(buildFullSnapshot(),null,2));
+    // Pick the folder AND drop the first timestamped backup in one gesture.
+    name = await window.MF_WEB.fsPickBackupFolder(currentBackupFilename(), JSON.stringify(buildFullSnapshot(),null,2));
   }catch(e){
     if(e && e.name==='AbortError') return;             // user cancelled the picker — silent
     console.error('[MirrorFilter] disk backup setup failed:',e);
@@ -38648,7 +38715,7 @@ async function enableDiskAutoBackup(){
   try{
     S.__autoBackupDisk=true; S.__lastDiskBackup=Date.now();
     await saveState();
-    toast('Auto-backup to \u201C'+name+'\u201D is on. A full backup is kept there and updated on every save.','ok');
+    toast('Auto-backup to \u201C'+name+'\u201D is on. A new timestamped backup is saved there on every save (newest '+KEEP_DISK_BACKUPS+' kept).','ok');
   }catch(e){ console.warn(e); }
   if(typeof refreshBackupPanel==='function')refreshBackupPanel();
 }
@@ -38692,7 +38759,7 @@ function refreshBackupPanel(){
     diskEl.innerHTML=
       '<div style="border:1px solid '+(on?'#4fd18b55':'var(--border2)')+';border-radius:8px;padding:10px;margin-bottom:10px;background:'+(on?'#4fd18b0a':'transparent')+'">'
       +'<div style="font-weight:800;color:'+(on?'#4fd18b':'var(--accent)')+';margin-bottom:3px">💽 Auto-backup to a folder you control '+(on?'· ON':'· off')+'</div>'
-      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px">Keeps a complete <code>'+AUTO_BACKUP_FILENAME+'</code> in a real folder you pick — updated on every save. This is your data in <em>your</em> hands, not just the browser\u2019s.'+(on?(' Last written: '+esc(last)+'.'):'')+'</div>'
+      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px">Saves a new timestamped backup (<code>'+BACKUP_PREFIX+'DATE_TIME.json</code>) to a real folder you pick — on every save and every 5 minutes, keeping the newest '+KEEP_DISK_BACKUPS+'. This is your data in <em>your</em> hands, not just the browser\u2019s.'+(on?(' Last written: '+esc(last)+(S.__lastDiskBackupName?(' ('+esc(S.__lastDiskBackupName)+')'):'')+'.'):'')+'</div>'
       +(on
         ? '<button class="sh-btn" onclick="writeDiskAutoBackup(\'manual\').then(ok=>toast(ok?\'Backup written to disk\':\'Could not write (folder permission?)\',ok?\'ok\':\'err\')).then(()=>refreshBackupPanel())">Write now</button> <button class="sh-btn" onclick="disableDiskAutoBackup()">Turn off</button>'
         : '<button class="sh-btn" style="background:#ffb347;color:#1a1205;border-color:#ffb347;font-weight:800" onclick="enableDiskAutoBackup()">Choose a folder…</button>')
@@ -38739,17 +38806,33 @@ async function restoreFromDiskFile(){
     inp.type='file'; inp.accept='.json,application/json';
     inp.onchange=async ()=>{
       const f=inp.files&&inp.files[0]; if(!f)return;
+      const fn=(f.name||'').toLowerCase();
+      // Guide the user if they picked the wrong file. In a typical backup folder
+      // there are three files side by side: the full backup json (what we want),
+      // the game .filter, and the .filter.meta.json sidecar.
+      if(fn.endsWith('.filter')){
+        toast('That\u2019s the game .filter, not a full backup. To load a .filter, use the Import button at the top instead. For a full restore, pick a mirrorfilter-backup-*.json file.','err');
+        return;
+      }
+      if(fn.endsWith('.meta.json') || fn.endsWith('.filter.meta.json')){
+        toast('That\u2019s the .filter sidecar, not a full backup. Pick a mirrorfilter-backup-*.json file instead (or Import the matching .filter).','err');
+        return;
+      }
       let data;
-      try{ data=JSON.parse(await f.text()); }catch(_){ toast('That file isn\u2019t valid JSON','err'); return; }
-      const d=(data&&data._kind==='mirrorfilter-full-backup')?data:data;
-      if(!d||!d.rules){ toast('That doesn\u2019t look like a MirrorFilter backup','err'); return; }
-      if(!await customConfirm('Restore from this file?\n\n'+(f.name)+'\n'+(d.rules.length||0)+' rules · '+(d.filterName||'')+'\n\nYour current state will be backed up first, so this is reversible.'))return;
+      try{ data=JSON.parse(await f.text()); }catch(_){ toast('That file isn\u2019t valid JSON. The files you want are named mirrorfilter-backup-DATE_TIME.json.','err'); return; }
+      const d=data;
+      if(!d || d._kind!=='mirrorfilter-full-backup' || !d.rules){
+        toast('That JSON isn\u2019t a MirrorFilter full backup. Look for a mirrorfilter-backup-*.json file (newest = latest date in the name).','err');
+        return;
+      }
+      const when = d._savedAt ? new Date(d._savedAt).toLocaleString() : 'unknown date';
+      if(!await customConfirm('Restore from this backup?\n\nFile: '+f.name+'\nSaved: '+when+'\n'+(d.rules.length||0)+' rules · '+(d.filterName||'')+'\n\nThis replaces what\u2019s in the editor now. Your current state is backed up first, so it\u2019s reversible.'))return;
       saveNamedBackup('pre-restore');
       const cp=k=>{ if(d[k]!==undefined) S[k]=JSON.parse(JSON.stringify(d[k])); };
       ['rules','sectionTree','sectionOrder','collapsedSecs','disabledSecs','tiers','theme','econScope','customConds','customBTs','customSounds','buildToggles','uiLayout','exportPath','filterName','league'].forEach(cp);
       try{ const rep=healSectionIdentity(S); S.__sectionCollision=rep.remainingCollision||false; }catch(_){}
       await saveState(); if(typeof renderList==='function')renderList(); refreshBackupPanel();
-      toast('Restored from '+f.name,'ok');
+      toast('Restored from '+f.name+' (saved '+when+')','ok');
     };
     inp.click();
   }catch(e){ if(e&&e.name!=='AbortError') toast('Could not restore from file','err'); }
