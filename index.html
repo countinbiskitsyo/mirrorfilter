@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.163
+  MirrorFilter Web — VERSION 5.165
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -710,7 +710,8 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 <div id="settingsLayout">
 
   <!-- ══ HELP & GUIDE ══ -->
-  <div class="ss">
+  <div style="margin:22px 0 8px 0;padding:6px 2px;border-bottom:2px solid #e8c06a"><span style="font-size:13px;font-weight:800;letter-spacing:.5px;color:#e8c06a;text-transform:uppercase">⭐ Start Here</span></div>
+  <div class="ss" style="border-left:4px solid var(--accent);background:rgba(var(--accent-rgb),.10)">
     <div class="ss-head" style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="toggleHelpSection()" id="helpSectionHead">
       📖 Guides &amp; Tutorials
       <span style="font-size:11px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">— click to expand / collapse</span>
@@ -722,6 +723,531 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     </div>
   </div>
 
+  <div class="ss" style="border-left:4px solid var(--accent);background:rgba(var(--accent-rgb),.10)">
+    <div class="ss-head coll-head" onclick="toggleSS('ss-saving')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      💾 Saving Your Work
+      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
+      <span class="coll-caret" id="ss-saving-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
+    </div>
+    <div class="ss-body" id="ss-saving-body" style="display:none">
+      <div class="save-pulse" style="border:1px solid var(--accent);border-radius:10px;padding:14px 16px;margin-bottom:18px;background:rgba(var(--accent-rgb),.06)">
+        <div style="font-size:15px;font-weight:700;color:var(--accent);letter-spacing:.2px;margin-bottom:6px">💾 Save, Back up &amp; Restore — everything about protecting your work, in one place</div>
+        <div style="font-size:12.5px;line-height:1.7;color:var(--text)">Three stages, three different jobs:</div>
+        <div style="margin-top:6px;font-size:12.5px;line-height:1.7;color:var(--text)">
+          <div><strong style="color:var(--accent)">① Save</strong> — write the game-ready <code>.filter</code>, optionally to several folders at once. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go ↓</span></div>
+          <div><strong style="color:var(--accent)">② Back up</strong> — snapshot your whole editor state (rules, tiers, sounds, settings) so it's recoverable. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go ↓</span></div>
+          <div><strong style="color:var(--accent)">③ Restore</strong> — load any backup back when you need it. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go ↓</span></div>
+        </div>
+      </div>
+
+      <div id="locationsSummary" style="margin-bottom:16px"></div>
+
+      <!-- ───────────── STAGE ① SAVE ───────────── -->
+      <div id="stageSave" style="margin-bottom:22px">
+        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)">① Save — your game-ready .filter</div>
+        <p style="font-size:12.5px">Your editing session saves itself in this browser automatically on every change (no button needed). <strong>Export</strong> / <strong>Quick-Save</strong> is the separate, deliberate step that writes the actual <code>.filter</code> the game reads into your Path of Exile 2 folder — do that whenever you want the game to see your latest changes.</p>
+        <div id="multiSaveSetup" style="margin-top:12px;padding:14px;border:1px solid var(--border2);border-radius:10px;background:rgba(var(--accent-rgb),.03)">
+          <div style="font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:8px">📍 Multi-Location Save</div>
+          <div class="ibox">Add up to 4 extra folders (a cloud-synced folder, the game's own folder, an external drive…) and every Quick-Save/Export also writes to each one automatically. <strong>Each location has its own dropdown</strong> for what to save there — a cloud folder might want everything, the game's folder only needs the bare .filter.</div>
+          <div class="tip-box"><strong style='color:var(--accent)'>Saving to the game's own folder</strong> (<code>...\Documents\My Games\Path of Exile 2</code>) — set that location's dropdown to <strong>"Just the .filter"</strong>. The game reads only the raw .filter; it ignores the .meta.json sidecar entirely.</div>
+          <div class="tip-box"><strong style='color:var(--accent)'>What each option gives you:</strong>
+            <div style="margin-top:8px;line-height:1.7">
+              <div><strong>Just the .filter</strong> — only the raw file the game reads.</div>
+              <div><strong>.filter + .meta.json</strong> — that file plus its sidecar (so re-importing later restores tier config/hierarchy too).</div>
+              <div><strong>Entire UserData folder</strong> — your whole working session as one folder copy.</div>
+              <div><strong>UserData + .filter + .meta.json (recommended)</strong> — the folder copy plus a guaranteed-fresh .filter + sidecar. The only option that's always both complete AND current.</div>
+            </div>
+          </div>
+          <div id="multiSaveLocList" style="margin:8px 0"></div>
+          <button class="sh-btn" onclick="addMultiSaveLocation()" data-tip="Pick a folder to add as an extra save destination">📁 Add save location</button>
+        </div>
+      </div>
+
+      <!-- ───────────── STAGE ② BACK UP ───────────── -->
+      <div id="stageBackup" style="margin-bottom:22px">
+        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)">② Back up — snapshots of your whole editor state</div>
+        <p style="font-size:12.5px">A backup captures <em>everything</em> in the editor — all rules, sections, tier config, custom sounds, and settings — not just the game <code>.filter</code>. MirrorFilter takes these automatically before anything risky (Auto-Tier, imports, on-load repairs). You can also keep a copy on disk in a folder you control.</p>
+        <div id="healthMonitor" style="margin:12px 0"></div>
+        <div id="diskBackupCtl"></div>
+        <div class="ibox">Backing up saves <strong>both</strong> safety nets at once: an <strong>in-browser restore point</strong> (the last <span id="bkMax">8</span> are also kept automatically before risky actions) and, when disk auto-backup is on, a <strong>timestamped file in your own folder</strong>. This happens automatically on Quick-Save and every 5 minutes — or on demand with the button below.</div>
+        <div style="display:flex;gap:6px;margin:10px 0;flex-wrap:wrap">
+          <button class="sh-btn" onclick="backupNowFromButton()" data-tip="Saves an in-browser restore point AND a timestamped file to your folder (if disk backup is on)">💾 Back up now</button>
+        </div>
+      </div>
+
+      <!-- ───────────── STAGE ③ RESTORE ───────────── -->
+      <div id="stageRestore">
+        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)">③ Restore — load a backup back</div>
+        <p style="font-size:12.5px">Pick any saved backup and load it. Your current state is backed up first, so restoring is always reversible. Restoring replaces what's in the editor now with the chosen snapshot.</p>
+        <div class="tip-box" style="margin-bottom:8px"><strong style="color:var(--accent)">Restoring from your backup folder?</strong> Backups are named <code>mirrorfilter-backup-YYYY-MM-DD_HHMMSS.json</code> — the date &amp; time are in the filename, so the <strong>newest is the one with the latest date</strong>. Pick the point in time you want to go back to. (The <code>.filter</code> and <code>.filter.meta.json</code> in the folder are the game filter and its sidecar, not full backups — to load a <code>.filter</code>, use <strong>Import</strong> at the top.)</div>
+        <div style="display:flex;gap:6px;margin:8px 0;flex-wrap:wrap">
+          <button class="sh-btn" onclick="refreshBackupPanel()">↻ Refresh list</button>
+          <button class="sh-btn" onclick="restoreFromDiskFile()" data-tip="Load a timestamped mirrorfilter-backup-*.json from disk">📂 Restore from a backup file…</button>
+        </div>
+        <div id="backupList" style="font-size:12px"></div>
+      </div>
+    </div>
+  </div>
+  <div style="margin:22px 0 8px 0;padding:6px 2px;border-bottom:2px solid #e0b050"><span style="font-size:13px;font-weight:800;letter-spacing:.5px;color:#e0b050;text-transform:uppercase">⚡ Core Setup</span></div>
+  <div class="ss" style="border-left:4px solid #e0b050;background:#e0b05012">
+    <div class="ss-head coll-head" onclick="toggleSS('ss-tiers')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      ⚡ Tier System &amp; Auto-Tier Configuration
+      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
+      <span class="coll-caret" id="ss-tiers-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
+    </div>
+    <div class="ss-body" id="ss-tiers-body" style="display:none">
+      <div class="ibox">
+        <strong>⚡ Auto-Tier — sorts BaseTypes into tiers by live price when you click it:</strong><br><br>
+
+        Enable on a rule by checking <strong>Tier Sort Target</strong> in the Editor.<br>
+        All rules with <em>Tier Sort Target</em> checked in the <strong>same section</strong> form a sort group. When Auto-Tier runs, it collects every BaseType across all rules in that group, looks up each item's price (see the price-source breakdown below), then redistributes them: each BaseType goes into the rule whose tier threshold its price meets. BaseTypes that fall below the lowest threshold are removed from all rules. <strong>Visuals are never touched</strong> — only the BaseType lists change.<br><br>
+
+        <strong>Example:</strong> You have 5 rules in "Currency": S-Tier, A-Tier, B-Tier, C-Tier, D-Tier — all with <em>Tier Sort Target ✓</em>. You add Divine Orb, Exalted Orb, Chaos Orb, Orb of Alteration etc. across them. Click ⚡ Auto-Tier — prices are fetched, and each item is moved to the correct tier rule automatically. A Chaos Orb that was in B-Tier yesterday may move to C-Tier today.<br><br>
+
+        <span class="warn">⚠ Rules stay in their sections always.</span> Auto-Tier never moves a rule from Currency to Uniques or anywhere else.<br><br>
+        <strong>Requires an internet connection.</strong> Prices are cached server-side for 5 minutes per league — clicking Auto-Tier again sooner reuses the cached numbers instantly; after 5 minutes, the next click fetches fresh prices.
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 8px">Where Prices Come From</div>
+      <div class="ibox">
+        Three sources are tried in order, each one only filling in items the ones before it didn't have — nothing is ever overwritten by a later source:<br><br>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span style="background:#5a9cf5;color:#0a1420;font-weight:700;border-radius:3px;padding:1px 7px;font-size:11px">1</span>
+          <strong style="color:#5a9cf5">poe.ninja</strong>
+          <span style="color:var(--text3);font-size:11px">— primary, and now matched exactly to poe.ninja's own official API documentation. Covers Currency, Runes, Soul Cores, Essences, Fragments, Catalysts, Omens, Liquid Emotions, Expedition, Abyss, Uncut Gems, Lineage Support Gems, Idols, and Verisium — plus Tablets (both Precursor and Unique), Relics, Weapons, Armours, Accessories, Flasks, Charms, and Jewels via its separate per-item pricing data.</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span style="background:#c85ae0;color:#1a0a20;font-weight:700;border-radius:3px;padding:1px 7px;font-size:11px">2</span>
+          <strong style="color:#c85ae0">poe2scout</strong>
+          <span style="color:var(--text3);font-size:11px">— supplemental. Currently returning HTTP 404 on every attempt (broke during their Cloudflare migration), but still tried, since its original bulk endpoint covers uniques/jewels/idols/gear poe.ninja doesn't — it'll automatically start contributing again the moment it recovers.</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="background:#3dd6c4;color:#0a201c;font-weight:700;border-radius:3px;padding:1px 7px;font-size:11px">3</span>
+          <strong style="color:#3dd6c4">poe2db.tw</strong>
+          <span style="color:var(--text3);font-size:11px">— last resort. A live economy tracker with no public API, so this parses its pages directly for whatever the first two still missed — mainly Runes/Soul Cores/Essences/Fragments as a backup for poe.ninja's own coverage of those.</span>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text3)">Every attempt — success or failure, from all three sources — is written to <code>UserData\economy_debug.log</code> if you ever need to see exactly what happened on a given run.</div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Tier Configuration</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Tiers are checked highest-threshold first. Items with chaos value ≥ the threshold get that tier. The lowest tier (0 threshold) is the catch-all.</div>
+      <div class="tier-cfg-grid">
+        <span class="hd">Preview</span><span class="hd">Name</span><span class="hd">Min Chaos</span>
+        <span class="hd">Text</span><span class="hd">BG</span><span class="hd">Range</span><span class="hd"></span>
+      </div>
+      <div id="tierCfgRows"></div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="sh-btn" onclick="addTier()" data-tip="Add a new tier level">+ Add Tier</button>
+        <button class="sh-btn" onclick="resetTiers()" style="border-color:var(--text3);color:var(--text3)" data-tip="Restore the A/B/C/D/E/∅ defaults">↺ Reset Defaults</button>
+      </div>
+
+      <!-- ══ Price Gradient Midpoint & Color ══ -->
+      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:6px">🎨 Price Color Gradient</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
+          Controls how prices are colored on BaseType chips and the price panel — dull for the
+          cheapest item, bright vivid for the priciest. Pick a color family below, and adjust where the midpoint sits.
+        </div>
+        <div id="priceGradientPresets" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:11px;color:var(--text3);width:60px">More dull</span>
+          <input type="range" id="priceMidBiasSlider" min="40" max="250" value="100" step="5"
+            oninput="setPriceMidBias(this.value)" onchange="saveState()"
+            style="flex:1;accent-color:var(--accent)">
+          <span style="font-size:11px;color:var(--text3);width:60px;text-align:right">More bright</span>
+        </div>
+        <div style="text-align:center;font-size:10px;color:var(--text3);margin-top:3px">Bias: <span id="priceMidBiasVal">1.00</span> (1.00 = neutral)</div>
+      </div>
+
+      <!-- ══ Estimated Price Border ══ -->
+      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:6px">🔲 Estimated Price Border</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
+          A generic BaseType (e.g. bare "Shortsword" with no specific unique named) can't be priced directly — Auto-Tier instead estimates it using the highest-priced specific unique currently known to use that base, and marks the price with a border so it reads as an estimate rather than a direct fetch. Pick which sections should actually show that border — defaults to sections with "Unique" in the name, since that's where this situation comes up; unchecked sections show the estimated price with no visual marker at all.
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:6px">
+          <button class="sh-btn" onclick="setAllInferredBorderSections(true)">Check All</button>
+          <button class="sh-btn" onclick="setAllInferredBorderSections(false)">Uncheck All</button>
+        </div>
+        <div id="inferredBorderSectionList" style="max-height:220px;overflow-y:auto;padding:8px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius)"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ss" style="border-left:4px solid #5a9cf5;background:#5a9cf512">
+    <div class="ss-head coll-head" onclick="toggleSS('ss-build')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      🧬 Hiding &amp; Progression
+      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
+      <span class="coll-caret" id="ss-build-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
+    </div>
+    <div class="ss-body" id="ss-build-body" style="display:none">
+      <div class="ibox">Check a box to add that rule to your filter — it creates its own auto-generated Hide rule in a dedicated "Build &amp; Leveling" section, which you can still open and hand-tweak anytime. Uncheck to disable it (nothing gets deleted). Define your own below, or browse ready-made ones under Popular Presets.</div>
+      <div class="slist" id="buildDefList"></div>
+      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 8px">Popular Presets — based on common PoE2 build patterns</div>
+      <div class="slist" id="buildPresetLibrary"></div>
+      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 8px">Add a New Rule</div>
+      <div class="sir" style="margin-bottom:8px">
+        <input type="text" id="buildDefLabel" class="wide" placeholder="Label shown on the checkbox, e.g. Hide flasks below level 20">
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Rarity (optional — check any that apply)</div>
+      <div style="display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="buildDefRarityNormal" style="accent-color:var(--accent)">Normal</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="buildDefRarityMagic" style="accent-color:var(--accent)">Magic</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="buildDefRarityRare" style="accent-color:var(--accent)">Rare</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="buildDefRarityUnique" style="accent-color:var(--accent)">Unique</label>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Area Level (optional)</div>
+      <div class="sir" style="margin-bottom:10px">
+        <select id="buildDefAreaOp" style="flex:0 0 70px">
+          <option value=">=">&gt;=</option><option value="<=">&lt;=</option>
+          <option value=">">&gt;</option><option value="<">&lt;</option><option value="=">=</option>
+        </select>
+        <input type="number" id="buildDefAreaVal" placeholder="e.g. 11">
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Class (optional — comma-separated, e.g. "Boots, Gloves, Helmets")</div>
+      <div class="sir" style="margin-bottom:10px">
+        <input type="text" id="buildDefClass" class="wide" placeholder="e.g. Boots, Gloves, Helmets">
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Defense stat (optional)</div>
+      <div class="sir" style="margin-bottom:10px">
+        <select id="buildDefStatType" style="flex:0 0 150px">
+          <option value="none">None</option>
+          <option value="BaseArmour">Base Armour</option>
+          <option value="BaseEvasion">Base Evasion</option>
+          <option value="BaseEnergyShield">Base Energy Shield</option>
+        </select>
+        <select id="buildDefStatOp" style="flex:0 0 70px">
+          <option value=">=">&gt;=</option><option value="<=">&lt;=</option>
+          <option value=">">&gt;</option><option value="<">&lt;</option><option value="=">=</option>
+        </select>
+        <input type="number" id="buildDefStatVal" placeholder="e.g. 1">
+      </div>
+      <button class="sh-btn" onclick="addCustomBuildToggle()" data-tip="Add this as a new checkbox in the list above">+ Add Rule</button>
+    </div>
+  </div>
+  <div class="ss" style="border-left:4px solid #5ac88a;background:#5ac88a12">
+    <div class="ss-head coll-head" onclick="toggleSS('ss-default')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      📌 Default Filter Snapshot
+      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
+      <span class="coll-caret" id="ss-default-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
+    </div>
+    <div class="ss-body" id="ss-default-body" style="display:none">
+      <div class="ibox">Save your current filter as a <strong>Default Snapshot</strong> once you're happy with how it's organized — a complete copy of every rule, section, and setting, stored separately from your live working file. You can then check whether anything has drifted from it since (a rule that's moved to a different section, for example) — purely a report, nothing here ever changes your live filter.</div>
+      <div id="defaultSnapshotStatus" style="font-size:12px;color:var(--text3);margin-bottom:10px">Checking for a saved default…</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <button class="sh-btn" onclick="saveAsDefaultFilter()" data-tip="Save your ENTIRE current filter — every rule, section, and setting — as your Default Snapshot, overwriting any previous one">💾 Save Current Filter as Default</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+        <button class="sh-btn" onclick="checkDriftFromDefault()" data-tip="Compares your CURRENT rules against your saved Default Snapshot (matched by each rule's internal id) and reports any that have moved to a different section since — nothing is changed, just reported">🔍 Check for Drift from Default</button>
+        <span style="font-size:11px;color:var(--text3)">flags rules that have moved to a different section since your last saved default — report only, nothing is changed</span>
+      </div>
+      <div id="defaultDriftReportBox"></div>
+    </div>
+  </div>
+  <div style="margin:22px 0 8px 0;padding:6px 2px;border-bottom:2px solid #b478f5"><span style="font-size:13px;font-weight:800;letter-spacing:.5px;color:#b478f5;text-transform:uppercase">🎨 Customize</span></div>
+  <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
+    <div class="ss-head coll-head" onclick="toggleSS('ss-themes')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      🎨 UI Themes Configuration
+      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
+      <span class="coll-caret" id="ss-themes-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block">▶</span>
+    </div>
+    <div class="ss-body" id="ss-themes-body" style="display:none">
+      <div class="theme-grid" id="themeGrid"></div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
+          <input type="checkbox" id="logoSparkleToggle" checked onchange="S.logoSparkleEnabled=this.checked;saveState();applyLogoSparkleSetting()" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;margin:0">
+          Show the circling sparkle around the MirrorFilter logo
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
+          <input type="checkbox" id="logoSparkleOrbitToggle" onchange="S.logoSparkleOrbitEnabled=this.checked;saveState();applyLogoSparkleSetting()" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;margin:0">
+          Show the orbiting sparkle around the MirrorFilter logo (passes behind the text)
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
+          <input type="checkbox" id="toastFlourishToggle" checked onchange="S.toastFlourishEnabled=this.checked;saveState()" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;margin:0">
+          <span>Show a flourish on all toasts</span>
+          <span style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:8px">(<span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:#3ddc97;display:inline-block"></span>success</span>, <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:#ff5c5c;display:inline-block"></span>error</span>, <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:#4fb8ff;display:inline-block"></span>info</span>)</span>
+        </label>
+        <div style="margin-top:2px" data-tip="Standard: every rule and section header in the sidebar uses the same plain background, regardless of the rule's own configured colors. Colorful: rules and section headers reflect their own colors — solid if a background is set, or transparent with the text colored to match if it isn't (matching how the rule would actually render in-game).">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Rules sidebar coloring:</div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2);margin-bottom:4px">
+            <input type="radio" name="sidebarColorMode" id="sidebarColorModeStandard" value="standard" onchange="updateSidebarColorMode('standard')" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;margin:0">
+            Standard — plain background for every rule, regardless of its visuals
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
+            <input type="radio" name="sidebarColorMode" id="sidebarColorModeColorful" value="colorful" onchange="updateSidebarColorMode('colorful')" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;margin:0">
+            Colorful — rules and section headers reflect their own colors (solid background, or colored text on transparent if no background is set)
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
+    <div class="ss-head coll-head" onclick="toggleSS('ss-sounds')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      🔊 Custom Alert Sounds & Configurations
+      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
+      <span class="coll-caret" id="ss-sounds-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
+    </div>
+    <div class="ss-body" id="ss-sounds-body" style="display:none">
+      <div class="ibox">Add <strong>.mp3, .wav, or .ogg sound file paths</strong> from your PC. They appear in the Alert Sound dropdown alongside the 16 default game sounds. Exports as <code>CustomAlertSound "path" 300</code>. These are stored in your saved data (not the .filter file itself) — the .filter only lists their labels in a header comment for reference.</div>
+      <button id="sndAssignAllBtn" class="sh-btn" onclick="assignAllSounds()" disabled data-tip="Commits every section/rule currently picked below in one go. Stays disabled until at least one row has an actual section or rule selected — rows still showing the placeholder are skipped entirely." style="width:100%;margin-bottom:8px;padding:6px;font-weight:700;opacity:.4;cursor:not-allowed">⚡ Assign All Picked Sections/Rules</button>
+      <div class="slist" id="soundList"></div>
+      <div class="sir">
+        <input type="text" id="newSndLabel" placeholder="Label (e.g. MyDivineSound)">
+        <input type="text" id="newSndPath" class="wide" placeholder="Full path to .mp3, .wav, or .ogg">
+        <button class="sh-btn" onclick="document.getElementById('sndFilePicker').click()" data-tip="Browse for a .mp3, .wav, or .ogg file">📁</button>
+        <button class="sh-btn" onclick="addCustomSound()" data-tip="Add this custom sound">+ Add</button>
+      </div>
+      <input type="file" id="sndFilePicker" accept=".mp3,.wav,.ogg" style="display:none" onchange="handleSndFilePick(this)">
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        <button class="sh-btn" onclick="browseMultipleSoundFiles()" data-tip="Pick several .mp3/.wav/.ogg files at once using your OS's native file picker — for adding many custom sounds in one go">📁 Browse Multiple Files…</button>
+        <div id="sndStagingArea"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
+    <div class="ss-head coll-head" onclick="toggleSS('ss-bulkvisual')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      🎯 Bulk Visual Assign
+      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
+      <span class="coll-caret" id="ss-bulkvisual-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
+    </div>
+    <div class="ss-body" id="ss-bulkvisual-body" style="display:none">
+      <div class="ibox">Set a <span style="color:#5a9cf5;font-weight:600">Minimap Icon</span> and/or <span style="color:#c85ae0;font-weight:600">Beam Effect Color</span> on many rules across many sections at once. <strong>This overwrites whatever a rule already has</strong> — nothing is merged or preserved. Every Apply asks for confirmation first and comes with an Undo button on the toast afterward; there's also a separate Clear button below to reset everything to blank on demand.</div>
+
+      <div style="font-size:15px;font-weight:800;color:var(--accent);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Step 1 — Pick your sections</div>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2);margin-bottom:8px" data-tip="By default only Show rules that are currently enabled are touched, since a Hide or disabled rule doesn't display anything in-game right now. Check this if you use Auto-Tier and want a currently-empty/auto-disabled tier rule to already carry the right icon/beam for the moment it gets re-enabled — so every rule in a tier set stays visually consistent regardless of which ones currently have items in them.">
+        <input type="checkbox" id="bvIncludeHidden" checked style="accent-color:var(--accent)"> Also include Hide and disabled rules <span style="color:var(--text3)">(useful with Auto-Tier, so empty/auto-disabled tier rules stay visually consistent with their active siblings)</span>
+      </label>
+      <div class="tip-box" style="margin-bottom:8px">Each row below has two checkboxes: the left one picks a section as a <strong>target</strong> for Step 3. The right one, <strong style="color:var(--red)">Never</strong>, marks a section you'll never want an icon/beam on at all (e.g. plain Magic/Normal item sections) — it strikes the row through, disables its target checkbox, and sorts it to the very bottom so it stops cluttering the list. Sections you've already applied to are tracked automatically and shown in <span style="color:#5aff7a">green</span>, sorted just above the Never ones — a quick way to see what's left to do.</div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <button class="sh-btn" onclick="setAllBulkVisualSectionsChecked(true)">Check All</button>
+        <button class="sh-btn" onclick="setAllBulkVisualSectionsChecked(false)">Uncheck All</button>
+      </div>
+      <div id="bulkVisualSectionList" style="max-height:260px;overflow-y:auto;padding:8px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);margin-bottom:12px"></div>
+
+      <div style="font-size:15px;font-weight:800;color:var(--accent);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Step 2 — Pick a mode</div>
+      <div style="display:flex;gap:10px;margin-bottom:10px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)" data-tip="For each rule individually, picks the closest palette match to THAT rule's own background color, and sizes the icon by tier rank. Best if you use a consistent A/B/C/D/E-style tier setup.">
+          <input type="radio" name="bvMode" value="match" checked onchange="syncBulkVisualMode()" style="accent-color:var(--accent)"> Match my tiered workflow
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)" data-tip="Pick one exact color, shape, and size yourself, applied identically to every affected rule — no auto-matching. This is the manual option: nothing here is chosen for you.">
+          <input type="radio" name="bvMode" value="manual" onchange="syncBulkVisualMode()" style="accent-color:var(--accent)"> Pick manually <span style="color:var(--text3)">(one color/size for everything)</span>
+        </label>
+      </div>
+
+      <div id="bvMatchModeBox">
+        <div class="tip-box">For each rule: sets <span style="color:#3dd6c4;font-weight:600">Minimap Icon Color</span> and <span style="color:#c85ae0;font-weight:600">Beam Effect Color</span> to whichever of the 11 palette colors is closest to <strong>that rule's own background color</strong> — no manual color picking needed, and every rule in a tiered set (A/B/C/D/E/etc.) naturally ends up matching, since they usually already share a similar background hue. <span style="color:#e0a030;font-weight:600">Minimap Icon Size</span> is set automatically by tier rank: your highest tier (e.g. A) gets Largest, the next two get Medium, everything else (including your Unpriced Catch-All) gets Small — based on your actual configured tier order, not hardcoded letters.</div>
+        <div style="display:flex;align-items:center;gap:8px;margin:10px 0 4px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#5a9cf5;font-weight:600" data-tip="If checked, every affected rule gets a Minimap Icon set — the shape you pick below, applied to ALL of them, with color and size handled automatically per rule as described above.">
+            <input type="checkbox" id="bvSetIconMatch" checked style="accent-color:var(--accent)"> Minimap Icon
+          </label>
+          <span style="font-size:11px;color:var(--text3)">Shape (same for every rule):</span>
+        </div>
+        <div id="bvIconShapeMatchGrid" class="icon-grid" style="margin-bottom:4px"></div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px"><span style="color:#3dd6c4">Minimap Icon Color</span> and <span style="color:#e0a030">Minimap Icon Size</span> are automatic per rule, as described above — not manually chosen here.</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <span style="font-size:11px;color:#e0a030">If a rule has no recognized tier:</span>
+          <select id="bvFallbackSize" data-tip="Rules that aren't Tier Sort Target rules (e.g. a section you don't Auto-Tier at all) have no tier rank to size by — this is the size those rules get instead. Doesn't affect tiered rules, which are always sized by tier rank regardless of this setting." style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:3px 6px;border-radius:var(--radius);font-size:11px">
+            <option value="0">0 — Largest</option>
+            <option value="1" selected>1 — Medium</option>
+            <option value="2">2 — Small</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#c85ae0;font-weight:600" data-tip="If checked, every affected rule gets its Beam Effect Color set automatically, matched to that rule's own background color — same logic as Minimap Icon Color above.">
+            <input type="checkbox" id="bvSetBeamMatch" checked style="accent-color:var(--accent)"> Beam Effect Color
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)" data-tip="If checked, the beam only appears briefly while the item is dropping, instead of staying lit permanently on the ground.">
+            <input type="checkbox" id="bvBeamTempMatch" style="accent-color:var(--accent)"> Temporary (only while dropping)
+          </label>
+        </div>
+      </div>
+
+      <div id="bvManualModeBox" style="display:none">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 6px">Quick Presets</div>
+        <div id="bulkVisualPresets" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Presets just fill in the fields below — nothing is applied until you click Apply.</div>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#5a9cf5;font-weight:600;margin-bottom:4px" data-tip="If checked, every affected rule gets its Minimap Icon SHAPE set to what you pick below. Color and Size have their own separate checkboxes below — you can mix and match, or check all three to set the full icon at once.">
+          <input type="checkbox" id="bvSetIcon" checked style="accent-color:var(--accent)"> Minimap Icon Shape
+        </label>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Shape:</div>
+        <div id="bvIconShapeGrid" class="icon-grid" style="margin-bottom:8px"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#3dd6c4;font-weight:600" data-tip="If checked, every affected rule gets its Minimap Icon Color set to what you pick here. Independent of Shape and Size — you can set just the color without touching the others.">
+            <input type="checkbox" id="bvSetIconColor" checked style="accent-color:var(--accent)"> Minimap Icon Color
+          </label>
+          <select id="bvIconColor" data-tip="The exact Minimap Icon Color applied to every affected rule." style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:3px 6px;border-radius:var(--radius);font-size:11px"></select>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#e0a030;font-weight:600" data-tip="If checked, every affected rule gets its Minimap Icon Size set to what you pick here. Independent of Shape and Color.">
+            <input type="checkbox" id="bvSetIconSize" checked style="accent-color:var(--accent)"> Minimap Icon Size
+          </label>
+          <select id="bvIconSize" data-tip="The exact Minimap Icon Size applied to every affected rule." style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:3px 6px;border-radius:var(--radius);font-size:11px">
+            <option value="0">0 — Largest</option>
+            <option value="1" selected>1 — Medium</option>
+            <option value="2">2 — Small</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#c85ae0;font-weight:600" data-tip="If checked, every affected rule gets its Beam Effect Color set to the exact color you choose below — identical on every rule.">
+            <input type="checkbox" id="bvSetBeam" checked style="accent-color:var(--accent)"> Beam Effect Color
+          </label>
+          <select id="bvBeamColor" data-tip="The exact Beam Effect Color applied to every affected rule." style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:3px 6px;border-radius:var(--radius);font-size:11px"></select>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)" data-tip="If checked, the beam only appears briefly while the item is dropping, instead of staying lit permanently on the ground.">
+            <input type="checkbox" id="bvBeamTemp" style="accent-color:var(--accent)"> Temporary (only while dropping)
+          </label>
+        </div>
+      </div>
+
+      <div style="font-size:15px;font-weight:800;color:var(--accent);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Step 3 — Apply</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="sh-btn" onclick="applyBulkVisualAssign()" style="border-color:var(--accent);color:var(--accent)" data-tip="Apply the settings above to every affected rule in every checked section (including their sub-sections)">🎯 Apply to Checked Sections</button>
+        <button class="sh-btn" onclick="clearBulkVisualSections()" style="border-color:var(--red);color:var(--red)" data-tip="Remove the Minimap Icon AND Beam Effect Color entirely (sets both to None) on every affected rule in every checked section — a genuine reset to blank, separate from Undo">🚫 Clear Icon/Beam (reset to blank)</button>
+      </div>
+    </div>
+  </div>
+  <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
+    <div class="ss-head coll-head" onclick="toggleSS('ss-pasteexcl')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      📋 Custom Paste Include/Exclude Lists
+      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
+      <span class="coll-caret" id="ss-pasteexcl-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
+    </div>
+    <div class="ss-body" id="ss-pasteexcl-body" style="display:none">
+      <div class="ibox">When bulk-pasting a list from a website table (e.g. poe.ninja) into a BaseType/Class/mod picker, some text gets automatically recognized as noise and skipped — numbers, prices, percentages, UI labels like "wiki" or "Trade". These two lists let you correct that yourself, without needing a code update:</div>
+      <div style="background:rgba(239,100,90,.06);border-left:3px solid rgba(239,100,90,.5);border-radius:var(--radius);padding:10px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.6px;margin:2px 0 6px">🚫 Exclude List</div>
+      <div class="ibox">If something slips through and gets added as a fake item, add the exact text here — it'll be treated as noise on every future paste, exact match, case-insensitive.</div>
+      <textarea id="pasteExclusionsInput" placeholder="e.g.&#10;Buyout&#10;New&#10;Featured" style="width:100%;min-height:70px;margin:8px 0;font-family:inherit;font-size:12px;padding:8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);resize:vertical"></textarea>
+      <div style="display:flex;gap:6px">
+        <button class="sh-btn" onclick="savePasteExclusions()" style="border-color:var(--green);color:var(--green)">💾 Save Exclude List</button>
+        <button class="sh-btn" onclick="clearPasteExclusions()" style="border-color:var(--red);color:var(--red)">Clear</button>
+      </div>
+      </div>
+      <div style="background:rgba(80,200,120,.06);border-left:3px solid rgba(80,200,120,.5);border-radius:var(--radius);padding:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.6px;margin:2px 0 6px">✅ Include List</div>
+      <div class="ibox">The opposite case: if a real item name ever gets wrongly treated as noise and skipped (e.g. it happens to contain a number, or looks like one of the built-in patterns), add its exact text here — it'll always be recognized as a real item on every future paste, bypassing the normal noise checks entirely.</div>
+      <textarea id="pasteInclusionsInput" placeholder="e.g.&#10;7th Sacrament" style="width:100%;min-height:70px;margin:8px 0;font-family:inherit;font-size:12px;padding:8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);resize:vertical"></textarea>
+      <div style="display:flex;gap:6px">
+        <button class="sh-btn" onclick="savePasteInclusions()" style="border-color:var(--green);color:var(--green)">💾 Save Include List</button>
+        <button class="sh-btn" onclick="clearPasteInclusions()" style="border-color:var(--red);color:var(--red)">Clear</button>
+      </div>
+      </div>
+    </div>
+  </div>
+  <div class="ss" style="border-left:4px solid #e0435a;background:#e0435a12">
+    <div class="ss-head coll-head" id="ss-custom-head" onclick="toggleSS('ss-custom')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      🔧 Custom Conditions, BaseTypes &amp; Classes
+      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
+      <span class="coll-caret" id="ss-custom-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
+    </div>
+    <div class="ss-body" id="ss-custom-body" style="display:none">
+      <div style="background:rgba(90,156,245,.06);border-left:3px solid rgba(90,156,245,.5);border-radius:var(--radius);padding:10px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="sh-btn" onclick="reportUnusedCustomEntries()" data-tip="Lists your Custom Conditions/BaseTypes/Classes/Sounds that no rule currently references — you might be keeping some intentionally for later, so nothing is removed automatically">🔍 Find Unused Custom Entries</button>
+        <span style="font-size:11px;color:var(--text3)">custom BaseTypes/Classes/Sounds not currently used by any rule — lives here instead of Filter Cleanup Tools since it's really about this list, not the filter's rules</span>
+      </div>
+      <div id="unusedCustomReportBox" style="border:1px solid var(--border2);border-radius:var(--radius);padding:5px 8px;font-size:11px;color:var(--text3);margin-top:10px">Click the button above to see what it finds.</div>
+      </div>
+      <div style="background:rgba(224,150,80,.06);border-radius:var(--radius);padding:10px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:#e09650;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🎮 Game Mode</div>
+      <div class="ibox">Affects <strong>BaseTypes</strong>, <strong>Classes</strong>, <strong>Conditions</strong>, and <strong>HasExplicitMods</strong> — each is suggested per game. The built-in Conditions are split from GGG's own official reference (6 are PoE2-only: AlwaysShow, HasVaalUniqueMod, IsVaalUnique, TwiceCorrupted, UnidentifiedItemTier, WaystoneTier; PoE1-only: HasInfluence, HasEaterOfWorldsImplicit, HasSearingExarchImplicit, plus SocketType since PoE2 has no socket colors). <strong>HasExplicitMods</strong> have no official machine-readable master list to split from, so instead <em>each custom mod you add carries its own PoE1 / PoE2 / Both tag</em> (set it when you add it, or change it later in the Custom HasExplicitMods list) — when the tool is set to one game, only that game's mods plus "Both" are suggested. This only affects <em>suggestions</em>; anything already in your rules keeps working exactly as before regardless of this setting, and mods added before this update default to "Both" so nothing disappears.</div>
+      <select id="gameModeSelect" onchange="setGameMode(this.value)" style="background:rgba(224,150,80,.12);border:2px solid #e09650;color:#e09650;padding:8px 14px;border-radius:var(--radius);font-size:13px;font-weight:700;margin-bottom:6px;cursor:pointer">
+        <option value="poe2">PoE2 Only (default)</option>
+        <option value="poe1">PoE1 Only</option>
+        <option value="both">Both Games</option>
+      </select>
+      <div class="warn-box">⚠ PoE1 <strong>Classes</strong> are populated, but PoE1 <strong>BaseTypes</strong> aren't built into the suggestion list yet — switching to "PoE1 Only" will show an empty BaseType picker until that data is added in a future update. Custom BaseTypes you add yourself below work in any mode.</div>
+      </div>
+
+      <div style="background:rgba(224,150,80,.06);border-radius:var(--radius);padding:10px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:#e09650;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🔧 Custom Conditions</div>
+      <div class="ibox">Add <strong>custom condition keys</strong> to the inline condition picker (click + Add Condition on a rule). All standard PoE2 conditions are already built in. Use this for new conditions added in future patches — no app update needed.</div>
+      <div class="slist" id="condList2"></div>
+      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
+        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyAllCustomEntries('conditions')" data-tip="Copy the whole list above to your clipboard">⧉ Copy All</button>
+        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyCheckedCustomEntries('conditions')" data-tip="Copy only the checked items above">⧉ Copy Checked</button>
+        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeAllCustomEntries('conditions')" data-tip="Clears this whole list">🗑 Clear</button>
+      </div>
+      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
+        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkAllCustomEntries('conditions')" data-tip="Checks every condition in the list above">Check All</button>
+        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="uncheckAllCustomEntries('conditions')" data-tip="Unchecks every condition in the list above">Uncheck All</button>
+        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeCheckedCustomEntries('conditions')" data-tip="Permanently removes only the checked conditions above">🗑 Remove Checked</button>
+      </div>
+      <div class="sir">
+        <input type="text" id="newCondKey" placeholder="Condition key (e.g. NewCondition)">
+        <select id="newCondType" style="flex:none;width:168px">
+          <option value="scalar">Scalar (e.g. &gt;=10)</option>
+          <option value="array">Array (multi-value)</option>
+          <option value="bool">Boolean (True/False)</option>
+        </select>
+        <button class="sh-btn" onclick="addCustomCond()" data-tip="Add this condition key">+ Add</button>
+      </div>
+      </div>
+
+      <div style="background:rgba(180,120,245,.06);border-radius:var(--radius);padding:10px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:#b478f5;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">📦 Custom BaseTypes</div>
+      <div class="ibox">Add <strong>BaseType values</strong> as quick-pick suggestions when adding a BaseType condition in the Editor. Use this for new PoE1/PoE2 item base types not yet in the built-in list.</div>
+      <div class="slist" id="btList"></div>
+      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
+        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyAllCustomEntries('basetypes')" data-tip="Copy the whole list above to your clipboard">⧉ Copy All</button>
+        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyCheckedCustomEntries('basetypes')" data-tip="Copy only the checked items above">⧉ Copy Checked</button>
+        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeAllCustomEntries('basetypes')" data-tip="Clears this whole list">🗑 Clear</button>
+      </div>
+      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
+        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="crossCheckEconomyCustomBT()" data-tip="Checks each item in the list above against the real prices you already pulled in with Auto-Tier. Found a price? Tagged PRICED (confirmed real). No price? Tagged NO PRICE DATA (just unpriced right now, not proof it's fake). Needs an Auto-Tier run first.">🌐 Check vs Economy Data</button>
+        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkEconCustomBT(true)" data-tip="Runs the economy check above if needed, then checks ONLY items tagged PRICED — unchecks everything else">✅ Check Priced Only</button>
+        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkEconCustomBT(false)" data-tip="Runs the economy check above if needed, then checks ONLY items tagged NO PRICE DATA — unchecks everything else">🚫 Check No Price Data Only</button>
+        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkAllCustomEntries('basetypes')" data-tip="Checks every BaseType in the list above">Check All</button>
+        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="uncheckAllCustomEntries('basetypes')" data-tip="Unchecks every BaseType in the list above">Uncheck All</button>
+        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeCheckedCustomEntries('basetypes')" data-tip="Permanently removes only the checked BaseTypes above">🗑 Remove Checked</button>
+      </div>
+      <div class="sir">
+        <input type="text" id="newBTKey" placeholder="e.g. a new item name not found in the BaseType search above">
+        <button class="sh-btn" onclick="addCustomBT()" data-tip="Add this BaseType as a suggestion">+ Add BaseType</button>
+      </div>
+      </div>
+
+      <div style="background:rgba(90,156,245,.06);border-radius:var(--radius);padding:10px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:#5a9cf5;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🏷 Custom Classes</div>
+      <div class="ibox">Add <strong>Class values</strong> as quick-pick suggestions when adding a Class condition in the Editor. Use this for new item classes added in future patches.</div>
+      <div class="slist" id="classList"></div>
+      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
+        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyAllCustomEntries('classes')" data-tip="Copy the whole list above to your clipboard">⧉ Copy All</button>
+        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyCheckedCustomEntries('classes')" data-tip="Copy only the checked items above">⧉ Copy Checked</button>
+        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeAllCustomEntries('classes')" data-tip="Clears this whole list">🗑 Clear</button>
+      </div>
+      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
+        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkAllCustomEntries('classes')" data-tip="Checks every Class in the list above">Check All</button>
+        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="uncheckAllCustomEntries('classes')" data-tip="Unchecks every Class in the list above">Uncheck All</button>
+        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeCheckedCustomEntries('classes')" data-tip="Permanently removes only the checked Classes above">🗑 Remove Checked</button>
+      </div>
+      <div class="sir">
+        <input type="text" id="newClassKey" placeholder="e.g. a new item class not found in the Class search above">
+        <button class="sh-btn" onclick="addCustomClass()" data-tip="Add this Class as a suggestion">+ Add Class</button>
+      </div>
+      </div>
+
+      <div style="background:rgba(80,200,170,.06);border-radius:var(--radius);padding:10px">
+      <div style="font-size:11px;font-weight:700;color:#4fd8b0;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🔮 Custom HasExplicitMods</div>
+      <div class="ibox">Add <strong>HasExplicitMod values</strong> as quick-pick suggestions when adding a HasExplicitMod condition in the Editor. These could previously only be added via paste-import — this is the same list, now manageable by hand too.</div>
+      <div class="slist" id="explicitModList2"></div>
+      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
+        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyAllCustomEntries('explicitmods')" data-tip="Copy the whole list above to your clipboard">⧉ Copy All</button>
+        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyCheckedCustomEntries('explicitmods')" data-tip="Copy only the checked items above">⧉ Copy Checked</button>
+        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeAllCustomEntries('explicitmods')" data-tip="Clears this whole list">🗑 Clear</button>
+      </div>
+      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
+        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkAllCustomEntries('explicitmods')" data-tip="Checks every HasExplicitMod in the list above">Check All</button>
+        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="uncheckAllCustomEntries('explicitmods')" data-tip="Unchecks every HasExplicitMod in the list above">Uncheck All</button>
+        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeCheckedCustomEntries('explicitmods')" data-tip="Permanently removes only the checked HasExplicitMods above">🗑 Remove Checked</button>
+      </div>
+      <div class="sir">
+        <input type="text" id="newExplicitModKey" placeholder="e.g. a new mod text not found in the HasExplicitMod search above">
+        <select id="newExplicitModGame" data-tip="Which game this mod belongs to — controls when it's suggested. 'Both' always shows." style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:6px 8px;border-radius:var(--radius);font-size:12px">
+          <option value="both">Both games</option>
+          <option value="poe2">PoE2 only</option>
+          <option value="poe1">PoE1 only</option>
+        </select>
+        <button class="sh-btn" onclick="addCustomExplicitMod()" data-tip="Add this HasExplicitMod as a suggestion">+ Add HasExplicitMod</button>
+      </div>
+      </div>
+    </div>
+  </div>
+  <div style="margin:22px 0 8px 0;padding:6px 2px;border-bottom:2px solid #e0435a"><span style="font-size:13px;font-weight:800;letter-spacing:.5px;color:#e0435a;text-transform:uppercase">🧹 Maintenance & Data</span></div>
   <div class="ss" style="border-left:4px solid #e0435a;background:#e0435a12">
     <div class="ss-head coll-head" id="ss-cleanup-head" onclick="toggleSS('ss-cleanup')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
       🧹 Filter Cleanup Tools
@@ -898,523 +1424,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       <div class="tip-box" style="margin-top:10px">Click ✕ next to any single value to remove just that one — handy once you've reported it and don't need it cluttering the list anymore. "Clear" wipes the whole list at once. "Check for Added Items" doesn't remove anything by itself — it just pre-checks (shown in green) whatever it finds already in the tool, so you can review and uncheck anything first. Once you've got the right items checked: <strong>Remove Checked from Checklist</strong> only clears this tracker log, <strong>Remove Checked from Database</strong> only strikes them from the Custom database (they'll stay logged here), and <strong>Remove Checked from Both</strong> does both at once.</div>
     </div>
   </div>
-  <div class="ss" style="border-left:4px solid #e0435a;background:#e0435a12">
-    <div class="ss-head coll-head" id="ss-custom-head" onclick="toggleSS('ss-custom')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      🔧 Custom Conditions, BaseTypes &amp; Classes
-      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
-      <span class="coll-caret" id="ss-custom-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
-    </div>
-    <div class="ss-body" id="ss-custom-body" style="display:none">
-      <div style="background:rgba(90,156,245,.06);border-left:3px solid rgba(90,156,245,.5);border-radius:var(--radius);padding:10px;margin-bottom:12px">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <button class="sh-btn" onclick="reportUnusedCustomEntries()" data-tip="Lists your Custom Conditions/BaseTypes/Classes/Sounds that no rule currently references — you might be keeping some intentionally for later, so nothing is removed automatically">🔍 Find Unused Custom Entries</button>
-        <span style="font-size:11px;color:var(--text3)">custom BaseTypes/Classes/Sounds not currently used by any rule — lives here instead of Filter Cleanup Tools since it's really about this list, not the filter's rules</span>
-      </div>
-      <div id="unusedCustomReportBox" style="border:1px solid var(--border2);border-radius:var(--radius);padding:5px 8px;font-size:11px;color:var(--text3);margin-top:10px">Click the button above to see what it finds.</div>
-      </div>
-      <div style="background:rgba(224,150,80,.06);border-radius:var(--radius);padding:10px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:#e09650;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🎮 Game Mode</div>
-      <div class="ibox">Affects <strong>BaseTypes</strong>, <strong>Classes</strong>, and <strong>Conditions</strong> — each has its own PoE1/PoE2 suggestion list now, sourced from GGG's own official condition reference (6 conditions are PoE2-only: AlwaysShow, HasVaalUniqueMod, IsVaalUnique, TwiceCorrupted, UnidentifiedItemTier, WaystoneTier; 3 are PoE1-only: HasInfluence, HasEaterOfWorldsImplicit, HasSearingExarchImplicit, plus SocketType since PoE2 has no socket colors at all). <strong>HasExplicitMods still share one list for both games</strong> — splitting mod text reliably needs a much bigger, more careful research pass than conditions did, and hasn't been done yet. This doesn't change or hide anything already in your filter — a PoE1 BaseType you've already added to a rule still works exactly as before no matter what this is set to; it only affects what gets <em>suggested</em> going forward.</div>
-      <select id="gameModeSelect" onchange="setGameMode(this.value)" style="background:rgba(224,150,80,.12);border:2px solid #e09650;color:#e09650;padding:8px 14px;border-radius:var(--radius);font-size:13px;font-weight:700;margin-bottom:6px;cursor:pointer">
-        <option value="poe2">PoE2 Only (default)</option>
-        <option value="poe1">PoE1 Only</option>
-        <option value="both">Both Games</option>
-      </select>
-      <div class="warn-box">⚠ PoE1 <strong>Classes</strong> are populated, but PoE1 <strong>BaseTypes</strong> aren't built into the suggestion list yet — switching to "PoE1 Only" will show an empty BaseType picker until that data is added in a future update. Custom BaseTypes you add yourself below work in any mode.</div>
-      </div>
-
-      <div style="background:rgba(224,150,80,.06);border-radius:var(--radius);padding:10px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:#e09650;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🔧 Custom Conditions</div>
-      <div class="ibox">Add <strong>custom condition keys</strong> to the inline condition picker (click + Add Condition on a rule). All standard PoE2 conditions are already built in. Use this for new conditions added in future patches — no app update needed.</div>
-      <div class="slist" id="condList2"></div>
-      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
-        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyAllCustomEntries('conditions')" data-tip="Copy the whole list above to your clipboard">⧉ Copy All</button>
-        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyCheckedCustomEntries('conditions')" data-tip="Copy only the checked items above">⧉ Copy Checked</button>
-        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeAllCustomEntries('conditions')" data-tip="Clears this whole list">🗑 Clear</button>
-      </div>
-      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
-        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkAllCustomEntries('conditions')" data-tip="Checks every condition in the list above">Check All</button>
-        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="uncheckAllCustomEntries('conditions')" data-tip="Unchecks every condition in the list above">Uncheck All</button>
-        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeCheckedCustomEntries('conditions')" data-tip="Permanently removes only the checked conditions above">🗑 Remove Checked</button>
-      </div>
-      <div class="sir">
-        <input type="text" id="newCondKey" placeholder="Condition key (e.g. NewCondition)">
-        <select id="newCondType" style="flex:none;width:168px">
-          <option value="scalar">Scalar (e.g. &gt;=10)</option>
-          <option value="array">Array (multi-value)</option>
-          <option value="bool">Boolean (True/False)</option>
-        </select>
-        <button class="sh-btn" onclick="addCustomCond()" data-tip="Add this condition key">+ Add</button>
-      </div>
-      </div>
-
-      <div style="background:rgba(180,120,245,.06);border-radius:var(--radius);padding:10px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:#b478f5;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">📦 Custom BaseTypes</div>
-      <div class="ibox">Add <strong>BaseType values</strong> as quick-pick suggestions when adding a BaseType condition in the Editor. Use this for new PoE1/PoE2 item base types not yet in the built-in list.</div>
-      <div class="slist" id="btList"></div>
-      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
-        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyAllCustomEntries('basetypes')" data-tip="Copy the whole list above to your clipboard">⧉ Copy All</button>
-        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyCheckedCustomEntries('basetypes')" data-tip="Copy only the checked items above">⧉ Copy Checked</button>
-        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeAllCustomEntries('basetypes')" data-tip="Clears this whole list">🗑 Clear</button>
-      </div>
-      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
-        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="crossCheckEconomyCustomBT()" data-tip="Checks each item in the list above against the real prices you already pulled in with Auto-Tier. Found a price? Tagged PRICED (confirmed real). No price? Tagged NO PRICE DATA (just unpriced right now, not proof it's fake). Needs an Auto-Tier run first.">🌐 Check vs Economy Data</button>
-        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkEconCustomBT(true)" data-tip="Runs the economy check above if needed, then checks ONLY items tagged PRICED — unchecks everything else">✅ Check Priced Only</button>
-        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkEconCustomBT(false)" data-tip="Runs the economy check above if needed, then checks ONLY items tagged NO PRICE DATA — unchecks everything else">🚫 Check No Price Data Only</button>
-        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkAllCustomEntries('basetypes')" data-tip="Checks every BaseType in the list above">Check All</button>
-        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="uncheckAllCustomEntries('basetypes')" data-tip="Unchecks every BaseType in the list above">Uncheck All</button>
-        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeCheckedCustomEntries('basetypes')" data-tip="Permanently removes only the checked BaseTypes above">🗑 Remove Checked</button>
-      </div>
-      <div class="sir">
-        <input type="text" id="newBTKey" placeholder="e.g. a new item name not found in the BaseType search above">
-        <button class="sh-btn" onclick="addCustomBT()" data-tip="Add this BaseType as a suggestion">+ Add BaseType</button>
-      </div>
-      </div>
-
-      <div style="background:rgba(90,156,245,.06);border-radius:var(--radius);padding:10px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:#5a9cf5;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🏷 Custom Classes</div>
-      <div class="ibox">Add <strong>Class values</strong> as quick-pick suggestions when adding a Class condition in the Editor. Use this for new item classes added in future patches.</div>
-      <div class="slist" id="classList"></div>
-      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
-        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyAllCustomEntries('classes')" data-tip="Copy the whole list above to your clipboard">⧉ Copy All</button>
-        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyCheckedCustomEntries('classes')" data-tip="Copy only the checked items above">⧉ Copy Checked</button>
-        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeAllCustomEntries('classes')" data-tip="Clears this whole list">🗑 Clear</button>
-      </div>
-      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
-        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkAllCustomEntries('classes')" data-tip="Checks every Class in the list above">Check All</button>
-        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="uncheckAllCustomEntries('classes')" data-tip="Unchecks every Class in the list above">Uncheck All</button>
-        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeCheckedCustomEntries('classes')" data-tip="Permanently removes only the checked Classes above">🗑 Remove Checked</button>
-      </div>
-      <div class="sir">
-        <input type="text" id="newClassKey" placeholder="e.g. a new item class not found in the Class search above">
-        <button class="sh-btn" onclick="addCustomClass()" data-tip="Add this Class as a suggestion">+ Add Class</button>
-      </div>
-      </div>
-
-      <div style="background:rgba(80,200,170,.06);border-radius:var(--radius);padding:10px">
-      <div style="font-size:11px;font-weight:700;color:#4fd8b0;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🔮 Custom HasExplicitMods</div>
-      <div class="ibox">Add <strong>HasExplicitMod values</strong> as quick-pick suggestions when adding a HasExplicitMod condition in the Editor. These could previously only be added via paste-import — this is the same list, now manageable by hand too.</div>
-      <div class="slist" id="explicitModList2"></div>
-      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
-        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyAllCustomEntries('explicitmods')" data-tip="Copy the whole list above to your clipboard">⧉ Copy All</button>
-        <button class="sh-btn" style="border-color:#5a9cf5;color:#5a9cf5" onclick="copyCheckedCustomEntries('explicitmods')" data-tip="Copy only the checked items above">⧉ Copy Checked</button>
-        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeAllCustomEntries('explicitmods')" data-tip="Clears this whole list">🗑 Clear</button>
-      </div>
-      <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap">
-        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="checkAllCustomEntries('explicitmods')" data-tip="Checks every HasExplicitMod in the list above">Check All</button>
-        <button class="sh-btn" style="border-color:var(--accent);color:var(--accent)" onclick="uncheckAllCustomEntries('explicitmods')" data-tip="Unchecks every HasExplicitMod in the list above">Uncheck All</button>
-        <button class="sh-btn" style="border-color:var(--red);color:var(--red)" onclick="removeCheckedCustomEntries('explicitmods')" data-tip="Permanently removes only the checked HasExplicitMods above">🗑 Remove Checked</button>
-      </div>
-      <div class="sir">
-        <input type="text" id="newExplicitModKey" placeholder="e.g. a new mod text not found in the HasExplicitMod search above">
-        <button class="sh-btn" onclick="addCustomExplicitMod()" data-tip="Add this HasExplicitMod as a suggestion">+ Add HasExplicitMod</button>
-      </div>
-      </div>
-    </div>
-  </div>
-  <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
-    <div class="ss-head coll-head" onclick="toggleSS('ss-themes')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      🎨 UI Themes Configuration
-      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
-      <span class="coll-caret" id="ss-themes-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block">▶</span>
-    </div>
-    <div class="ss-body" id="ss-themes-body" style="display:none">
-      <div class="theme-grid" id="themeGrid"></div>
-      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
-          <input type="checkbox" id="logoSparkleToggle" checked onchange="S.logoSparkleEnabled=this.checked;saveState();applyLogoSparkleSetting()" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;margin:0">
-          Show the circling sparkle around the MirrorFilter logo
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
-          <input type="checkbox" id="logoSparkleOrbitToggle" onchange="S.logoSparkleOrbitEnabled=this.checked;saveState();applyLogoSparkleSetting()" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;margin:0">
-          Show the orbiting sparkle around the MirrorFilter logo (passes behind the text)
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
-          <input type="checkbox" id="toastFlourishToggle" checked onchange="S.toastFlourishEnabled=this.checked;saveState()" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;margin:0">
-          <span>Show a flourish on all toasts</span>
-          <span style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:8px">(<span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:#3ddc97;display:inline-block"></span>success</span>, <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:#ff5c5c;display:inline-block"></span>error</span>, <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:#4fb8ff;display:inline-block"></span>info</span>)</span>
-        </label>
-        <div style="margin-top:2px" data-tip="Standard: every rule and section header in the sidebar uses the same plain background, regardless of the rule's own configured colors. Colorful: rules and section headers reflect their own colors — solid if a background is set, or transparent with the text colored to match if it isn't (matching how the rule would actually render in-game).">
-          <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Rules sidebar coloring:</div>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2);margin-bottom:4px">
-            <input type="radio" name="sidebarColorMode" id="sidebarColorModeStandard" value="standard" onchange="updateSidebarColorMode('standard')" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;margin:0">
-            Standard — plain background for every rule, regardless of its visuals
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
-            <input type="radio" name="sidebarColorMode" id="sidebarColorModeColorful" value="colorful" onchange="updateSidebarColorMode('colorful')" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;margin:0">
-            Colorful — rules and section headers reflect their own colors (solid background, or colored text on transparent if no background is set)
-          </label>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
-    <div class="ss-head coll-head" onclick="toggleSS('ss-sounds')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      🔊 Custom Alert Sounds & Configurations
-      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
-      <span class="coll-caret" id="ss-sounds-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
-    </div>
-    <div class="ss-body" id="ss-sounds-body" style="display:none">
-      <div class="ibox">Add <strong>.mp3, .wav, or .ogg sound file paths</strong> from your PC. They appear in the Alert Sound dropdown alongside the 16 default game sounds. Exports as <code>CustomAlertSound "path" 300</code>. These are stored in your saved data (not the .filter file itself) — the .filter only lists their labels in a header comment for reference.</div>
-      <button id="sndAssignAllBtn" class="sh-btn" onclick="assignAllSounds()" disabled data-tip="Commits every section/rule currently picked below in one go. Stays disabled until at least one row has an actual section or rule selected — rows still showing the placeholder are skipped entirely." style="width:100%;margin-bottom:8px;padding:6px;font-weight:700;opacity:.4;cursor:not-allowed">⚡ Assign All Picked Sections/Rules</button>
-      <div class="slist" id="soundList"></div>
-      <div class="sir">
-        <input type="text" id="newSndLabel" placeholder="Label (e.g. MyDivineSound)">
-        <input type="text" id="newSndPath" class="wide" placeholder="Full path to .mp3, .wav, or .ogg">
-        <button class="sh-btn" onclick="document.getElementById('sndFilePicker').click()" data-tip="Browse for a .mp3, .wav, or .ogg file">📁</button>
-        <button class="sh-btn" onclick="addCustomSound()" data-tip="Add this custom sound">+ Add</button>
-      </div>
-      <input type="file" id="sndFilePicker" accept=".mp3,.wav,.ogg" style="display:none" onchange="handleSndFilePick(this)">
-      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
-        <button class="sh-btn" onclick="browseMultipleSoundFiles()" data-tip="Pick several .mp3/.wav/.ogg files at once using your OS's native file picker — for adding many custom sounds in one go">📁 Browse Multiple Files…</button>
-        <div id="sndStagingArea"></div>
-      </div>
-    </div>
-  </div>
-  <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
-    <div class="ss-head coll-head" onclick="toggleSS('ss-pasteexcl')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      📋 Custom Paste Include/Exclude Lists
-      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
-      <span class="coll-caret" id="ss-pasteexcl-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
-    </div>
-    <div class="ss-body" id="ss-pasteexcl-body" style="display:none">
-      <div class="ibox">When bulk-pasting a list from a website table (e.g. poe.ninja) into a BaseType/Class/mod picker, some text gets automatically recognized as noise and skipped — numbers, prices, percentages, UI labels like "wiki" or "Trade". These two lists let you correct that yourself, without needing a code update:</div>
-      <div style="background:rgba(239,100,90,.06);border-left:3px solid rgba(239,100,90,.5);border-radius:var(--radius);padding:10px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.6px;margin:2px 0 6px">🚫 Exclude List</div>
-      <div class="ibox">If something slips through and gets added as a fake item, add the exact text here — it'll be treated as noise on every future paste, exact match, case-insensitive.</div>
-      <textarea id="pasteExclusionsInput" placeholder="e.g.&#10;Buyout&#10;New&#10;Featured" style="width:100%;min-height:70px;margin:8px 0;font-family:inherit;font-size:12px;padding:8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);resize:vertical"></textarea>
-      <div style="display:flex;gap:6px">
-        <button class="sh-btn" onclick="savePasteExclusions()" style="border-color:var(--green);color:var(--green)">💾 Save Exclude List</button>
-        <button class="sh-btn" onclick="clearPasteExclusions()" style="border-color:var(--red);color:var(--red)">Clear</button>
-      </div>
-      </div>
-      <div style="background:rgba(80,200,120,.06);border-left:3px solid rgba(80,200,120,.5);border-radius:var(--radius);padding:10px">
-      <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.6px;margin:2px 0 6px">✅ Include List</div>
-      <div class="ibox">The opposite case: if a real item name ever gets wrongly treated as noise and skipped (e.g. it happens to contain a number, or looks like one of the built-in patterns), add its exact text here — it'll always be recognized as a real item on every future paste, bypassing the normal noise checks entirely.</div>
-      <textarea id="pasteInclusionsInput" placeholder="e.g.&#10;7th Sacrament" style="width:100%;min-height:70px;margin:8px 0;font-family:inherit;font-size:12px;padding:8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);resize:vertical"></textarea>
-      <div style="display:flex;gap:6px">
-        <button class="sh-btn" onclick="savePasteInclusions()" style="border-color:var(--green);color:var(--green)">💾 Save Include List</button>
-        <button class="sh-btn" onclick="clearPasteInclusions()" style="border-color:var(--red);color:var(--red)">Clear</button>
-      </div>
-      </div>
-    </div>
-  </div>
-  <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
-    <div class="ss-head coll-head" onclick="toggleSS('ss-bulkvisual')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      🎯 Bulk Visual Assign
-      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
-      <span class="coll-caret" id="ss-bulkvisual-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
-    </div>
-    <div class="ss-body" id="ss-bulkvisual-body" style="display:none">
-      <div class="ibox">Set a <span style="color:#5a9cf5;font-weight:600">Minimap Icon</span> and/or <span style="color:#c85ae0;font-weight:600">Beam Effect Color</span> on many rules across many sections at once. <strong>This overwrites whatever a rule already has</strong> — nothing is merged or preserved. Every Apply asks for confirmation first and comes with an Undo button on the toast afterward; there's also a separate Clear button below to reset everything to blank on demand.</div>
-
-      <div style="font-size:15px;font-weight:800;color:var(--accent);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Step 1 — Pick your sections</div>
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2);margin-bottom:8px" data-tip="By default only Show rules that are currently enabled are touched, since a Hide or disabled rule doesn't display anything in-game right now. Check this if you use Auto-Tier and want a currently-empty/auto-disabled tier rule to already carry the right icon/beam for the moment it gets re-enabled — so every rule in a tier set stays visually consistent regardless of which ones currently have items in them.">
-        <input type="checkbox" id="bvIncludeHidden" checked style="accent-color:var(--accent)"> Also include Hide and disabled rules <span style="color:var(--text3)">(useful with Auto-Tier, so empty/auto-disabled tier rules stay visually consistent with their active siblings)</span>
-      </label>
-      <div class="tip-box" style="margin-bottom:8px">Each row below has two checkboxes: the left one picks a section as a <strong>target</strong> for Step 3. The right one, <strong style="color:var(--red)">Never</strong>, marks a section you'll never want an icon/beam on at all (e.g. plain Magic/Normal item sections) — it strikes the row through, disables its target checkbox, and sorts it to the very bottom so it stops cluttering the list. Sections you've already applied to are tracked automatically and shown in <span style="color:#5aff7a">green</span>, sorted just above the Never ones — a quick way to see what's left to do.</div>
-      <div style="display:flex;gap:6px;margin-bottom:6px">
-        <button class="sh-btn" onclick="setAllBulkVisualSectionsChecked(true)">Check All</button>
-        <button class="sh-btn" onclick="setAllBulkVisualSectionsChecked(false)">Uncheck All</button>
-      </div>
-      <div id="bulkVisualSectionList" style="max-height:260px;overflow-y:auto;padding:8px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);margin-bottom:12px"></div>
-
-      <div style="font-size:15px;font-weight:800;color:var(--accent);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Step 2 — Pick a mode</div>
-      <div style="display:flex;gap:10px;margin-bottom:10px">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)" data-tip="For each rule individually, picks the closest palette match to THAT rule's own background color, and sizes the icon by tier rank. Best if you use a consistent A/B/C/D/E-style tier setup.">
-          <input type="radio" name="bvMode" value="match" checked onchange="syncBulkVisualMode()" style="accent-color:var(--accent)"> Match my tiered workflow
-        </label>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)" data-tip="Pick one exact color, shape, and size yourself, applied identically to every affected rule — no auto-matching. This is the manual option: nothing here is chosen for you.">
-          <input type="radio" name="bvMode" value="manual" onchange="syncBulkVisualMode()" style="accent-color:var(--accent)"> Pick manually <span style="color:var(--text3)">(one color/size for everything)</span>
-        </label>
-      </div>
-
-      <div id="bvMatchModeBox">
-        <div class="tip-box">For each rule: sets <span style="color:#3dd6c4;font-weight:600">Minimap Icon Color</span> and <span style="color:#c85ae0;font-weight:600">Beam Effect Color</span> to whichever of the 11 palette colors is closest to <strong>that rule's own background color</strong> — no manual color picking needed, and every rule in a tiered set (A/B/C/D/E/etc.) naturally ends up matching, since they usually already share a similar background hue. <span style="color:#e0a030;font-weight:600">Minimap Icon Size</span> is set automatically by tier rank: your highest tier (e.g. A) gets Largest, the next two get Medium, everything else (including your Unpriced Catch-All) gets Small — based on your actual configured tier order, not hardcoded letters.</div>
-        <div style="display:flex;align-items:center;gap:8px;margin:10px 0 4px;flex-wrap:wrap">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#5a9cf5;font-weight:600" data-tip="If checked, every affected rule gets a Minimap Icon set — the shape you pick below, applied to ALL of them, with color and size handled automatically per rule as described above.">
-            <input type="checkbox" id="bvSetIconMatch" checked style="accent-color:var(--accent)"> Minimap Icon
-          </label>
-          <span style="font-size:11px;color:var(--text3)">Shape (same for every rule):</span>
-        </div>
-        <div id="bvIconShapeMatchGrid" class="icon-grid" style="margin-bottom:4px"></div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:8px"><span style="color:#3dd6c4">Minimap Icon Color</span> and <span style="color:#e0a030">Minimap Icon Size</span> are automatic per rule, as described above — not manually chosen here.</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-          <span style="font-size:11px;color:#e0a030">If a rule has no recognized tier:</span>
-          <select id="bvFallbackSize" data-tip="Rules that aren't Tier Sort Target rules (e.g. a section you don't Auto-Tier at all) have no tier rank to size by — this is the size those rules get instead. Doesn't affect tiered rules, which are always sized by tier rank regardless of this setting." style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:3px 6px;border-radius:var(--radius);font-size:11px">
-            <option value="0">0 — Largest</option>
-            <option value="1" selected>1 — Medium</option>
-            <option value="2">2 — Small</option>
-          </select>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#c85ae0;font-weight:600" data-tip="If checked, every affected rule gets its Beam Effect Color set automatically, matched to that rule's own background color — same logic as Minimap Icon Color above.">
-            <input type="checkbox" id="bvSetBeamMatch" checked style="accent-color:var(--accent)"> Beam Effect Color
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)" data-tip="If checked, the beam only appears briefly while the item is dropping, instead of staying lit permanently on the ground.">
-            <input type="checkbox" id="bvBeamTempMatch" style="accent-color:var(--accent)"> Temporary (only while dropping)
-          </label>
-        </div>
-      </div>
-
-      <div id="bvManualModeBox" style="display:none">
-        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 6px">Quick Presets</div>
-        <div id="bulkVisualPresets" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Presets just fill in the fields below — nothing is applied until you click Apply.</div>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#5a9cf5;font-weight:600;margin-bottom:4px" data-tip="If checked, every affected rule gets its Minimap Icon SHAPE set to what you pick below. Color and Size have their own separate checkboxes below — you can mix and match, or check all three to set the full icon at once.">
-          <input type="checkbox" id="bvSetIcon" checked style="accent-color:var(--accent)"> Minimap Icon Shape
-        </label>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Shape:</div>
-        <div id="bvIconShapeGrid" class="icon-grid" style="margin-bottom:8px"></div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#3dd6c4;font-weight:600" data-tip="If checked, every affected rule gets its Minimap Icon Color set to what you pick here. Independent of Shape and Size — you can set just the color without touching the others.">
-            <input type="checkbox" id="bvSetIconColor" checked style="accent-color:var(--accent)"> Minimap Icon Color
-          </label>
-          <select id="bvIconColor" data-tip="The exact Minimap Icon Color applied to every affected rule." style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:3px 6px;border-radius:var(--radius);font-size:11px"></select>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#e0a030;font-weight:600" data-tip="If checked, every affected rule gets its Minimap Icon Size set to what you pick here. Independent of Shape and Color.">
-            <input type="checkbox" id="bvSetIconSize" checked style="accent-color:var(--accent)"> Minimap Icon Size
-          </label>
-          <select id="bvIconSize" data-tip="The exact Minimap Icon Size applied to every affected rule." style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:3px 6px;border-radius:var(--radius);font-size:11px">
-            <option value="0">0 — Largest</option>
-            <option value="1" selected>1 — Medium</option>
-            <option value="2">2 — Small</option>
-          </select>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#c85ae0;font-weight:600" data-tip="If checked, every affected rule gets its Beam Effect Color set to the exact color you choose below — identical on every rule.">
-            <input type="checkbox" id="bvSetBeam" checked style="accent-color:var(--accent)"> Beam Effect Color
-          </label>
-          <select id="bvBeamColor" data-tip="The exact Beam Effect Color applied to every affected rule." style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:3px 6px;border-radius:var(--radius);font-size:11px"></select>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)" data-tip="If checked, the beam only appears briefly while the item is dropping, instead of staying lit permanently on the ground.">
-            <input type="checkbox" id="bvBeamTemp" style="accent-color:var(--accent)"> Temporary (only while dropping)
-          </label>
-        </div>
-      </div>
-
-      <div style="font-size:15px;font-weight:800;color:var(--accent);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Step 3 — Apply</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="sh-btn" onclick="applyBulkVisualAssign()" style="border-color:var(--accent);color:var(--accent)" data-tip="Apply the settings above to every affected rule in every checked section (including their sub-sections)">🎯 Apply to Checked Sections</button>
-        <button class="sh-btn" onclick="clearBulkVisualSections()" style="border-color:var(--red);color:var(--red)" data-tip="Remove the Minimap Icon AND Beam Effect Color entirely (sets both to None) on every affected rule in every checked section — a genuine reset to blank, separate from Undo">🚫 Clear Icon/Beam (reset to blank)</button>
-      </div>
-    </div>
-  </div>
-  <div class="ss" style="border-left:4px solid #e0b050;background:#e0b05012">
-    <div class="ss-head coll-head" onclick="toggleSS('ss-tiers')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      ⚡ Tier System &amp; Auto-Tier Configuration
-      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
-      <span class="coll-caret" id="ss-tiers-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
-    </div>
-    <div class="ss-body" id="ss-tiers-body" style="display:none">
-      <div class="ibox">
-        <strong>⚡ Auto-Tier — sorts BaseTypes into tiers by live price when you click it:</strong><br><br>
-
-        Enable on a rule by checking <strong>Tier Sort Target</strong> in the Editor.<br>
-        All rules with <em>Tier Sort Target</em> checked in the <strong>same section</strong> form a sort group. When Auto-Tier runs, it collects every BaseType across all rules in that group, looks up each item's price (see the price-source breakdown below), then redistributes them: each BaseType goes into the rule whose tier threshold its price meets. BaseTypes that fall below the lowest threshold are removed from all rules. <strong>Visuals are never touched</strong> — only the BaseType lists change.<br><br>
-
-        <strong>Example:</strong> You have 5 rules in "Currency": S-Tier, A-Tier, B-Tier, C-Tier, D-Tier — all with <em>Tier Sort Target ✓</em>. You add Divine Orb, Exalted Orb, Chaos Orb, Orb of Alteration etc. across them. Click ⚡ Auto-Tier — prices are fetched, and each item is moved to the correct tier rule automatically. A Chaos Orb that was in B-Tier yesterday may move to C-Tier today.<br><br>
-
-        <span class="warn">⚠ Rules stay in their sections always.</span> Auto-Tier never moves a rule from Currency to Uniques or anywhere else.<br><br>
-        <strong>Requires an internet connection.</strong> Prices are cached server-side for 5 minutes per league — clicking Auto-Tier again sooner reuses the cached numbers instantly; after 5 minutes, the next click fetches fresh prices.
-      </div>
-      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 8px">Where Prices Come From</div>
-      <div class="ibox">
-        Three sources are tried in order, each one only filling in items the ones before it didn't have — nothing is ever overwritten by a later source:<br><br>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <span style="background:#5a9cf5;color:#0a1420;font-weight:700;border-radius:3px;padding:1px 7px;font-size:11px">1</span>
-          <strong style="color:#5a9cf5">poe.ninja</strong>
-          <span style="color:var(--text3);font-size:11px">— primary, and now matched exactly to poe.ninja's own official API documentation. Covers Currency, Runes, Soul Cores, Essences, Fragments, Catalysts, Omens, Liquid Emotions, Expedition, Abyss, Uncut Gems, Lineage Support Gems, Idols, and Verisium — plus Tablets (both Precursor and Unique), Relics, Weapons, Armours, Accessories, Flasks, Charms, and Jewels via its separate per-item pricing data.</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <span style="background:#c85ae0;color:#1a0a20;font-weight:700;border-radius:3px;padding:1px 7px;font-size:11px">2</span>
-          <strong style="color:#c85ae0">poe2scout</strong>
-          <span style="color:var(--text3);font-size:11px">— supplemental. Currently returning HTTP 404 on every attempt (broke during their Cloudflare migration), but still tried, since its original bulk endpoint covers uniques/jewels/idols/gear poe.ninja doesn't — it'll automatically start contributing again the moment it recovers.</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="background:#3dd6c4;color:#0a201c;font-weight:700;border-radius:3px;padding:1px 7px;font-size:11px">3</span>
-          <strong style="color:#3dd6c4">poe2db.tw</strong>
-          <span style="color:var(--text3);font-size:11px">— last resort. A live economy tracker with no public API, so this parses its pages directly for whatever the first two still missed — mainly Runes/Soul Cores/Essences/Fragments as a backup for poe.ninja's own coverage of those.</span>
-        </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--text3)">Every attempt — success or failure, from all three sources — is written to <code>UserData\economy_debug.log</code> if you ever need to see exactly what happened on a given run.</div>
-      </div>
-      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Tier Configuration</div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Tiers are checked highest-threshold first. Items with chaos value ≥ the threshold get that tier. The lowest tier (0 threshold) is the catch-all.</div>
-      <div class="tier-cfg-grid">
-        <span class="hd">Preview</span><span class="hd">Name</span><span class="hd">Min Chaos</span>
-        <span class="hd">Text</span><span class="hd">BG</span><span class="hd">Range</span><span class="hd"></span>
-      </div>
-      <div id="tierCfgRows"></div>
-      <div style="margin-top:8px;display:flex;gap:8px">
-        <button class="sh-btn" onclick="addTier()" data-tip="Add a new tier level">+ Add Tier</button>
-        <button class="sh-btn" onclick="resetTiers()" style="border-color:var(--text3);color:var(--text3)" data-tip="Restore the A/B/C/D/E/∅ defaults">↺ Reset Defaults</button>
-      </div>
-
-      <!-- ══ Price Gradient Midpoint & Color ══ -->
-      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
-        <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:6px">🎨 Price Color Gradient</div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
-          Controls how prices are colored on BaseType chips and the price panel — dull for the
-          cheapest item, bright vivid for the priciest. Pick a color family below, and adjust where the midpoint sits.
-        </div>
-        <div id="priceGradientPresets" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:11px;color:var(--text3);width:60px">More dull</span>
-          <input type="range" id="priceMidBiasSlider" min="40" max="250" value="100" step="5"
-            oninput="setPriceMidBias(this.value)" onchange="saveState()"
-            style="flex:1;accent-color:var(--accent)">
-          <span style="font-size:11px;color:var(--text3);width:60px;text-align:right">More bright</span>
-        </div>
-        <div style="text-align:center;font-size:10px;color:var(--text3);margin-top:3px">Bias: <span id="priceMidBiasVal">1.00</span> (1.00 = neutral)</div>
-      </div>
-
-      <!-- ══ Estimated Price Border ══ -->
-      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
-        <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:6px">🔲 Estimated Price Border</div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
-          A generic BaseType (e.g. bare "Shortsword" with no specific unique named) can't be priced directly — Auto-Tier instead estimates it using the highest-priced specific unique currently known to use that base, and marks the price with a border so it reads as an estimate rather than a direct fetch. Pick which sections should actually show that border — defaults to sections with "Unique" in the name, since that's where this situation comes up; unchecked sections show the estimated price with no visual marker at all.
-        </div>
-        <div style="display:flex;gap:6px;margin-bottom:6px">
-          <button class="sh-btn" onclick="setAllInferredBorderSections(true)">Check All</button>
-          <button class="sh-btn" onclick="setAllInferredBorderSections(false)">Uncheck All</button>
-        </div>
-        <div id="inferredBorderSectionList" style="max-height:220px;overflow-y:auto;padding:8px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius)"></div>
-      </div>
-    </div>
-  </div>
-  <div class="ss" style="border-left:4px solid #5a9cf5;background:#5a9cf512">
-    <div class="ss-head coll-head" onclick="toggleSS('ss-build')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      🧬 Hiding &amp; Progression
-      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
-      <span class="coll-caret" id="ss-build-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
-    </div>
-    <div class="ss-body" id="ss-build-body" style="display:none">
-      <div class="ibox">Check a box to add that rule to your filter — it creates its own auto-generated Hide rule in a dedicated "Build &amp; Leveling" section, which you can still open and hand-tweak anytime. Uncheck to disable it (nothing gets deleted). Define your own below, or browse ready-made ones under Popular Presets.</div>
-      <div class="slist" id="buildDefList"></div>
-      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 8px">Popular Presets — based on common PoE2 build patterns</div>
-      <div class="slist" id="buildPresetLibrary"></div>
-      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 8px">Add a New Rule</div>
-      <div class="sir" style="margin-bottom:8px">
-        <input type="text" id="buildDefLabel" class="wide" placeholder="Label shown on the checkbox, e.g. Hide flasks below level 20">
-      </div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Rarity (optional — check any that apply)</div>
-      <div style="display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="buildDefRarityNormal" style="accent-color:var(--accent)">Normal</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="buildDefRarityMagic" style="accent-color:var(--accent)">Magic</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="buildDefRarityRare" style="accent-color:var(--accent)">Rare</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" id="buildDefRarityUnique" style="accent-color:var(--accent)">Unique</label>
-      </div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Area Level (optional)</div>
-      <div class="sir" style="margin-bottom:10px">
-        <select id="buildDefAreaOp" style="flex:0 0 70px">
-          <option value=">=">&gt;=</option><option value="<=">&lt;=</option>
-          <option value=">">&gt;</option><option value="<">&lt;</option><option value="=">=</option>
-        </select>
-        <input type="number" id="buildDefAreaVal" placeholder="e.g. 11">
-      </div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Class (optional — comma-separated, e.g. "Boots, Gloves, Helmets")</div>
-      <div class="sir" style="margin-bottom:10px">
-        <input type="text" id="buildDefClass" class="wide" placeholder="e.g. Boots, Gloves, Helmets">
-      </div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Defense stat (optional)</div>
-      <div class="sir" style="margin-bottom:10px">
-        <select id="buildDefStatType" style="flex:0 0 150px">
-          <option value="none">None</option>
-          <option value="BaseArmour">Base Armour</option>
-          <option value="BaseEvasion">Base Evasion</option>
-          <option value="BaseEnergyShield">Base Energy Shield</option>
-        </select>
-        <select id="buildDefStatOp" style="flex:0 0 70px">
-          <option value=">=">&gt;=</option><option value="<=">&lt;=</option>
-          <option value=">">&gt;</option><option value="<">&lt;</option><option value="=">=</option>
-        </select>
-        <input type="number" id="buildDefStatVal" placeholder="e.g. 1">
-      </div>
-      <button class="sh-btn" onclick="addCustomBuildToggle()" data-tip="Add this as a new checkbox in the list above">+ Add Rule</button>
-    </div>
-  </div>
-  <div class="ss" style="border-left:4px solid #5ac88a;background:#5ac88a12">
-    <div class="ss-head coll-head" onclick="toggleSS('ss-default')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      📌 Default Filter Snapshot
-      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
-      <span class="coll-caret" id="ss-default-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
-    </div>
-    <div class="ss-body" id="ss-default-body" style="display:none">
-      <div class="ibox">Save your current filter as a <strong>Default Snapshot</strong> once you're happy with how it's organized — a complete copy of every rule, section, and setting, stored separately from your live working file. You can then check whether anything has drifted from it since (a rule that's moved to a different section, for example) — purely a report, nothing here ever changes your live filter.</div>
-      <div id="defaultSnapshotStatus" style="font-size:12px;color:var(--text3);margin-bottom:10px">Checking for a saved default…</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-        <button class="sh-btn" onclick="saveAsDefaultFilter()" data-tip="Save your ENTIRE current filter — every rule, section, and setting — as your Default Snapshot, overwriting any previous one">💾 Save Current Filter as Default</button>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-        <button class="sh-btn" onclick="checkDriftFromDefault()" data-tip="Compares your CURRENT rules against your saved Default Snapshot (matched by each rule's internal id) and reports any that have moved to a different section since — nothing is changed, just reported">🔍 Check for Drift from Default</button>
-        <span style="font-size:11px;color:var(--text3)">flags rules that have moved to a different section since your last saved default — report only, nothing is changed</span>
-      </div>
-      <div id="defaultDriftReportBox"></div>
-    </div>
-  </div>
-  <div class="ss" style="border-left:4px solid #4fc3c9;background:#4fc3c912">
-    <div class="ss-head coll-head" onclick="toggleSS('ss-saving')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      💾 Saving Your Work
-      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
-      <span class="coll-caret" id="ss-saving-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
-    </div>
-    <div class="ss-body" id="ss-saving-body" style="display:none">
-      <div class="save-pulse" style="border:1px solid var(--accent);border-radius:10px;padding:14px 16px;margin-bottom:18px;background:rgba(var(--accent-rgb),.06)">
-        <div style="font-size:15px;font-weight:700;color:var(--accent);letter-spacing:.2px;margin-bottom:6px">💾 Save, Back up &amp; Restore — everything about protecting your work, in one place</div>
-        <div style="font-size:12.5px;line-height:1.7;color:var(--text)">Three stages, three different jobs:</div>
-        <div style="margin-top:6px;font-size:12.5px;line-height:1.7;color:var(--text)">
-          <div><strong style="color:var(--accent)">① Save</strong> — write the game-ready <code>.filter</code>, optionally to several folders at once. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go ↓</span></div>
-          <div><strong style="color:var(--accent)">② Back up</strong> — snapshot your whole editor state (rules, tiers, sounds, settings) so it's recoverable. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go ↓</span></div>
-          <div><strong style="color:var(--accent)">③ Restore</strong> — load any backup back when you need it. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go ↓</span></div>
-        </div>
-      </div>
-
-      <div id="locationsSummary" style="margin-bottom:16px"></div>
-
-      <!-- ───────────── STAGE ① SAVE ───────────── -->
-      <div id="stageSave" style="margin-bottom:22px">
-        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)">① Save — your game-ready .filter</div>
-        <p style="font-size:12.5px">Your editing session saves itself in this browser automatically on every change (no button needed). <strong>Export</strong> / <strong>Quick-Save</strong> is the separate, deliberate step that writes the actual <code>.filter</code> the game reads into your Path of Exile 2 folder — do that whenever you want the game to see your latest changes.</p>
-        <div id="multiSaveSetup" style="margin-top:12px;padding:14px;border:1px solid var(--border2);border-radius:10px;background:rgba(var(--accent-rgb),.03)">
-          <div style="font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:8px">📍 Multi-Location Save</div>
-          <div class="ibox">Add up to 4 extra folders (a cloud-synced folder, the game's own folder, an external drive…) and every Quick-Save/Export also writes to each one automatically. <strong>Each location has its own dropdown</strong> for what to save there — a cloud folder might want everything, the game's folder only needs the bare .filter.</div>
-          <div class="tip-box"><strong style='color:var(--accent)'>Saving to the game's own folder</strong> (<code>...\Documents\My Games\Path of Exile 2</code>) — set that location's dropdown to <strong>"Just the .filter"</strong>. The game reads only the raw .filter; it ignores the .meta.json sidecar entirely.</div>
-          <div class="tip-box"><strong style='color:var(--accent)'>What each option gives you:</strong>
-            <div style="margin-top:8px;line-height:1.7">
-              <div><strong>Just the .filter</strong> — only the raw file the game reads.</div>
-              <div><strong>.filter + .meta.json</strong> — that file plus its sidecar (so re-importing later restores tier config/hierarchy too).</div>
-              <div><strong>Entire UserData folder</strong> — your whole working session as one folder copy.</div>
-              <div><strong>UserData + .filter + .meta.json (recommended)</strong> — the folder copy plus a guaranteed-fresh .filter + sidecar. The only option that's always both complete AND current.</div>
-            </div>
-          </div>
-          <div id="multiSaveLocList" style="margin:8px 0"></div>
-          <button class="sh-btn" onclick="addMultiSaveLocation()" data-tip="Pick a folder to add as an extra save destination">📁 Add save location</button>
-        </div>
-      </div>
-
-      <!-- ───────────── STAGE ② BACK UP ───────────── -->
-      <div id="stageBackup" style="margin-bottom:22px">
-        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)">② Back up — snapshots of your whole editor state</div>
-        <p style="font-size:12.5px">A backup captures <em>everything</em> in the editor — all rules, sections, tier config, custom sounds, and settings — not just the game <code>.filter</code>. MirrorFilter takes these automatically before anything risky (Auto-Tier, imports, on-load repairs). You can also keep a copy on disk in a folder you control.</p>
-        <div id="healthMonitor" style="margin:12px 0"></div>
-        <div id="diskBackupCtl"></div>
-        <div class="ibox">Backing up saves <strong>both</strong> safety nets at once: an <strong>in-browser restore point</strong> (the last <span id="bkMax">8</span> are also kept automatically before risky actions) and, when disk auto-backup is on, a <strong>timestamped file in your own folder</strong>. This happens automatically on Quick-Save and every 5 minutes — or on demand with the button below.</div>
-        <div style="display:flex;gap:6px;margin:10px 0;flex-wrap:wrap">
-          <button class="sh-btn" onclick="backupNowFromButton()" data-tip="Saves an in-browser restore point AND a timestamped file to your folder (if disk backup is on)">💾 Back up now</button>
-        </div>
-      </div>
-
-      <!-- ───────────── STAGE ③ RESTORE ───────────── -->
-      <div id="stageRestore">
-        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)">③ Restore — load a backup back</div>
-        <p style="font-size:12.5px">Pick any saved backup and load it. Your current state is backed up first, so restoring is always reversible. Restoring replaces what's in the editor now with the chosen snapshot.</p>
-        <div class="tip-box" style="margin-bottom:8px"><strong style="color:var(--accent)">Restoring from your backup folder?</strong> Backups are named <code>mirrorfilter-backup-YYYY-MM-DD_HHMMSS.json</code> — the date &amp; time are in the filename, so the <strong>newest is the one with the latest date</strong>. Pick the point in time you want to go back to. (The <code>.filter</code> and <code>.filter.meta.json</code> in the folder are the game filter and its sidecar, not full backups — to load a <code>.filter</code>, use <strong>Import</strong> at the top.)</div>
-        <div style="display:flex;gap:6px;margin:8px 0;flex-wrap:wrap">
-          <button class="sh-btn" onclick="refreshBackupPanel()">↻ Refresh list</button>
-          <button class="sh-btn" onclick="restoreFromDiskFile()" data-tip="Load a timestamped mirrorfilter-backup-*.json from disk">📂 Restore from a backup file…</button>
-        </div>
-        <div id="backupList" style="font-size:12px"></div>
-      </div>
-    </div>
-  </div>
+  <div style="margin:22px 0 8px 0;padding:6px 2px;border-bottom:2px solid #5a9cf5"><span style="font-size:13px;font-weight:800;letter-spacing:.5px;color:#5a9cf5;text-transform:uppercase">📋 About</span></div>
   <div class="ss" style="border-left:4px solid #4fc3c9;background:#4fc3c912">
     <div class="ss-head coll-head" onclick="toggleSS('ss-todo')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
       📝 Planned Features &amp; To-Do
@@ -30195,16 +30205,20 @@ const HELP_TOPICS = [
     `
   },
   {
-    icon:'📊',title:'Visuals & Stats Tab — Diagnostic Panels',tags:['stats','visuals and stats','duplicate','fewest','near-duplicate','similar-looking','sound duplicates','auto-tier setup','diagnostic'],cat:'basics',
+    icon:'📊',title:'Visuals & Stats Tab — Panels, Filters & Diagnostics',tags:['stats','visuals and stats','duplicate','fewest','near-duplicate','similar-looking','sound duplicates','auto-tier setup','diagnostic','viz','filter chip','swatch','grid','beam','icon','swatch grid','visual property usage'],cat:'basics',
     body:`
-      <p>The <strong>Visuals & Stats</strong> tab is a set of read-only diagnostic panels — they flag things worth a look, but never change your filter on their own. Fixing anything they surface happens in the Editor or Resources tabs; these panels just tell you where to look.</p>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>🔁 Duplicate BaseTypes</strong> — the same BaseType sitting in two rules, either within one section or across different sections. Click through to the full interactive report in Resources → 🧹 Filter Cleanup Tools.</div></div>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>📉 Fewest BaseTypes</strong> — sections with 5 or fewer total BaseTypes across all their rules combined. Useful for spotting one you forgot to finish, or just confirming a deliberately sparse section (like Gold) is correct. Click a section to jump straight to it.</div></div>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>⚠ Near-Duplicate Lists</strong> — rule pairs whose Class or BaseType list is 85%+ identical but not exactly the same, with the actual difference shown line by line. Usually means one rule has a stray extra or missing entry that was never meant to differ.</div></div>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>👁 Similar-Looking</strong> — rules (or whole sections) whose colors are close enough to be mistaken for each other on the ground, the one thing that's hard to spot from the Editor tab since it only shows one rule at a time.</div></div>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>🔊 Sound Duplicates</strong> — the same custom sound assigned to more than one rule, in case that wasn't intentional.</div></div>
+      <p>The <strong>Visuals & Stats</strong> tab does two jobs: it lets you scan your whole filter's visual design at once, and it runs read-only diagnostic panels that flag things worth a look (they never change your filter — fixing anything happens back in the Editor or Resources).</p>
+      <p><strong>Filter chips & swatch grid</strong> (above the rules list):</p>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>✨ Beam / 📍 Icon / 🔊 Sound / ◯ No Visuals chips</strong> — click any combination to show only rules that have at least one of those visuals, so you can review just the rules with (or without) a given effect.</div></div>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>Swatch grid toggle</strong> — switches the list to a dense grid of small color-only tiles (an "Aa" in each rule's colors), for eyeballing your whole palette at a glance.</div></div>
+      <p><strong>Diagnostic panels:</strong></p>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>🔁 Duplicate BaseTypes</strong> — the same BaseType in two rules, within one section or across sections. Click through to the full interactive report in Resources → 🧹 Filter Cleanup Tools.</div></div>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>📉 Fewest BaseTypes</strong> — sections with 5 or fewer BaseTypes total, useful for spotting one you forgot to finish (or confirming a deliberately sparse section like Gold). Click a section to jump to it.</div></div>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>⚠ Near-Duplicate Lists</strong> — rule pairs whose Class/BaseType list is 85%+ identical but not exact, with the difference shown line by line — usually a stray extra or missing entry.</div></div>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>👁 Similar-Looking</strong> — rules or sections whose colors are close enough to be confused on the ground (the one thing hard to spot in the Editor, which shows one rule at a time). Use the <strong>Rules / Sections</strong> toggle to compare individual rules or each section's overall background; in Sections mode, <strong>Ignore Sub-Sections</strong> is on by default since sub-sections usually share their parent's visuals on purpose. It only compares enabled Show rules — Hide rules and disabled sections never render in-game — and accounts for transparency, so a fully-transparent background is never flagged as a clash.</div></div>
+      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>🔊 Sound Duplicates</strong> — the same custom sound on more than one rule, in case that wasn't intentional.</div></div>
       <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>⚡ Auto-Tier Setup</strong> — flags sections with a Tier Sort Target but no Unpriced Catch-All rule, or sections where everything ended up unpriced after a fetch.</div></div>
-      <div class="tip-box">Also here: Overview counts, Show vs Hide, Tier Distribution, Font Size Range, Visual Property Usage, Top Beam Colors, and Suggested Background Colors (which also permanently feeds the Quick Color Presets — see the Colors guide topic).</div>
+      <div class="tip-box">Also here: <strong>Visual Property Usage</strong> (% of rules customizing each visual property), <strong>Font Size Range</strong> and <strong>Top Beam Colors</strong> (spread stats), <strong>Suggested Background Colors</strong> (which also feed the Quick Color Presets — see the Colors topic), plus Overview counts, Show vs Hide, and Tier Distribution.</div>
     `
   },
   {
@@ -30460,28 +30474,6 @@ const HELP_TOPICS = [
     `
   },
 {
-    icon:'🧭',title:'Visuals Tab — Filters, Swatch Grid & Insights',tags:['viz','visuals','filter chip','swatch','grid','similar','similar-looking','background recommend','beam filter','icon filter','sound filter'],cat:'visuals',
-    body:`
-      <p>Below the Loot Drop Simulator, the rules list has its own tools for scanning a whole filter's visual design at once — things that genuinely aren't visible from the Editor, since it only ever shows one rule at a time.</p>
-
-      <p style="margin-top:10px"><strong style="color:var(--accent)">Filter Chips &amp; Swatch Grid</strong></p>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>✨ Beam / 📍 Icon / 🔊 Sound / ◯ No Visuals</strong> chips — click any combination to show only rules matching at least one active chip. Click again to turn a chip off.</div></div>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>Swatch grid</strong> toggle — switches the list to a dense, wrapping grid of small color-only tiles (just an "Aa" in each rule's actual text/background color), with tiny corner dots marking beam/icon/sound presence. Good for spotting color patterns fast across a large filter.</div></div>
-
-      <p style="margin-top:10px"><strong style="color:var(--accent)">Left Sidebar — Visual Styling</strong></p>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>Visual Property Usage</strong> — % of rules that customize Text Color, Text Size, Beam Color, Icon Shape, Icon Color, and Icon Size away from the tool's defaults.</div></div>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>Font Size Range</strong> and <strong>Top Beam Colors</strong> — quick stats on your filter's overall visual spread.</div></div>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>Suggested Background Colors</strong> — a mix of colors that complement your most-used hues plus common, filter-appropriate tones you haven't used yet. Click a swatch to copy its hex code, then paste it into a Background color box on the Editor tab.</div></div>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>Sound Duplicates</strong> — flags any custom sound assigned to more than one rule, in case that wasn't intentional.</div></div>
-
-      <p style="margin-top:10px"><strong style="color:var(--accent)">Right Sidebar — Rules &amp; Tiers</strong></p>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt">Overview, Show vs Hide, Tier Distribution, and Auto-Tier Setup (flags sections with Tier Sort Target rules but no Unpriced Catch-All, and separately flags sections where every BaseType landed in Unpriced — meaning no price data exists for anything in that section at all).</div></div>
-      <div class="step"><div class="step-num">▸</div><div class="step-txt"><strong>Similar-Looking</strong> — flags pairs whose colors are close enough that the drops might be hard to tell apart on the ground. Use the <strong>Rules / Sections</strong> toggle to compare individual rules, or each section's overall (most common) background color — handy if your filter typically uses one consistent background per section. In Sections mode, <strong>Ignore Sub-Sections</strong> is on by default, since sub-sections usually share their parent's visuals intentionally and don't need flagging against each other.</div></div>
-      <div class="tip-box">Similar-Looking only compares enabled <strong>Show</strong> rules — Hide rules and disabled sections never render in-game, so a color clash there doesn't matter.</div>
-      <div class="tip-box">Background comparisons account for transparency — a rule or section with no visible background (fully transparent) is never flagged as "similar" to another just because their underlying color values happen to coincide; only backgrounds that actually render in-game are compared against each other.</div>
-    `
-  },
-{
     icon:'💡',title:'Tips, Tricks & Best Practices',tags:['tips','tricks','best','practice','advice','pro'],cat:'help',
     body:`
       <div class="tip-box">Start with the default rules that come with MirrorFilter and modify them rather than building from scratch. They cover the most common PoE2 items.</div>
@@ -30575,6 +30567,14 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.165',changes:[
+    'Reorganized the Resources tab into clear labeled groups so it\u2019s far less overwhelming: ⭐ Start Here (Guides, Saving), ⚡ Core Setup (Tiers/Auto-Tier, Hiding & Progression, Default Snapshot), 🎨 Customize (Themes, Sounds, Bulk Visuals, Paste lists, Custom Conditions/BaseTypes), 🧹 Maintenance & Data (Cleanup, Removed log, Missing-values tracker), and 📋 About (To-Do, Changelog). The things a newcomer needs are now at the top; the power-user/maintenance tools are grouped at the bottom.',
+    'Guides & Tutorials and Saving Your Work now carry the accent color so they stand out as the primary starting points. Every existing section and tool is kept \u2014 this is purely ordering, grouping, and emphasis.'
+  ]},
+  {v:'5.164',changes:[
+    'HasExplicitMod suggestions are now game-aware (finishing the PoE1/PoE2 split that Conditions already had). Since there\u2019s no official master mod list to auto-classify from, each custom HasExplicitMod you add carries its own PoE1 / PoE2 / Both tag (set on add, or change anytime in the Custom HasExplicitMods list). When the tool is set to one game, only that game\u2019s mods plus "Both" are suggested. Mods added before this update default to "Both", so nothing disappears, and this only affects suggestions \u2014 rules you\u2019ve already built are untouched.',
+    'Guides: merged the two overlapping "Visuals Tab" help topics into one comprehensive "Visuals & Stats Tab — Panels, Filters & Diagnostics" topic, removing duplicated explanations while keeping every detail from both.'
+  ]},
   {v:'5.163',changes:[
     'Audit pass: verified filter organization is sound \u2014 checked all 1,233 BaseTypes across 45 sections and confirmed every currency-like item (essences, runes, omens, catalysts, splinters) sits in its correct section, with no genuine misplacements. Cross-section duplicates are all legitimate (a unique and its normal base sharing a name, filtered separately by rarity).',
     'Color consistency: replaced a few stray hardcoded accent colors with the theme variable so they follow your chosen UI theme correctly (a leftover amber backup button and two context-menu icons).'
@@ -35533,8 +35533,15 @@ function buildValuePicker(key, onCommit, onCancel){
 }
 
 function getKnownValues(key){
-  // Returns the list of known values for a given condition key (dropdown data)
-  const customBT=(S.customBTs||[]).filter(b=>b.kind===key).map(b=>b.value);
+  // Returns the list of known values for a given condition key (dropdown data).
+  // Custom values may carry a game tag (poe1/poe2/both); when the tool is set to
+  // a specific game, only that game's + untagged/'both' values are suggested —
+  // the same game-aware behavior the built-in Conditions list uses. Existing
+  // untagged custom values default to 'both', so nothing already added vanishes.
+  const gm=(typeof _gameMode!=='undefined')?_gameMode:'poe2';
+  const customBT=(S.customBTs||[])
+    .filter(b=>b.kind===key && (gm==='both' || !b.game || b.game==='both' || b.game===gm))
+    .map(b=>b.value);
   return [...(CSUGG[key]||[]),...customBT];
 }
 
@@ -37811,6 +37818,15 @@ function renderExplicitModList2(){
     el.appendChild(cb);
     const rest=ce('span');rest.innerHTML='<span class="sli-lbl">'+esc(b.value)+'</span><span class="sli-sub">HasExplicitMod</span>';
     el.appendChild(rest);
+    // Per-mod game tag selector (both / poe2 / poe1). Controls when it's suggested.
+    const gsel=document.createElement('select');
+    gsel.style.cssText='background:var(--bg);border:1px solid var(--border2);color:var(--text2);padding:1px 4px;border-radius:3px;font-size:10px;margin-right:6px';
+    gsel.setAttribute('data-tip','Which game this mod is suggested in');
+    [['both','Both'],['poe2','PoE2'],['poe1','PoE1']].forEach(([v,lbl])=>{
+      const o=document.createElement('option');o.value=v;o.textContent=lbl;if((b.game||'both')===v)o.selected=true;gsel.appendChild(o);
+    });
+    gsel.onchange=()=>{b.game=gsel.value;saveState();};
+    el.appendChild(gsel);
     const x=ce('span','sli-x');x.textContent='\u00d7';x.setAttribute('data-tip','Remove');
     x.onclick=()=>{S.customBTs.splice(realIdx,1);_customChecked.explicitmods.delete(b.value);saveState();renderExplicitModList2();};
     el.appendChild(x);
@@ -37820,7 +37836,9 @@ function renderExplicitModList2(){
 function addCustomExplicitMod(){
   const value=document.getElementById('newExplicitModKey').value.trim();
   if(!value){toast('Enter a HasExplicitMod value','err');return;}if(!S.customBTs)S.customBTs=[];
-  S.customBTs.push({value,kind:'ExplicitMod'});document.getElementById('newExplicitModKey').value='';
+  const gameSel=document.getElementById('newExplicitModGame');
+  const game=gameSel?gameSel.value:'both';
+  S.customBTs.push({value,kind:'ExplicitMod',game});document.getElementById('newExplicitModKey').value='';
   saveState();renderExplicitModList2();toast('Added HasExplicitMod: '+value,'ok');
   // ExplicitMods have no built-in database — every manually-added one is by
   // definition a value the tool didn't already know, so all of them get
