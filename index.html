@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.162
+  MirrorFilter Web — VERSION 5.163
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -1626,7 +1626,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   <div class="ctx-sep"></div>
   <div class="ctx-item" onclick="ctxRuleAction('toggle')"><span class="ctx-icon" id="ruleCtxToggleIcon">⏸</span><span id="ruleCtxToggleLabel">Disable Rule</span></div>
   <div class="ctx-sep"></div>
-  <div class="ctx-item" onclick="ctxRuleAction('restoreDefault')"><span class="ctx-icon" style="color:#c8a45a">📌</span>Restore This Rule from Default</div>
+  <div class="ctx-item" onclick="ctxRuleAction('restoreDefault')"><span class="ctx-icon" style="color:var(--accent)">📌</span>Restore This Rule from Default</div>
   <div class="ctx-sep"></div>
   <div class="ctx-item danger" onclick="ctxRuleAction('delete')"><span class="ctx-icon">🗑</span>Delete Rule</div>
 </div>
@@ -1646,7 +1646,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   <div class="ctx-item" onclick="ctxSecAction('hide')"><span class="ctx-icon" id="secCtxHideIcon" style="color:#d9b36a">⊙</span><span id="secCtxHideLabel">Hide Section</span></div>
   <div class="ctx-item" onclick="ctxSecAction('toggle')"><span class="ctx-icon" id="secCtxToggleIcon" style="color:#d9b36a">⏸</span><span id="secCtxToggleLabel">Disable Section</span></div>
   <div class="ctx-sep"></div>
-  <div class="ctx-item" onclick="ctxSecAction('restoreDefault')"><span class="ctx-icon" style="color:#c8a45a">📌</span>Restore This Section from Default</div>
+  <div class="ctx-item" onclick="ctxSecAction('restoreDefault')"><span class="ctx-icon" style="color:var(--accent)">📌</span>Restore This Section from Default</div>
   <div class="ctx-sep"></div>
   <div class="ctx-item danger" onclick="ctxSecAction('delete')"><span class="ctx-icon" style="color:#d9645f">✕</span>Delete Section</div>
 </div>
@@ -30575,6 +30575,10 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.163',changes:[
+    'Audit pass: verified filter organization is sound \u2014 checked all 1,233 BaseTypes across 45 sections and confirmed every currency-like item (essences, runes, omens, catalysts, splinters) sits in its correct section, with no genuine misplacements. Cross-section duplicates are all legitimate (a unique and its normal base sharing a name, filtered separately by rarity).',
+    'Color consistency: replaced a few stray hardcoded accent colors with the theme variable so they follow your chosen UI theme correctly (a leftover amber backup button and two context-menu icons).'
+  ]},
   {v:'5.162',changes:[
     'Cleanup pass \u2014 removed stale desktop-era info that no longer applies to the web version. The Export dialog no longer claims it saves to a "UserData folder" and no longer shows a custom folder-path text box that did nothing here; it now plainly says it either downloads the .filter or saves straight into a folder you\u2019ve linked, with a one-click "Choose a folder\u2026". The Overview, Auto-Tier, and Troubleshooting guides were corrected (browser storage instead of UserData files, browser console instead of a debug log file, no phantom "backend server").',
     'New "\uD83D\uDCCD Where your work currently goes" summary at the top of Resources \u2192 Saving Your Work \u2014 lists every place your work is written right now: the export destination (linked folder or Downloads), each extra Multi-Location Save folder with its scope, and your timestamped-backup folder with the last write time.',
@@ -38802,7 +38806,7 @@ function refreshBackupPanel(){
       +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px">Saves a new timestamped backup (<code>'+BACKUP_PREFIX+'DATE_TIME.json</code>) to a real folder you pick — on every save and every 5 minutes, keeping the newest '+KEEP_DISK_BACKUPS+'. This is your data in <em>your</em> hands, not just the browser\u2019s.'+(on?(' Last written: '+esc(last)+(S.__lastDiskBackupName?(' ('+esc(S.__lastDiskBackupName)+')'):'')+'.'):'')+'</div>'
       +(on
         ? '<button class="sh-btn" onclick="disableDiskAutoBackup()">Turn off disk backup</button> <span style="font-size:11px;color:var(--text2);margin-left:6px">Use \u201C\uD83D\uDCBE Back up now\u201D below to write immediately.</span>'
-        : '<button class="sh-btn" style="background:#ffb347;color:#1a1205;border-color:#ffb347;font-weight:800" onclick="enableDiskAutoBackup()">Choose a folder…</button>')
+        : '<button class="sh-btn" style="background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:800" onclick="enableDiskAutoBackup()">Choose a folder…</button>')
       +'</div>';
   }
   if(!listEl)return;
