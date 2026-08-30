@@ -1,6 +1,6 @@
 # MirrorFilter
 
-**A free, browser-based loot filter editor for Path of Exile 2 — by AdamGs.**
+**A free, browser-based loot filter editor for Path of Exile 2 — by Adamg.**
 
 No install, no download, no setup. Open the site and start building your filter.
 
@@ -17,6 +17,8 @@ MirrorFilter is a full visual editor for PoE2 `.filter` files. Instead of hand-w
 - **Loot-drop simulation** — preview how your rules look against a realistic ground scene, with multiple background environments.
 - **Auto-Tier (live economy pricing)** — pulls current prices from poe.ninja and automatically sorts BaseTypes across your tiers by value. One click, no configuration.
 - **Import / Export** — load any existing `.filter` and export back to disk. Exports include a `.meta.json` sidecar so re-importing restores your full tier config and section hierarchy, not just a flat rule list.
+- **Backups & restore** — automatic in-browser restore points before anything risky, plus optional timestamped backups written to a real folder you control (synced to your cloud drive if you point it there). One-click restore, and a live filter-health check that guards against corruption.
+- **Multi-location save** — write your `.filter` (and full backups) to several folders at once on every save.
 - **Bulk paste** — paste item lists from another filter or from a price-tracking site's table; MirrorFilter detects the format and pulls out the item names automatically.
 - **Test Item** — paste an item's in-game copied text and see exactly which rule would match it, and why.
 - **Themes** — multiple UI themes including 3D styles.
@@ -48,6 +50,8 @@ A few things worth understanding:
 
 So: **auto-save keeps your session safe in this browser; Export/Import is how you back up and move your work.**
 
+For extra safety, the **Saving Your Work** section (Resources tab) lets you set up **folder backups** — a complete, timestamped copy of your whole filter written to any folder you choose (e.g. a cloud-synced drive), updated automatically on every save and every few minutes. That way your work also lives as a real file in *your* hands, not only in the browser.
+
 ---
 
 ## Browser support
@@ -67,7 +71,7 @@ Prices are cached briefly and shared across users, so it's fast and light on poe
 
 ## Not affiliated with Grinding Gear Games
 
-"AdamGs MirrorFilter" © 2026 by AdamGs. All rights reserved. Shared for personal use.
+"Adamg MirrorFilter" © 2026 by Adamg. All rights reserved. Shared for personal use.
 
 Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.
 
