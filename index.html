@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.161
+  MirrorFilter Web — VERSION 5.162
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -1073,7 +1073,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   </div>
   <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
     <div class="ss-head coll-head" onclick="toggleSS('ss-pasteexcl')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      🚫✅ Custom Paste Include/Exclude Lists
+      📋 Custom Paste Include/Exclude Lists
       <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
       <span class="coll-caret" id="ss-pasteexcl-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
     </div>
@@ -1367,6 +1367,8 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
         </div>
       </div>
 
+      <div id="locationsSummary" style="margin-bottom:16px"></div>
+
       <!-- ───────────── STAGE ① SAVE ───────────── -->
       <div id="stageSave" style="margin-bottom:22px">
         <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)">① Save — your game-ready .filter</div>
@@ -1597,25 +1599,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     <h3>&#128190; Export Filter</h3>
     <p>Your filter will be saved as <strong><span id="exportPreviewName">MyFilter.filter</span></strong></p>
     <div style="margin-bottom:12px">
-      <div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600">Save location:</div>
-      <label style="display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer;margin-bottom:7px" id="exportOptDefault">
-        <input type="radio" name="exportDest" value="default" checked onchange="setExportOpt('default')" style="margin-top:2px;accent-color:var(--accent)">
-        <div>
-          <div style="font-size:13px;color:var(--text);font-weight:600">&#128193; Default folder (recommended)</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:2px">Saves directly to <code style="color:var(--accent)">UserData\</code> inside your MirrorFilter folder. Always works, no setup needed.</div>
-        </div>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer" id="exportOptCustom">
-        <input type="radio" name="exportDest" value="custom" onchange="setExportOpt('custom')" style="margin-top:2px;accent-color:var(--accent)">
-        <div style="flex:1">
-          <div style="font-size:13px;color:var(--text);font-weight:600">&#128193; Custom folder</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:2px;margin-bottom:6px">Paste the full folder path. In Windows Explorer, click the address bar to copy the path.</div>
-          <div style="display:flex;gap:6px">
-            <input type="text" id="exportPath" placeholder="e.g. C:\\Users\\You\\Documents\\My Games\\Path of Exile 2" style="flex:1;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:6px 9px;border-radius:var(--radius);font-size:12px;outline:none" oninput="document.querySelector('input[name=exportDest][value=custom]').checked=true;setExportOpt('custom')">
-            <button type="button" class="sh-btn" onclick="browseExportFolder(this)" data-tip="Open a native folder picker">📁 Browse…</button>
-          </div>
-        </div>
-      </label>
+      <div id="exportDestInfo" style="font-size:12px;color:var(--text2);line-height:1.6"></div>
     </div>
     <div style="background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.2);border-radius:var(--radius);padding:9px 12px;font-size:11px;color:var(--text2);margin-bottom:12px">
       <strong style="color:var(--accent)">After saving, reload in-game:</strong> Escape &rarr; Options &rarr; Game &rarr; Item Filter &rarr; select your filter &rarr; click the refresh icon.<br>
@@ -28137,15 +28121,6 @@ function parseFilterText(text){
   const sectionTree=[];
   const sectionDisabled={};
 
-  function ensurePath(pathParts){
-    let level=sectionTree, node=null;
-    for(const part of pathParts){
-      node = level.find(n=>n.id===part) || null;
-      if(node===null){ node={id:part,children:[]}; level.push(node); }
-      level = node.children;
-    }
-    return node;
-  }
   // Path-aware tree builder used by the importer. Intermediate nodes are keyed
   // by their cumulative path ("Rare Bases/Armour") so identically-named branches
   // stay distinct; the LEAF is keyed by the resolved unique id (leafId), which
@@ -30244,13 +30219,13 @@ const HELP_TOPICS = [
   {
     icon:'🗺',title:'Overview — What is MirrorFilter?',tags:['overview','intro','about','what'],cat:'basics',
     body:`
-      <p>MirrorFilter is an <strong>offline loot filter editor</strong> for <strong>Path of Exile 1 and Path of Exile 2</strong>. It lets you create, edit, and export <code>.filter</code> files that control which items you see on the ground, how they look, what sounds they make, and how they appear on the minimap.</p>
+      <p>MirrorFilter is a <strong>browser-based loot filter editor</strong> for <strong>Path of Exile 1 and Path of Exile 2</strong>. It lets you create, edit, and export <code>.filter</code> files that control which items you see on the ground, how they look, what sounds they make, and how they appear on the minimap.</p>
       <p style="color:var(--text3);font-size:11px">&quot;Adamg MirrorFilter&quot; &copy; 2026 by Adamg. All rights reserved. Shared for personal use only — see LICENSE.txt for the full terms. Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.</p>
       <p>The tool has three main tabs:</p>
       <div class="step"><div class="step-num">1</div><div class="step-txt"><strong>📋 Editor</strong> — Create and edit filter rules. A Live Preview panel sits top-right, next to the toolbar. The left panel lists all your rules. The middle panel is the rule editor. The right panel has two sections: Economy Prices and the raw .filter Output.</div></div>
       <div class="step"><div class="step-num">2</div><div class="step-txt"><strong>👁 Visuals &amp; Stats</strong> — See every rule's visual appearance at once, plus filter-health stat panels (Tier Distribution, Auto-Tier Setup, Untiered Rules, Similar-Looking, Sound Duplicates, and more). Click any row to jump to editing it.</div></div>
       <div class="step"><div class="step-num">3</div><div class="step-txt"><strong>⚙ Resources</strong> — This page. Configure themes, tiers, custom conditions/BaseTypes/Classes/sounds, define your Hiding &amp; Progression rules, run Filter Cleanup Tools, manage save locations, review your Missing Values Tracker, manage your To-Do list, and read this guide.</div></div>
-      <div class="tip-box">All your work is auto-saved to <code>UserData\filter_data.json</code> inside your MirrorFilter folder. Your exported <code>.filter</code> files also save to <code>UserData\</code>. There is no Save button — MirrorFilter saves automatically.</div>
+      <div class="tip-box">All your work is saved automatically in your browser as you edit — there’s no Save button for that. Clicking <strong>Export</strong> / <strong>Quick-Save</strong> is what writes the game-ready <code>.filter</code> to disk. Because your data lives in the browser, set up <strong>Multi-Location Save</strong> or folder <strong>backups</strong> (see 💾 Saving Your Work) to keep copies outside the browser.</div>
     `
   },
 {
@@ -30428,7 +30403,7 @@ const HELP_TOPICS = [
       <div class="tip-box"><strong>Generic BaseType-only rules get priced too</strong> — e.g. bare <code>BaseType == "Shortsword"</code>, not naming any specific unique. Since an unidentified item only shows its base type, not which unique it might be, Auto-Tier estimates the price as the highest-value specific unique currently known to use that base (poe.ninja's own data already links each unique to its base type — no extra setup needed). These estimated prices get a border around the price badge, drawn from your Price Color Gradient (toned down) so they read as "this price, but estimated" rather than a direct fetch. Control which sections actually show that border in Resources → ⚡ Tier System → 🔲 Estimated Price Border — defaults to sections named "Unique."</div>
       <div class="warn-box">Maps/Waystones aren't priced — checked, and poe.ninja has no equivalent endpoint for them. Most likely because a Waystone's value comes from its rolled modifiers, not its base type, so per-item pricing wouldn't apply cleanly there anyway.</div>
       <div class="tip-box">Only want to re-tier one section instead of everything? Right-click that section's header in the sidebar → <strong>⚡ Auto-Tier This Section</strong>. Prices still fetch for the whole league either way (that part can't be scoped), but the actual tier redistribution only touches that section — every other section's tiers stay exactly as they were.</div>
-      <div class="warn-box">If Auto-Tier fails, check <code>UserData\economy_debug.log</code> for the exact error — it logs every attempt against every source in detail.</div>
+      <div class="warn-box">If Auto-Tier fails, open your browser’s developer console (F12 → Console) to see the exact error — each price attempt against every source is logged there.</div>
     `
   },
 {
@@ -30540,7 +30515,7 @@ const HELP_TOPICS = [
       <div class="step"><div class="step-num">▸</div><div class="step-txt">Direct-to-folder saving needs Chrome or Edge, and you pick your Path of Exile 2 folder once (choose "Allow on every visit" so it stops re-asking). Other browsers download the <code>.filter</code> and you drop it into the folder yourself.</div></div>
       <p style="margin-top:10px"><strong>My settings/rules disappeared:</strong></p>
       <div class="step"><div class="step-num">▸</div><div class="step-txt">Your work lives in this browser's storage. Clearing the browser's site data erases it, and it doesn't carry to a different browser or PC. Keep a backup by clicking <strong>Export</strong> after building a filter you like \u2014 <strong>Import</strong> that <code>.filter</code> to restore.</div></div>
-      <div class="tip-box">If something looks wrong after a change, try refreshing the browser tab (F5). The backend server stays running — only the frontend reloads.</div>
+      <div class="tip-box">If something looks wrong after a change, try a hard refresh of the browser tab (Ctrl+Shift+R). Your saved work isn't affected — it's stored in the browser and reloads with the page.</div>
     `
   },
 {
@@ -30570,9 +30545,8 @@ const HELP_TOPICS = [
 
 ];
 
-// Todo list is stored separately from the main filter_data.json
-// (in UserData\\todo_list.json) so it survives reinstalls where you
-// delete and rebuild filter_data.json.
+// Todo list is stored under its own key in browser storage (separate from the
+// main saved state) so clearing/rebuilding the filter doesn't wipe your notes.
 let _todoItems=null;
 async function loadTodoItems(){
   try{
@@ -30601,6 +30575,11 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.162',changes:[
+    'Cleanup pass \u2014 removed stale desktop-era info that no longer applies to the web version. The Export dialog no longer claims it saves to a "UserData folder" and no longer shows a custom folder-path text box that did nothing here; it now plainly says it either downloads the .filter or saves straight into a folder you\u2019ve linked, with a one-click "Choose a folder\u2026". The Overview, Auto-Tier, and Troubleshooting guides were corrected (browser storage instead of UserData files, browser console instead of a debug log file, no phantom "backend server").',
+    'New "\uD83D\uDCCD Where your work currently goes" summary at the top of Resources \u2192 Saving Your Work \u2014 lists every place your work is written right now: the export destination (linked folder or Downloads), each extra Multi-Location Save folder with its scope, and your timestamped-backup folder with the last write time.',
+    'Consistency: the Custom Paste Include/Exclude Lists section now uses a single icon like every other section. Removed a dead internal function left over from the section-identity fix.'
+  ]},
   {v:'5.161',changes:[
     'Combined the two backup buttons into one. "💾 Back up now" now does BOTH at once — saves an in-browser restore point AND writes a timestamped file to your folder (when disk backup is on). Quick-Save does both too, and the 5-minute timer keeps the disk history going. The separate disk-only and in-browser-only buttons are gone; nothing was lost, it\u2019s just one clear action now.',
     'The disk backup box keeps a simple on/off; writing on demand is handled by the single "Back up now" button.'
@@ -34970,7 +34949,7 @@ function buildValuePicker(key, onCommit, onCancel){
     // this is the first place someone would need to know to look.
     const pasteHint=document.createElement('div');
     pasteHint.style.cssText='font-size:10px;color:var(--text3);margin-top:3px';
-    pasteHint.innerHTML='Pasting a table from a site? Wrong item added or a real one filtered out? Fix it yourself in <strong>Resources → 🚫✅ Custom Paste Include/Exclude Lists</strong> — no need to wait on an update.';
+    pasteHint.innerHTML='Pasting a table from a site? Wrong item added or a real one filtered out? Fix it yourself in <strong>Resources → 📋 Custom Paste Include/Exclude Lists</strong> — no need to wait on an update.';
     pasteHint.setAttribute('data-tip','Bulk-pasting from a price-tracking site (poe.ninja, poe2scout) automatically strips out prices, levels, UI labels like "wiki", and currency names like "Chaos Orb" that ride along with the real item names. If something new ever slips through wrong, or a real item gets wrongly caught by those filters, add it to the Exclude or Include list in Resources and every future paste will respect it.');
     // A BaseType condition matches an item's underlying base type — the
     // same value whether or not the item has been identified yet. Since
@@ -38360,49 +38339,39 @@ function exportFilter(){
   var nm=document.getElementById('filterName').value||'MyFilter';
   var prev=document.getElementById('exportPreviewName');
   if(prev)prev.textContent=nm+'.filter';
-  var lastFolder=S.exportFolder||'';
-  if(lastFolder){
-    document.querySelector('input[name=exportDest][value=custom]').checked=true;
-    setExportOpt('custom');
-    document.getElementById('exportPath').value=lastFolder;
-  } else {
-    document.querySelector('input[name=exportDest][value=default]').checked=true;
-    setExportOpt('default');
+  var info=document.getElementById('exportDestInfo');
+  if(info){
+    var linked = window.MF_WEB && window.MF_WEB.dirLinked;
+    var dirName = linked ? window.MF_WEB.dirName : null;
+    if(linked){
+      info.innerHTML='This will save <strong>'+esc(nm)+'.filter</strong> (and its <code>.meta.json</code> sidecar) straight into your linked folder <strong>\u201C'+esc(dirName)+'\u201D</strong>.'
+        +'<div style="margin-top:6px"><button type="button" class="sh-btn" onclick="relinkExportFolder(this)" data-tip="Pick a different folder to save into">\uD83D\uDCC1 Change folder\u2026</button></div>';
+    } else {
+      info.innerHTML='Your browser will <strong>download</strong> <strong>'+esc(nm)+'.filter</strong> to your Downloads folder (then move it into your Path of Exile 2 folder).'
+        +'<div style="margin-top:6px;color:var(--text2)">Want it to save straight into your game folder instead? Link a folder once:</div>'
+        +'<div style="margin-top:6px"><button type="button" class="sh-btn" onclick="relinkExportFolder(this)" data-tip="Pick a folder to save directly into from now on">\uD83D\uDCC1 Choose a folder\u2026</button></div>';
+    }
   }
   openM('exportM');
 }
-function setExportOpt(val){
-  var defLabel=document.getElementById('exportOptDefault');
-  var custLabel=document.getElementById('exportOptCustom');
-  var pathInput=document.getElementById('exportPath');
-  if(defLabel)defLabel.style.borderColor=val==='default'?'var(--accent)':'var(--border2)';
-  if(custLabel)custLabel.style.borderColor=val==='custom'?'var(--accent)':'var(--border2)';
-  if(pathInput)pathInput.style.borderColor=val==='custom'?'var(--accent)':'var(--border2)';
-}
-async function browseExportFolder(btn){
-  const origText=btn?btn.textContent:null;
-  if(btn){btn.textContent='Waiting…';btn.disabled=true;}
+async function relinkExportFolder(btn){
+  const orig=btn?btn.textContent:null;
+  if(btn){btn.textContent='Waiting\u2026';btn.disabled=true;}
   try{
-    const d=await API('/api/browse-folder','POST',{});
-    if(d.path){
-      document.getElementById('exportPath').value=d.path;
-      document.querySelector('input[name=exportDest][value=custom]').checked=true;
-      setExportOpt('custom');
+    if(window.MF_WEB && window.MF_WEB.fsChooseFolder){
+      await window.MF_WEB.fsChooseFolder();     // sets the linked dir handle
     }
-    // d.path empty means the user cancelled the dialog — leave the field as-is
-  }catch(e){
-    toast('Could not open folder picker: '+(e.message||e),'err');
-  }
-  if(btn){btn.textContent=origText;btn.disabled=false;}
+    exportFilter();                             // refresh the info box (dialog stays open)
+  }catch(e){ if(!(e&&e.name==='AbortError')) toast('Could not open folder picker','err'); }
+  if(btn){btn.textContent=orig;btn.disabled=false;}
 }
 async function doExport(){
-  var useDefault=document.querySelector('input[name=exportDest][value=default]').checked;
-  var folder=useDefault?'':(document.getElementById('exportPath').value.trim());
-  S.exportFolder=folder;
+  // Web export: /api/export writes to the linked folder if one is set, otherwise
+  // downloads. No server-side path is used, so we don't pass one.
   S.filterName=document.getElementById('filterName').value||'MyFilter';
   setStatus('Exporting...');
   try{
-    var d=await API('/api/export','POST',{exportFolder:folder});
+    var d=await API('/api/export','POST',{});
     closeM('exportM');
     toast('Saved to: '+d.path,'ok',null,S.toastFlourishEnabled!==false);
     setStatus('Exported');
@@ -38424,7 +38393,7 @@ async function addMultiSaveLocation(){
     if(S.multiSaveLocations.length>=4){toast('Maximum 4 locations — remove one first','err');return;}
     if(S.multiSaveLocations.some(l=>l.path===d.path)){toast('That location is already added','inf');return;}
     S.multiSaveLocations.push({path:d.path,scope:'all'});
-    renderMultiSaveLocations();
+    renderMultiSaveLocations();if(typeof renderLocationsSummary==="function")renderLocationsSummary();
     saveState();
     toast('Added save location','ok');
   }catch(e){
@@ -38465,6 +38434,46 @@ function renderMultiSaveLocations(){
 }
 function syncMultiSaveUI(){
   renderMultiSaveLocations();
+  renderLocationsSummary();
+}
+// A single, honest at-a-glance list of everywhere your work currently goes:
+// the primary export destination, any extra Multi-Location Save folders, and the
+// disk auto-backup folder. Reflects live state so you always know your coverage.
+function renderLocationsSummary(){
+  const el=document.getElementById('locationsSummary');
+  if(!el)return;
+  const rows=[];
+  // Primary export destination
+  const linked = window.MF_WEB && window.MF_WEB.dirLinked;
+  const dirName = linked ? window.MF_WEB.dirName : null;
+  if(linked){
+    rows.push(['📤 Export (.filter)','Linked folder: <strong>'+esc(dirName)+'</strong>','ok']);
+  } else {
+    rows.push(['📤 Export (.filter)','Downloads folder (no folder linked yet)','warn']);
+  }
+  // Multi-save locations
+  const locs=S.multiSaveLocations||[];
+  const scopeLabel={filter:'just the .filter','filter_json':'.filter + .meta.json',all:'everything'};
+  if(locs.length){
+    locs.forEach(l=>rows.push(['📁 Extra save location', esc(l.path)+' <span style="color:var(--text3)">('+(scopeLabel[l.scope||'all']||l.scope)+')</span>','ok']));
+  }
+  // Disk backup
+  if(S.__autoBackupDisk){
+    const bkName = (window.MF_WEB && window.MF_WEB.dirName) ? window.MF_WEB.dirName : 'your chosen folder';
+    const last = S.__lastDiskBackup ? new Date(S.__lastDiskBackup).toLocaleString() : 'not yet';
+    rows.push(['🛡 Timestamped backups','Folder: <strong>'+esc(bkName)+'</strong> <span style="color:var(--text3)">(last: '+esc(last)+')</span>','ok']);
+  } else {
+    rows.push(['🛡 Timestamped backups','Off — turn on below to keep files outside the browser','warn']);
+  }
+  const body=rows.map(([label,val,st])=>
+    '<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">'
+    +'<span style="flex:0 0 168px;color:var(--text2)">'+label+'</span>'
+    +'<span style="flex:1;color:'+(st==='warn'?'var(--text2)':'var(--text)')+'">'+(st==='warn'?'⚠ ':'✓ ')+val+'</span>'
+    +'</div>').join('');
+  el.innerHTML='<div style="border:1px solid var(--border2);border-radius:10px;padding:12px 14px;background:var(--card)">'
+    +'<div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-bottom:6px">📍 Where your work currently goes</div>'
+    +body
+    +'</div>';
 }
 async function runMultiSave(){
   // Opt-in: only does anything once the user has actually added a location.
@@ -38495,7 +38504,7 @@ async function quickSave(){
     // Quick-Save could silently be missing from the actual exported file
     // with no warning at all.
     await saveState();
-    const d=await API('/api/export','POST',{exportFolder:S.exportFolder||''});
+    const d=await API('/api/export','POST',{});
     toast('Quick-saved: '+d.path,'ok',null,S.toastFlourishEnabled!==false);setStatus('Saved \u2713');
     S.exportPath=d.path;
     snapshotExportedRules();
@@ -38758,6 +38767,7 @@ function refreshBackupPanel(){
   const listEl=document.getElementById('backupList');
   const mon=document.getElementById('healthMonitor');
   const mx=document.getElementById('bkMax'); if(mx)mx.textContent=String(MAX_BACKUPS);
+  if(typeof renderLocationsSummary==='function')renderLocationsSummary();
   // Health monitor: recompute section integrity live.
   if(mon){
     const ids={}; (function t(n){for(const x of (n||[])){ids[x.id]=(ids[x.id]||0)+1;t(x.children||[]);}})(S.sectionTree);
