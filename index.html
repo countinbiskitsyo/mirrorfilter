@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.165
+  MirrorFilter Web — VERSION 5.166
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -607,7 +607,8 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em id="mfVerLabel">Web</em><em style="margin-left:6px;opacity:.7">by Adamg</em></div>
   <input id="filterName" type="text" value="MyFilter" placeholder="Filter name…" data-tip="Name used when exporting your .filter file" oninput="autoSizeFilterName()">
   <span id="filterNameMeasure" style="position:absolute;visibility:hidden;white-space:pre;font-size:13px"></span>
-  <select id="leagueSelect" data-tip="League used for Auto-Tier price lookups">
+  <span style="font-size:11px;color:var(--text3);flex-shrink:0;margin-right:-2px" data-tip="Which league's prices Auto-Tier pulls">League:</span>
+  <select id="leagueSelect" data-tip="Which league's prices Auto-Tier pulls from poe.ninja. Prices differ a lot between leagues, so set this to the league you actually play before running Auto-Tier.">
     <option>Runes of Aldur</option>
     <option>Standard</option>
     <option>Dawn of the Hunt</option>
@@ -645,7 +646,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     <div id="edScroll">
       <div id="noSel"><div class="ns-i" style="opacity:.85;margin-bottom:8px">
         <span class="ns-logo-text">MirrorFilter</span>
-      </div><div style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:.3px">&quot;Adamg MirrorFilter&quot; &copy; 2026 by Adamg. All rights reserved.</div><div style="text-align:center;font-size:10px;color:var(--text3);margin-bottom:20px;opacity:.75;max-width:420px;margin-left:auto;margin-right:auto">Shared for personal use only — see LICENSE.txt. Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.</div><p>Select a rule from the left panel.<br><br>Use <strong>+ Section</strong> to create a section, <strong>+ Rule</strong> to add a rule.<br><br>Refer to the <strong>Resources</strong> tab for guides, tutorials, customizations and configurations.<br><br><span style="color:var(--accent)">&#128190; Your work is saved automatically in your browser. Click <strong>Export</strong> (or <strong>Quick-Save</strong>) to write your <code>.filter</code> to your Path of Exile 2 folder. Because your data lives in this browser, use <strong>Export/Import</strong> to back it up or move it to another computer.</span><br><br><span class="save-pulse" style="display:inline-block;border:1px solid var(--accent);border-radius:10px;padding:12px 18px;background:rgba(var(--accent-rgb),.06);font-size:13px;max-width:540px;text-align:left"><strong style="color:var(--accent)">💾 Protect your work — Save, Back up &amp; Restore:</strong><br><span style="display:block;margin-top:6px;line-height:1.7">• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Save</span> — write the game <code>.filter</code>, optionally to several folders at once.<br>• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Back up</span> — keep a full copy of your whole editor state, on disk if you like.<br>• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Restore</span> — load any backup back in one click.</span></span></p></div>
+      </div><div style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:.3px">&quot;Adamg MirrorFilter&quot; &copy; 2026 by Adamg. All rights reserved.</div><div style="text-align:center;font-size:10px;color:var(--text3);margin-bottom:20px;opacity:.75;max-width:420px;margin-left:auto;margin-right:auto">Shared for personal use only — see LICENSE.txt. Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.</div><p>Select a rule from the left panel.<br><br>Use <strong>+ Section</strong> to create a section, <strong>+ Rule</strong> to add a rule.<br><br>Refer to the <strong>Resources</strong> tab for guides, tutorials, customizations and configurations.<br><br><span class="save-pulse" style="display:inline-block;border:1px solid var(--accent);border-radius:10px;padding:14px 20px;background:rgba(var(--accent-rgb),.06);font-size:13px;max-width:680px;text-align:left"><strong style="color:var(--accent)">💾 Protect your work — Save, Back up &amp; Restore</strong><br><span style="display:block;margin-top:6px;color:var(--text2);line-height:1.6">Your work is saved automatically in your browser as you edit. Because it lives in this browser, use the tools below to write your <code>.filter</code> to disk and keep copies safe:</span><br><span style="display:block;margin-top:8px;line-height:1.8">• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Save</span> — write the game <code>.filter</code> to your Path of Exile 2 folder, optionally to several folders at once.<br>• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Back up</span> — keep a full copy of your whole editor state, on disk if you like.<br>• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Restore</span> — load any backup back in one click, or move your filter to another computer.</span></span></p></div>
       <div id="edContent" style="display:none"></div>
     </div>
   </div>
@@ -871,7 +872,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       </div>
     </div>
   </div>
-  <div class="ss" style="border-left:4px solid #5a9cf5;background:#5a9cf512">
+  <div class="ss" style="border-left:4px solid #e0b050;background:#e0b05012">
     <div class="ss-head coll-head" onclick="toggleSS('ss-build')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
       🧬 Hiding &amp; Progression
       <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
@@ -922,7 +923,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       <button class="sh-btn" onclick="addCustomBuildToggle()" data-tip="Add this as a new checkbox in the list above">+ Add Rule</button>
     </div>
   </div>
-  <div class="ss" style="border-left:4px solid #5ac88a;background:#5ac88a12">
+  <div class="ss" style="border-left:4px solid #e0b050;background:#e0b05012">
     <div class="ss-head coll-head" onclick="toggleSS('ss-default')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
       📌 Default Filter Snapshot
       <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
@@ -1425,7 +1426,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     </div>
   </div>
   <div style="margin:22px 0 8px 0;padding:6px 2px;border-bottom:2px solid #5a9cf5"><span style="font-size:13px;font-weight:800;letter-spacing:.5px;color:#5a9cf5;text-transform:uppercase">📋 About</span></div>
-  <div class="ss" style="border-left:4px solid #4fc3c9;background:#4fc3c912">
+  <div class="ss" style="border-left:4px solid #5a9cf5;background:#5a9cf512">
     <div class="ss-head coll-head" onclick="toggleSS('ss-todo')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
       📝 Planned Features &amp; To-Do
       <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
@@ -1442,7 +1443,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       </div>
     </div>
   </div>
-  <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
+  <div class="ss" style="border-left:4px solid #5a9cf5;background:#5a9cf512">
     <div class="ss-head coll-head" id="ss-changelog-head" onclick="toggleSS('ss-changelog')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
       📜 Changelog
       <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
@@ -1465,7 +1466,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     <div id="itemBox">
       <div class="pv-bg" id="pvBg"></div>
       <div id="pvBeam" class="pv-beam" style="display:none"></div>
-      <div class="pv-lbl" id="pvLbl">Item Name</div>
+      <div class="pv-lbl" id="pvLbl">Select a rule to see it here</div>
       <div id="pvMM" class="pv-mm" style="display:none"></div>
     </div>
   </div>
@@ -30567,6 +30568,12 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.166',changes:[
+    'Resources tab: every section now shares its cluster\u2019s color, so each group (Start Here, Core Setup, Customize, Maintenance & Data, About) reads as one coherent block instead of a mix of colors.',
+    'Welcome screen: folded the "your work is saved in the browser" note into the Save / Back up / Restore box (one clear panel instead of two), and made the box a bit wider and roomier.',
+    'Live Preview now says "Select a rule to see it here" when nothing is selected, instead of the placeholder "Item Name".',
+    'Clarified the league selector \u2014 it now has a "League:" label and a fuller tooltip. It has a real job: it tells Auto-Tier which league\u2019s prices to pull from poe.ninja (prices differ a lot between leagues), so set it to the league you play before running Auto-Tier.'
+  ]},
   {v:'5.165',changes:[
     'Reorganized the Resources tab into clear labeled groups so it\u2019s far less overwhelming: ⭐ Start Here (Guides, Saving), ⚡ Core Setup (Tiers/Auto-Tier, Hiding & Progression, Default Snapshot), 🎨 Customize (Themes, Sounds, Bulk Visuals, Paste lists, Custom Conditions/BaseTypes), 🧹 Maintenance & Data (Cleanup, Removed log, Missing-values tracker), and 📋 About (To-Do, Changelog). The things a newcomer needs are now at the top; the power-user/maintenance tools are grouped at the bottom.',
     'Guides & Tutorials and Saving Your Work now carry the accent color so they stand out as the primary starting points. Every existing section and tool is kept \u2014 this is purely ordering, grouping, and emphasis.'
@@ -33341,7 +33348,7 @@ function clearEditor(){
   // otherwise it would keep showing whichever rule was last viewed instead
   // of a neutral placeholder once nothing is selected.
   const pvLbl=document.getElementById('pvLbl');
-  if(pvLbl)pvLbl.textContent='No rule selected';
+  if(pvLbl)pvLbl.textContent='Select a rule to see it here';
   const pvBg=document.getElementById('pvBg');
   if(pvBg)pvBg.style.background='';
   const pvBeam=document.getElementById('pvBeam');
