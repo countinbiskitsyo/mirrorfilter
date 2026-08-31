@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.167
+  MirrorFilter Web — VERSION 5.168
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -321,12 +321,9 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 #vizStatsRight{border-left:1px solid var(--border)}
 #vizStatsLeft::-webkit-scrollbar,#vizStatsRight::-webkit-scrollbar{width:5px}
 #vizStatsLeft::-webkit-scrollbar-thumb,#vizStatsRight::-webkit-scrollbar-thumb{background:var(--border2)}
-#vizMain{flex:1 1 auto;min-width:280px;display:flex;flex-direction:column;overflow:hidden}
-/* On narrower screens, let the stats panels shrink to a single column each so the
-   middle rules column always stays usable rather than getting crushed. */
-@media (max-width:1500px){
-  #vizStatsLeft,#vizStatsRight{flex:0 0 236px;grid-template-columns:repeat(1,210px)}
-}
+/* Rules column is intentionally narrow (it only shows short rule names) so the
+   stats panels keep priority. It can still be dragged wider if wanted. */
+#vizMain{flex:1 1 170px;min-width:140px;max-width:200px;display:flex;flex-direction:column;overflow:hidden}
 #lootSimWrap{flex-shrink:0;border-bottom:1px solid var(--border);display:flex;flex-direction:column}
 #lootSimHead{padding:9px 14px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 #lootSimGround{
@@ -30573,6 +30570,10 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.168',changes:[
+    'Fixed the remaining hover bug: colored rule rows in the sidebar no longer black out on hover (the section fix hadn\u2019t covered rules). They now use the same soft accent glow, so the row\u2019s color and text stay readable.',
+    'Visuals & Stats tab now gives the stat panels priority: the rules column is a slim 140\u2013200px (it only shows short names), and the two stat panels stay a fixed 2 columns wide and always visible \u2014 they grow downward and scroll rather than collapsing to a single column when the window narrows.'
+  ]},
   {v:'5.167',changes:[
     'Hover feedback no longer turns rules/sections dark and unreadable. Hovering now shows a soft accent glow that keeps the row\u2019s color and text legible; the selected rule/section gets a bolder, distinct accent border + glow, so the two states are clearly different and both fit the theme.',
     'Visuals & Stats tab: fixed the middle rules column getting crushed between the stat panels. The stat panels are now narrower (two columns, scrolling vertically, dropping to one column on smaller screens), giving the rules list plenty of usable width again \u2014 the panels are fully preserved.',
@@ -32833,11 +32834,12 @@ function buildRI(rule){
       // and leaving the sidebar's default text color in place ignored that
       // pairing, which is exactly what was making some rows hard to read.
       if(v.textColor)nm.style.color=`rgb(${v.textColor[0]},${v.textColor[1]},${v.textColor[2]})`;
-      // Inline background blocks the CSS :hover rule from ever firing, so
-      // hover feedback is reimplemented here the same way section headers
-      // already do it.
-      div.addEventListener('mouseenter',()=>{div.style.background='var(--card)';});
-      div.addEventListener('mouseleave',()=>{div.style.background=rowBgStyle;});
+      // Inline background blocks the CSS :hover rule, so reimplement hover here
+      // the same way section headers do — a soft accent glow that keeps the
+      // rule's own color and text readable (no dark swap).
+      div.style.transition='box-shadow .12s, filter .12s';
+      div.addEventListener('mouseenter',()=>{div.style.boxShadow='0 0 0 2px rgba(var(--accent-rgb),.55), 0 0 10px 1px rgba(var(--accent-rgb),.35)';div.style.filter='brightness(1.08)';});
+      div.addEventListener('mouseleave',()=>{div.style.boxShadow='';div.style.filter='';});
     } else if(v.textColor){
       nm.style.color=`rgb(${v.textColor[0]},${v.textColor[1]},${v.textColor[2]})`;
     }
