@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.169
+  MirrorFilter Web — VERSION 5.170
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -30577,6 +30577,9 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.170',changes:[
+    'Fixed the rule enable/disable toggle sometimes leaving a rule OFF (showing dark/faded) after you turned it off and back on. Rules that had never had their toggle explicitly set were one click out of sync \u2014 the first click was a silent no-op \u2014 so a later toggle could disable a rule you meant to keep on. One click now always matches what you see, for every rule.'
+  ]},
   {v:'5.169',changes:[
     'Visuals & Stats layout reworked: the rules column is now a fixed 280px, centered between the two stat panels, and the stat panels flex to fill all the space on each side \u2014 packing as many stat cards as evenly fit (a responsive column count that grows/shrinks with your screen width, minimum two per side, equal on both sides).',
     'The Editor / Visuals & Stats / Resources tabs are now perfectly centered on the page and land in the exact same pixel position on all three tabs (no more shifting when the sidebar shows or hides).'
@@ -33259,7 +33262,17 @@ async function restoreSectionFromDefault(sectionId){
   }});
 }
 
-function toggleRule(id){const r=byId(id);if(!r)return;r.enabled=!r.enabled;saveState();renderList();if(id===activeId)updatePv(r);}
+function toggleRule(id){
+  const r=byId(id);if(!r)return;
+  // A rule with no explicit `enabled` field renders as ON (enabled!==false). If
+  // we did `r.enabled=!r.enabled` on that, undefined->true is a silent no-op (both
+  // look "on"), desyncing the toggle by one click — the next toggle then flips it
+  // OFF unexpectedly (the "row comes back dark" bug). Normalize to the CURRENT
+  // VISIBLE state first, then flip, so one click always matches what you see.
+  const currentlyOn = (r.enabled!==false);
+  r.enabled = !currentlyOn;
+  saveState();renderList();if(id===activeId)updatePv(r);
+}
 function toggleCollapse(sec){S.collapsedSecs[sec]=!S.collapsedSecs[sec];renderList();}
 function toggleDisableSec(sec){
   const newState=!S.disabledSecs[sec];
