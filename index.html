@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.170
+  MirrorFilter Web — VERSION 5.171
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -328,7 +328,7 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 /* Rules column: a fixed, centered strip between the two stat panels. Wide enough
    to read the rule names comfortably, but the stat panels get all the flex space
    on either side. */
-#vizMain{flex:0 0 280px;width:280px;display:flex;flex-direction:column;overflow:hidden}
+#vizMain{flex:0 0 340px;width:340px;display:flex;flex-direction:column;overflow:hidden}
 #lootSimWrap{flex-shrink:0;border-bottom:1px solid var(--border);display:flex;flex-direction:column}
 #lootSimHead{padding:9px 14px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 #lootSimGround{
@@ -30577,11 +30577,14 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.171',changes:[
+    'Widened the Visuals & Stats rules column to 340px so tier labels and badges no longer get squished; it stays centered and the stat panels still fill both sides evenly.'
+  ]},
   {v:'5.170',changes:[
     'Fixed the rule enable/disable toggle sometimes leaving a rule OFF (showing dark/faded) after you turned it off and back on. Rules that had never had their toggle explicitly set were one click out of sync \u2014 the first click was a silent no-op \u2014 so a later toggle could disable a rule you meant to keep on. One click now always matches what you see, for every rule.'
   ]},
   {v:'5.169',changes:[
-    'Visuals & Stats layout reworked: the rules column is now a fixed 280px, centered between the two stat panels, and the stat panels flex to fill all the space on each side \u2014 packing as many stat cards as evenly fit (a responsive column count that grows/shrinks with your screen width, minimum two per side, equal on both sides).',
+    'Visuals & Stats layout reworked: the rules column is a comfortable fixed width, centered between the two stat panels, and the stat panels flex to fill all the space on each side \u2014 packing as many stat cards as evenly fit (a responsive column count that grows/shrinks with your screen width, minimum two per side, equal on both sides).',
     'The Editor / Visuals & Stats / Resources tabs are now perfectly centered on the page and land in the exact same pixel position on all three tabs (no more shifting when the sidebar shows or hides).'
   ]},
   {v:'5.168',changes:[
