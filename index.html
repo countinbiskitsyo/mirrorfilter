@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.168
+  MirrorFilter Web — VERSION 5.169
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -89,7 +89,8 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 #leagueSelect{background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:4px 5px;border-radius:var(--radius);font-size:12px;flex-shrink:0;max-width:130px}
 .tb-spacer{flex:1;min-width:0}
 #statusBar{font-size:11px;color:var(--text2);white-space:nowrap;flex-shrink:0}
-#tabBar{flex-shrink:0;display:flex;background:var(--panel);border-bottom:1px solid var(--border);padding:0 14px;gap:2px;position:relative;align-items:center}
+#tabBar{flex-shrink:0;display:flex;background:var(--panel);border-bottom:1px solid var(--border);padding:0 14px;gap:2px;position:relative;align-items:center;min-height:38px}
+#tabBarBtns{display:flex;gap:2px;position:absolute;top:50%;transform:translate(-50%,-50%)}
 #closeAllTopicsBtn{position:absolute;right:14px;top:50%;transform:translateY(-50%)}
 .tab-btn{padding:11px 22px;font-size:15px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--text2);border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;transition:.12s;white-space:nowrap}
 .tab-btn:hover{color:var(--text);background:rgba(255,255,255,.04)}
@@ -314,16 +315,20 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 #noSel{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text3);gap:10px;text-align:center;padding:24px}
 #noSel .ns-i{opacity:.55;display:flex;justify-content:center;margin-bottom:8px}
 #vizLayout{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
-#vizBody{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;min-height:0}
-#vizStatsLeft,#vizStatsRight{flex:0 0 452px;overflow-y:auto;overflow-x:hidden;padding:14px;display:grid;grid-template-columns:repeat(2,210px);align-content:flex-start;gap:10px}
+#vizBody{flex:1;display:flex;overflow:hidden;min-height:0}
+/* Stats panels flex to fill all remaining space on their side, and pack as many
+   210px stat cards as evenly fit (auto-fit), so the column count grows/shrinks
+   with screen width. A min-width keeps at least 2 columns each. */
+#vizStatsLeft,#vizStatsRight{flex:1 1 0;min-width:440px;overflow-y:auto;overflow-x:hidden;padding:14px;display:grid;grid-template-columns:repeat(auto-fit,210px);justify-content:center;align-content:flex-start;gap:10px}
 #vizStatsLeft .vstat-card,#vizStatsRight .vstat-card{width:210px;min-width:0;max-width:none;overflow:hidden}
 #vizStatsLeft{border-right:1px solid var(--border)}
 #vizStatsRight{border-left:1px solid var(--border)}
 #vizStatsLeft::-webkit-scrollbar,#vizStatsRight::-webkit-scrollbar{width:5px}
 #vizStatsLeft::-webkit-scrollbar-thumb,#vizStatsRight::-webkit-scrollbar-thumb{background:var(--border2)}
-/* Rules column is intentionally narrow (it only shows short rule names) so the
-   stats panels keep priority. It can still be dragged wider if wanted. */
-#vizMain{flex:1 1 170px;min-width:140px;max-width:200px;display:flex;flex-direction:column;overflow:hidden}
+/* Rules column: a fixed, centered strip between the two stat panels. Wide enough
+   to read the rule names comfortably, but the stat panels get all the flex space
+   on either side. */
+#vizMain{flex:0 0 280px;width:280px;display:flex;flex-direction:column;overflow:hidden}
 #lootSimWrap{flex-shrink:0;border-bottom:1px solid var(--border);display:flex;flex-direction:column}
 #lootSimHead{padding:9px 14px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 #lootSimGround{
@@ -631,9 +636,11 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 </div>
 <div id="tabBar">
   <div id="tabBarSpacer" style="display:none;flex-shrink:0"></div>
+  <div id="tabBarBtns">
   <button class="tab-btn active" onclick="switchTab('editor')" style="color:#5a9cf5" data-tip="Create and edit filter rules">📋 Editor</button>
   <button class="tab-btn" onclick="switchTab('viz')" style="color:#b478f5" data-tip="See all rules' visual labels, beams, and icons at once, plus the filter-health stat panels">👁 Visuals &amp; Stats</button>
   <button class="tab-btn" onclick="switchTab('settings')" style="color:#e0965a" data-tip="Themes, tier configuration, custom conditions, sounds, BaseTypes">⚙ Resources</button>
+  </div>
   <button class="sh-btn" id="closeAllTopicsBtn" style="display:none" onclick="collapseAllTopicsAndHeaders()" data-tip="Collapse every section header and help topic on this tab">▲ Close All Topics and Headers</button>
 </div>
 <div class="tab-pane active" id="tab-editor">
@@ -30570,6 +30577,10 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.169',changes:[
+    'Visuals & Stats layout reworked: the rules column is now a fixed 280px, centered between the two stat panels, and the stat panels flex to fill all the space on each side \u2014 packing as many stat cards as evenly fit (a responsive column count that grows/shrinks with your screen width, minimum two per side, equal on both sides).',
+    'The Editor / Visuals & Stats / Resources tabs are now perfectly centered on the page and land in the exact same pixel position on all three tabs (no more shifting when the sidebar shows or hides).'
+  ]},
   {v:'5.168',changes:[
     'Fixed the remaining hover bug: colored rule rows in the sidebar no longer black out on hover (the section fix hadn\u2019t covered rules). They now use the same soft accent glow, so the row\u2019s color and text stay readable.',
     'Visuals & Stats tab now gives the stat panels priority: the rules column is a slim 140\u2013200px (it only shows short names), and the two stat panels stay a fixed 2 columns wide and always visible \u2014 they grow downward and scroll rather than collapsing to a single column when the window narrows.'
@@ -32244,6 +32255,19 @@ function makeDragV(handle,top,minH,onSave){
   document.addEventListener('mousemove',e=>{if(!drag)return;const h=Math.max(minH,sh+(e.clientY-sy));top.style.flex='none';top.style.height=h+'px';});
   document.addEventListener('mouseup',()=>{if(!drag)return;drag=false;handle.classList.remove('dragging');if(onSave)onSave(top.offsetHeight);});
 }
+// Positions the tab-button group at the exact horizontal center of the viewport,
+// compensating for #tabBar's own left offset (which changes when the Editor
+// sidebar shows/hides). Result: the three tabs sit at the identical page pixel
+// on every tab. Called after tab switches and on window resize.
+function centerTabBar(){
+  const tabBtns=document.getElementById('tabBarBtns');
+  const tabBarEl=document.getElementById('tabBar');
+  if(!tabBtns||!tabBarEl)return;
+  const barLeft=tabBarEl.getBoundingClientRect().left;
+  const pageCenter=window.innerWidth/2;
+  tabBtns.style.left=(pageCenter-barLeft)+'px';
+}
+window.addEventListener('resize',()=>{ try{ centerTabBar(); }catch(_){}}, {passive:true});
 function switchTab(name){closeAllCtxMenus();
   const tabs=['editor','viz','settings'];
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',tabs[i]===name));
@@ -32265,19 +32289,11 @@ function switchTab(name){closeAllCtxMenus();
   // switch tabs. This spacer reserves the exact same width the sidebar
   // currently takes, so the tab buttons land in the identical spot on all
   // three tabs.
+  // Tabs are absolutely centered on the PAGE (see centerTabBar). Recompute after
+  // the sidebar show/hide reflow settles so the read is accurate.
+  requestAnimationFrame(centerTabBar);
   const spacer=document.getElementById('tabBarSpacer');
-  if(spacer){
-    if(isEditor){
-      spacer.style.display='none';
-    } else {
-      spacer.style.display='block';
-      // -2px corrects a small measured discrepancy between this spacer and
-      // the sidebar's actual rendered edge (likely subpixel/border rounding
-      // in the flex layout) — without it the tabs land ~2px too far right
-      // on Visuals/Resources compared to the Editor tab.
-      spacer.style.width=Math.max(0,sidebarWidthNow-2)+'px';
-    }
-  }
+  if(spacer) spacer.style.display='none';
   // The ENTIRE header bar (logo, filter name, league, all the top buttons)
   // lives inside #middleCol, a flex sibling of #sidebar — so on Visuals/
   // Resources, where the sidebar is hidden, the whole header shifts left to
