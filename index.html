@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.172
+  MirrorFilter Web — VERSION 5.173
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -328,7 +328,7 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 /* Rules column: a fixed, centered strip between the two stat panels. Wide enough
    to read the rule names comfortably, but the stat panels get all the flex space
    on either side. */
-#vizMain{flex:0 0 390px;width:390px;display:flex;flex-direction:column;overflow:hidden}
+#vizMain{flex:0 0 420px;width:420px;display:flex;flex-direction:column;overflow:hidden}
 #lootSimWrap{flex-shrink:0;border-bottom:1px solid var(--border);display:flex;flex-direction:column}
 #lootSimHead{padding:9px 14px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 #lootSimGround{
@@ -362,7 +362,7 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 .viz-chip{font-size:11px;padding:4px 9px;border-radius:12px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:.12s;white-space:nowrap}
 .viz-chip:hover{border-color:var(--accent)}
 .viz-chip.active{background:rgba(var(--accent-rgb),.18);border-color:var(--accent);color:var(--accent);font-weight:600}
-#vizScroll{flex:1;min-width:0;overflow-y:auto;overflow-x:auto;padding:14px}
+#vizScroll{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;padding:14px}
 #vizScroll::-webkit-scrollbar{width:5px}
 #vizScroll::-webkit-scrollbar-thumb{background:var(--border2)}
 .vgrid{display:flex;flex-direction:column;gap:3px}
@@ -30577,6 +30577,10 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.173',changes:[
+    'Fixed the Editor / Visuals & Stats / Resources tabs starting off-center on first page load (they used to only snap to center after resizing the window). They now center correctly right away, even before fonts finish loading.',
+    'Removed the horizontal scrollbar at the bottom of the Visuals & Stats rules column, and widened the column to 420px so rule names and tier badges sit comfortably without clipping.'
+  ]},
   {v:'5.172',changes:[
     'Widened the Visuals & Stats rules column (to ~390px) so tier labels and badges have room; it stays centered and the stat panels still fill both sides evenly.'
   ]},
@@ -32064,6 +32068,17 @@ async function init(){
     });
     renderList();renderSettingsLists();initResizers();initColorPicker();syncShadingSwapToggle();renderBuildToggleDefs();renderBuildPresetLibrary();syncMultiSaveUI();syncDefaultSnapshotStatus();initBulkVisualDropdowns();renderBulkVisualSectionList();renderRemovedValuesLog();renderPasteExclusions();
     setTimeout(()=>{ try{ maybePromptFirstRunBackup(); }catch(e){console.warn(e);} }, 900);
+    // Center the tabs once the layout has actually settled. On first paint the
+    // tab bar's position isn't final yet (fonts/flex still resolving), which is
+    // why the tabs used to sit off-center until a resize forced a recompute.
+    // Re-run at several settle points to guarantee correct initial placement.
+    try{
+      centerTabBar();
+      requestAnimationFrame(centerTabBar);
+      setTimeout(()=>{try{centerTabBar();}catch(_){}}, 150);
+      setTimeout(()=>{try{centerTabBar();}catch(_){}}, 600);
+      if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>{try{centerTabBar();}catch(_){}}); }
+    }catch(_){}
     setStatus('Ready \u2713');
   }catch(e){toast('Could not load saved data \u2014 try refreshing the page.','err');}
 }
@@ -32274,6 +32289,7 @@ function centerTabBar(){
   tabBtns.style.left=(pageCenter-barLeft)+'px';
 }
 window.addEventListener('resize',()=>{ try{ centerTabBar(); }catch(_){}}, {passive:true});
+window.addEventListener('load',()=>{ try{ centerTabBar(); setTimeout(centerTabBar,200); }catch(_){}});
 function switchTab(name){closeAllCtxMenus();
   const tabs=['editor','viz','settings'];
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',tabs[i]===name));
