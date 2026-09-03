@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.173
+  MirrorFilter Web — VERSION 5.174
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -741,12 +741,11 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     </div>
     <div class="ss-body" id="ss-saving-body" style="display:none">
       <div class="save-pulse" style="border:1px solid var(--accent);border-radius:10px;padding:14px 16px;margin-bottom:18px;background:rgba(var(--accent-rgb),.06)">
-        <div style="font-size:15px;font-weight:700;color:var(--accent);letter-spacing:.2px;margin-bottom:6px">💾 Save, Back up &amp; Restore — everything about protecting your work, in one place</div>
-        <div style="font-size:12.5px;line-height:1.7;color:var(--text)">Three stages, three different jobs:</div>
-        <div style="margin-top:6px;font-size:12.5px;line-height:1.7;color:var(--text)">
-          <div><strong style="color:var(--accent)">① Save</strong> — write the game-ready <code>.filter</code>, optionally to several folders at once. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go ↓</span></div>
-          <div><strong style="color:var(--accent)">② Back up</strong> — snapshot your whole editor state (rules, tiers, sounds, settings) so it's recoverable. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go ↓</span></div>
-          <div><strong style="color:var(--accent)">③ Restore</strong> — load any backup back when you need it. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go ↓</span></div>
+        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:8px">💾 Save, Back up &amp; Restore</div>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:12.5px;line-height:1.5">
+          <div style="display:flex;align-items:center;gap:10px"><span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:15px">1</span><span><strong style="color:#e0b050">Save</strong> — write the <code>.filter</code> to disk. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go</span></span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#5ac88a;color:#08160e;font-weight:800;font-size:15px">2</span><span><strong style="color:#5ac88a">Back up</strong> — save a full copy you can recover from. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go</span></span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:15px">3</span><span><strong style="color:#5a9cf5">Restore</strong> — load a backup back in one click. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go</span></span></div>
         </div>
       </div>
 
@@ -754,18 +753,17 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
       <!-- ───────────── STAGE ① SAVE ───────────── -->
       <div id="stageSave" style="margin-bottom:22px">
-        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)">① Save — your game-ready .filter</div>
-        <p style="font-size:12.5px">Your editing session saves itself in this browser automatically on every change (no button needed). <strong>Export</strong> / <strong>Quick-Save</strong> is the separate, deliberate step that writes the actual <code>.filter</code> the game reads into your Path of Exile 2 folder — do that whenever you want the game to see your latest changes.</p>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:14px">1</span><span style="font-size:15px;font-weight:700;color:#e0b050">Save — your game-ready .filter</span></div>
+        <p style="font-size:12.5px">Your work auto-saves in the browser as you edit. <strong>Export</strong> / <strong>Quick-Save</strong> writes the <code>.filter</code> the game reads into your Path of Exile 2 folder — click it whenever you want the game to see your changes.</p>
         <div id="multiSaveSetup" style="margin-top:12px;padding:14px;border:1px solid var(--border2);border-radius:10px;background:rgba(var(--accent-rgb),.03)">
           <div style="font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:8px">📍 Multi-Location Save</div>
-          <div class="ibox">Add up to 4 extra folders (a cloud-synced folder, the game's own folder, an external drive…) and every Quick-Save/Export also writes to each one automatically. <strong>Each location has its own dropdown</strong> for what to save there — a cloud folder might want everything, the game's folder only needs the bare .filter.</div>
-          <div class="tip-box"><strong style='color:var(--accent)'>Saving to the game's own folder</strong> (<code>...\Documents\My Games\Path of Exile 2</code>) — set that location's dropdown to <strong>"Just the .filter"</strong>. The game reads only the raw .filter; it ignores the .meta.json sidecar entirely.</div>
-          <div class="tip-box"><strong style='color:var(--accent)'>What each option gives you:</strong>
-            <div style="margin-top:8px;line-height:1.7">
-              <div><strong>Just the .filter</strong> — only the raw file the game reads.</div>
-              <div><strong>.filter + .meta.json</strong> — that file plus its sidecar (so re-importing later restores tier config/hierarchy too).</div>
-              <div><strong>Entire UserData folder</strong> — your whole working session as one folder copy.</div>
-              <div><strong>UserData + .filter + .meta.json (recommended)</strong> — the folder copy plus a guaranteed-fresh .filter + sidecar. The only option that's always both complete AND current.</div>
+          <div class="ibox">Add up to 4 folders (cloud, game folder, external drive…) and every save writes to all of them. Each has a dropdown for <em>what</em> to save there.</div>
+          <div class="tip-box"><strong style='color:var(--accent)'>For the game folder</strong> (<code>...\My Games\Path of Exile 2</code>) choose <strong>"Just the .filter"</strong> — the game only reads that file.</div>
+          <div class="tip-box"><strong style='color:var(--accent)'>The dropdown options:</strong>
+            <div style="margin-top:6px;line-height:1.6">
+              <div><strong>Just the .filter</strong> — the raw file the game reads.</div>
+              <div><strong>.filter + .meta.json</strong> — plus its sidecar (keeps tier config for re-import).</div>
+              <div><strong>Everything (recommended for a cloud folder)</strong> — a full copy of your working session, always current.</div>
             </div>
           </div>
           <div id="multiSaveLocList" style="margin:8px 0"></div>
@@ -775,11 +773,11 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
       <!-- ───────────── STAGE ② BACK UP ───────────── -->
       <div id="stageBackup" style="margin-bottom:22px">
-        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)">② Back up — snapshots of your whole editor state</div>
-        <p style="font-size:12.5px">A backup captures <em>everything</em> in the editor — all rules, sections, tier config, custom sounds, and settings — not just the game <code>.filter</code>. MirrorFilter takes these automatically before anything risky (Auto-Tier, imports, on-load repairs). You can also keep a copy on disk in a folder you control.</p>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#5ac88a;color:#08160e;font-weight:800;font-size:14px">2</span><span style="font-size:15px;font-weight:700;color:#5ac88a">Back up — a full copy you can recover from</span></div>
+        <p style="font-size:12.5px">A backup captures <em>everything</em> — rules, sections, tiers, sounds, settings — not just the <code>.filter</code>. MirrorFilter backs up automatically before anything risky, and can keep timestamped copies in a folder you control.</p>
         <div id="healthMonitor" style="margin:12px 0"></div>
         <div id="diskBackupCtl"></div>
-        <div class="ibox">Backing up saves <strong>both</strong> safety nets at once: an <strong>in-browser restore point</strong> (the last <span id="bkMax">8</span> are also kept automatically before risky actions) and, when disk auto-backup is on, a <strong>timestamped file in your own folder</strong>. This happens automatically on Quick-Save and every 5 minutes — or on demand with the button below.</div>
+        <div class="ibox"><strong>Back up now</strong> saves both at once: an in-browser restore point (last <span id="bkMax">8</span> kept) and, if disk backup is on, a timestamped file in your folder. Also happens on every Quick-Save and every 5 minutes.</div>
         <div style="display:flex;gap:6px;margin:10px 0;flex-wrap:wrap">
           <button class="sh-btn" onclick="backupNowFromButton()" data-tip="Saves an in-browser restore point AND a timestamped file to your folder (if disk backup is on)">💾 Back up now</button>
         </div>
@@ -787,9 +785,9 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
       <!-- ───────────── STAGE ③ RESTORE ───────────── -->
       <div id="stageRestore">
-        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)">③ Restore — load a backup back</div>
-        <p style="font-size:12.5px">Pick any saved backup and load it. Your current state is backed up first, so restoring is always reversible. Restoring replaces what's in the editor now with the chosen snapshot.</p>
-        <div class="tip-box" style="margin-bottom:8px"><strong style="color:var(--accent)">Restoring from your backup folder?</strong> Backups are named <code>mirrorfilter-backup-YYYY-MM-DD_HHMMSS.json</code> — the date &amp; time are in the filename, so the <strong>newest is the one with the latest date</strong>. Pick the point in time you want to go back to. (The <code>.filter</code> and <code>.filter.meta.json</code> in the folder are the game filter and its sidecar, not full backups — to load a <code>.filter</code>, use <strong>Import</strong> at the top.)</div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:14px">3</span><span style="font-size:15px;font-weight:700;color:#5a9cf5">Restore — load a backup back</span></div>
+        <p style="font-size:12.5px">Pick a saved backup and load it. Your current state is backed up first, so it's always reversible.</p>
+        <div class="tip-box" style="margin-bottom:8px"><strong style="color:var(--accent)">From your backup folder?</strong> Backups are <code>mirrorfilter-backup-DATE_TIME.json</code> — newest = latest date. (The <code>.filter</code>/<code>.meta.json</code> there are the game files, not full backups — load a <code>.filter</code> via <strong>Import</strong> at the top.)</div>
         <div style="display:flex;gap:6px;margin:8px 0;flex-wrap:wrap">
           <button class="sh-btn" onclick="refreshBackupPanel()">↻ Refresh list</button>
           <button class="sh-btn" onclick="restoreFromDiskFile()" data-tip="Load a timestamped mirrorfilter-backup-*.json from disk">📂 Restore from a backup file…</button>
@@ -934,19 +932,19 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   </div>
   <div class="ss" style="border-left:4px solid #5ac88a;background:#5ac88a12">
     <div class="ss-head coll-head" onclick="toggleSS('ss-default')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      📌 Default Filter Snapshot
-      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— click to expand/collapse</span>
+      🔍 Filter Drift Check
+      <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">— catch rules that moved to the wrong section</span>
       <span class="coll-caret" id="ss-default-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">▶</span>
     </div>
     <div class="ss-body" id="ss-default-body" style="display:none">
-      <div class="ibox">Save your current filter as a <strong>Default Snapshot</strong> once you're happy with how it's organized — a complete copy of every rule, section, and setting, stored separately from your live working file. You can then check whether anything has drifted from it since (a rule that's moved to a different section, for example) — purely a report, nothing here ever changes your live filter.</div>
+      <div class="ibox"><strong>This is a report, not a backup</strong> — it never changes or restores your filter. Once your filter is organized the way you like, save a <strong>reference snapshot</strong> of it here. Later, the drift check compares your current rules against that reference and flags any that have <strong>moved to a different section</strong> since (e.g. a rule that ended up under the wrong heading). For recovering lost work or undoing changes, use <strong>Saving Your Work → ② Back up</strong> instead — that's the backup/restore system.</div>
       <div id="defaultSnapshotStatus" style="font-size:12px;color:var(--text3);margin-bottom:10px">Checking for a saved default…</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-        <button class="sh-btn" onclick="saveAsDefaultFilter()" data-tip="Save your ENTIRE current filter — every rule, section, and setting — as your Default Snapshot, overwriting any previous one">💾 Save Current Filter as Default</button>
+        <button class="sh-btn" onclick="saveAsDefaultFilter()" data-tip="Save your ENTIRE current filter as the reference snapshot the drift check compares against, overwriting any previous one">📌 Set current filter as the reference</button>
       </div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-        <button class="sh-btn" onclick="checkDriftFromDefault()" data-tip="Compares your CURRENT rules against your saved Default Snapshot (matched by each rule's internal id) and reports any that have moved to a different section since — nothing is changed, just reported">🔍 Check for Drift from Default</button>
-        <span style="font-size:11px;color:var(--text3)">flags rules that have moved to a different section since your last saved default — report only, nothing is changed</span>
+        <button class="sh-btn" onclick="checkDriftFromDefault()" data-tip="Compares your CURRENT rules against your saved reference snapshot (matched by each rule's internal id) and reports any that have moved to a different section since — nothing is changed, just reported">🔍 Check for drift now</button>
+        <span style="font-size:11px;color:var(--text3)">flags rules that moved to a different section since your reference — report only, nothing is changed</span>
       </div>
       <div id="defaultDriftReportBox"></div>
     </div>
@@ -30577,6 +30575,13 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.174',changes:[
+    'Editor: the tier settings (Tier, Tier Sort Target, Unpriced Catch-All, Show Tier Badge) are now their own ⚡ Auto-Tiering card, separated from Basic Info, with a clear how-to on configuring a rule for Auto-Tier.',
+    '"Default Filter Snapshot" renamed to "Filter Drift Check" and reworded so its job (a report that flags rules which moved to the wrong section — never a backup) is obvious and no longer overlaps with the Back up section.',
+    'Saving Your Work: trimmed the wording and gave the three steps bold, colored numbered badges (1 gold Save, 2 green Back up, 3 blue Restore) so they read at a glance.',
+    '"Where your work currently goes" now shows the fullest path available for each destination plus the last saved/backed-up date.',
+    'First-run setup prompt now covers BOTH saving your .filter to the game folder AND cloud backup, guiding you to set up each.'
+  ]},
   {v:'5.173',changes:[
     'Fixed the Editor / Visuals & Stats / Resources tabs starting off-center on first page load (they used to only snap to center after resizing the window). They now center correctly right away, even before fonts finish loading.',
     'Removed the horizontal scrollbar at the bottom of the Visuals & Stats rules column, and widened the column to 420px so rule names and tier badges sit comfortably without clipping.'
@@ -33656,6 +33661,10 @@ function renderEditor(rule){
   '<div class="er"><label class="elabel" data-tip="Show: item visible on ground. Hide: item invisible.">Action</label>'+
   '<div class="etog"><button onclick="pr(\'action\',\'Show\')" class="'+(rule.action==='Show'?'ashow':'')+'" data-tip="Make this item type visible">Show</button>'+
   '<button onclick="pr(\'action\',\'Hide\')" class="'+(rule.action==='Hide'?'ahide':'')+'" data-tip="Make this item type invisible">Hide</button></div></div>'+
+  '</div></div>'+
+  // ── Auto-Tiering card (its own section, separate from Basic Info) ──────────
+  '<div class="ec"><div class="ec-head" data-tip="Settings that control how ⚡ Auto-Tier treats this rule">\u26A1 Auto-Tiering</div><div class="ec-body">'+
+  '<div class="ibox" style="margin-bottom:10px"><strong>To include this rule in Auto-Tier</strong>, check <strong>Tier Sort Target</strong> below and give it a <strong>Tier</strong> (A/B/C…). Auto-Tier then gathers every BaseType from all Tier-Sort-Target rules <em>in this section</em>, looks up each item\u2019s price, and drops it into the rule whose tier its price matches. One rule per section can be the <strong>Unpriced Catch-All</strong> (\u2205) for items with no price. Leave all boxes unchecked to keep this rule out of Auto-Tier entirely. Configure the tier thresholds in Resources \u2192 \u26A1 Tier System.</div>'+
   '<div class="er" id="er-tier-row" style="'+((rule.tierSortTarget||rule.tierSortUnpriced||rule.tier)?'':'display:none')+'">'+
   '<label class="elabel" data-tip="Which tier this rule represents. Used by Auto-Tier sorting. Pick (none) to clear a leftover tier label from a rule that isn\'t actually part of an active tier-sort group anymore.">Tier</label>'+
   '<select class="esel" onchange="onTierValueChange(this.value)">'+tierOpts+'</select></div>'+
@@ -38465,7 +38474,7 @@ async function doExport(){
     closeM('exportM');
     toast('Saved to: '+d.path,'ok',null,S.toastFlourishEnabled!==false);
     setStatus('Exported');
-    S.exportPath=d.path;
+    S.exportPath=d.path;S.__lastExport=Date.now();
     snapshotExportedRules();
     saveState();
     runMultiSave();
@@ -38533,32 +38542,43 @@ function renderLocationsSummary(){
   const el=document.getElementById('locationsSummary');
   if(!el)return;
   const rows=[];
-  // Primary export destination
+  const fmtDate=t=> t ? new Date(t).toLocaleString() : null;
+  // Primary export destination — show the fullest path we have. The browser only
+  // exposes a linked folder's NAME (not its absolute path, for security), but if
+  // an exportPath string was recorded we show that.
   const linked = window.MF_WEB && window.MF_WEB.dirLinked;
   const dirName = linked ? window.MF_WEB.dirName : null;
-  if(linked){
-    rows.push(['📤 Export (.filter)','Linked folder: <strong>'+esc(dirName)+'</strong>','ok']);
+  const expPath = (S.exportPath||'').trim();
+  const lastExp = fmtDate(S.__lastExport);
+  if(linked || expPath){
+    const where = expPath ? esc(expPath) : ('linked folder “'+esc(dirName)+'”');
+    rows.push(['📤 Export (.filter)', where + (lastExp?('<div style="color:var(--text3);font-size:11px;margin-top:1px">last saved: '+esc(lastExp)+'</div>'):''),'ok']);
   } else {
-    rows.push(['📤 Export (.filter)','Downloads folder (no folder linked yet)','warn']);
+    rows.push(['📤 Export (.filter)','Downloads folder — no game/save folder linked yet','warn']);
   }
-  // Multi-save locations
+  // Multi-save locations (these DO carry a full path from their picker)
   const locs=S.multiSaveLocations||[];
   const scopeLabel={filter:'just the .filter','filter_json':'.filter + .meta.json',all:'everything'};
   if(locs.length){
-    locs.forEach(l=>rows.push(['📁 Extra save location', esc(l.path)+' <span style="color:var(--text3)">('+(scopeLabel[l.scope||'all']||l.scope)+')</span>','ok']));
+    locs.forEach(l=>rows.push(['📁 Extra save location',
+      esc(l.path||l.name||'?')+' <span style="color:var(--text3)">('+(scopeLabel[l.scope||'all']||l.scope)+')</span>'
+      +(l.lastSaved?('<div style="color:var(--text3);font-size:11px;margin-top:1px">last saved: '+esc(fmtDate(l.lastSaved))+'</div>'):''),'ok']));
+  } else {
+    rows.push(['📁 Extra save locations','None set — add one below to save to several folders at once','warn']);
   }
   // Disk backup
   if(S.__autoBackupDisk){
     const bkName = (window.MF_WEB && window.MF_WEB.dirName) ? window.MF_WEB.dirName : 'your chosen folder';
-    const last = S.__lastDiskBackup ? new Date(S.__lastDiskBackup).toLocaleString() : 'not yet';
-    rows.push(['🛡 Timestamped backups','Folder: <strong>'+esc(bkName)+'</strong> <span style="color:var(--text3)">(last: '+esc(last)+')</span>','ok']);
+    const last = fmtDate(S.__lastDiskBackup);
+    rows.push(['🛡 Timestamped backups','Folder “'+esc(bkName)+'”'
+      +(last?('<div style="color:var(--text3);font-size:11px;margin-top:1px">last backed up: '+esc(last)+'</div>'):'<div style="color:var(--text3);font-size:11px;margin-top:1px">not backed up yet</div>'),'ok']);
   } else {
     rows.push(['🛡 Timestamped backups','Off — turn on below to keep files outside the browser','warn']);
   }
   const body=rows.map(([label,val,st])=>
-    '<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">'
+    '<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px">'
     +'<span style="flex:0 0 168px;color:var(--text2)">'+label+'</span>'
-    +'<span style="flex:1;color:'+(st==='warn'?'var(--text2)':'var(--text)')+'">'+(st==='warn'?'⚠ ':'✓ ')+val+'</span>'
+    +'<span style="flex:1;color:'+(st==='warn'?'var(--text2)':'var(--text)')+';word-break:break-all">'+(st==='warn'?'⚠ ':'✓ ')+val+'</span>'
     +'</div>').join('');
   el.innerHTML='<div style="border:1px solid var(--border2);border-radius:10px;padding:12px 14px;background:var(--card)">'
     +'<div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-bottom:6px">📍 Where your work currently goes</div>'
@@ -38596,7 +38616,7 @@ async function quickSave(){
     await saveState();
     const d=await API('/api/export','POST',{});
     toast('Quick-saved: '+d.path,'ok',null,S.toastFlourishEnabled!==false);setStatus('Saved \u2713');
-    S.exportPath=d.path;
+    S.exportPath=d.path;S.__lastExport=Date.now();
     snapshotExportedRules();
     saveState();
     runMultiSave();
@@ -38771,32 +38791,43 @@ async function backupNowFromButton(){
 // surface up front because it's the difference between recoverable and not.
 async function maybePromptFirstRunBackup(){
   if(!("showDirectoryPicker" in window)) return;     // no folder access in this browser
-  if(S.__autoBackupDisk) return;                     // already on
-  if(Array.isArray(S.multiSaveLocations) && S.multiSaveLocations.length) return; // already protected via multi-save
   if(S.__backupPromptChoice==='never' ) return;      // user opted out permanently
-  // Defer if they picked "later" in this same browser session.
-  if(window.__backupPromptDeferred) return;
-  const choice = await backupSetupDialog();
+  if(window.__backupPromptDeferred) return;          // deferred this session
+  // What protection is already in place?
+  const hasGameSave = !!(window.MF_WEB && window.MF_WEB.dirLinked);          // exports go to a real folder
+  const hasBackup   = !!S.__autoBackupDisk;                                   // timestamped disk backups on
+  const hasMultiSave= Array.isArray(S.multiSaveLocations) && S.multiSaveLocations.length>0;
+  // If both a save destination and some off-browser backup exist, we're covered.
+  if((hasGameSave || hasMultiSave) && (hasBackup || hasMultiSave)) return;
+  const choice = await backupSetupDialog({hasGameSave, hasBackup});
   if(choice==='setup-inline'){ /* handled inside the dialog to keep the click gesture */ }
-  else if(choice==='setup'){ await enableDiskAutoBackup(); }   // fallback path
   else if(choice==='never'){ S.__backupPromptChoice='never'; await saveState(); }
   else { window.__backupPromptDeferred=true; }        // "later" — ask again next load
 }
 // A small modal (not a browser confirm) so we can explain clearly and offer three
-// choices. Returns 'setup' | 'later' | 'never'.
-function backupSetupDialog(){
+// choices. Returns 'setup-inline' | 'later' | 'never'. `state` tells us what's
+// already configured so we can tailor the message.
+function backupSetupDialog(state){
+  state = state || {};
   return new Promise(resolve=>{
     if(document.getElementById('_bkSetup')){ resolve('later'); return; } // already open
+    const needSave = !state.hasGameSave;
+    const needBackup = !state.hasBackup;
     const ov=document.createElement('div');
     ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
     const box=document.createElement('div');
-    box.style.cssText='max-width:460px;background:var(--panel);border:1px solid var(--accent);border-radius:14px;padding:22px 24px;box-shadow:var(--shadow);color:var(--text)';
+    box.style.cssText='max-width:480px;background:var(--panel);border:1px solid var(--accent);border-radius:14px;padding:22px 24px;box-shadow:var(--shadow);color:var(--text)';
+    // Build the "what this sets up" list based on what's missing.
+    let items='';
+    if(needSave)   items+='<li style="margin-bottom:5px"><strong>Save to your game folder</strong> — pick your Path of Exile 2 folder (<code>Documents\\My Games\\Path of Exile 2</code>) so Export/Quick-Save writes the <code>.filter</code> straight where the game reads it.</li>';
+    if(needBackup) items+='<li><strong>Cloud backup</strong> — pick a cloud-synced folder (Google Drive, OneDrive…) to keep timestamped backups of your whole filter, updated on every save. Newest '+KEEP_DISK_BACKUPS+' kept.</li>';
     box.innerHTML=
-      '<div style="font-size:17px;font-weight:700;color:var(--accent);margin-bottom:10px">💾 Protect your work before you start</div>'
-      +'<div style="font-size:13px;line-height:1.65;margin-bottom:10px">MirrorFilter keeps your filter in this browser. To make sure you never lose it, you can keep a complete backup file in a real folder <strong>you</strong> control (a cloud-synced folder, a drive, anywhere). It updates automatically every time you save.</div>'
-      +'<div style="font-size:12px;line-height:1.6;color:var(--text2);margin-bottom:16px">Pick a folder once and you\u2019re protected — a fresh timestamped backup is saved there on every save and every few minutes (the newest '+KEEP_DISK_BACKUPS+' are kept), so you can roll back to any recent point. You can change or turn this off later in Resources → Saving Your Work.</div>'
+      '<div style="font-size:17px;font-weight:700;color:var(--accent);margin-bottom:10px">💾 Set up saving &amp; backup</div>'
+      +'<div style="font-size:13px;line-height:1.6;margin-bottom:10px">Your filter lives in this browser. Let\u2019s make sure it also goes where you need it. Recommended:</div>'
+      +'<ul style="font-size:12.5px;line-height:1.55;color:var(--text);margin:0 0 14px 0;padding-left:18px">'+items+'</ul>'
+      +'<div style="font-size:11.5px;line-height:1.55;color:var(--text2);margin-bottom:16px">You\u2019ll pick '+((needSave&&needBackup)?'two folders (one at a time)':'a folder')+'. Change these anytime in Resources → Saving Your Work.</div>'
       +'<div style="display:flex;flex-direction:column;gap:8px">'
-        +'<button id="_bkSetup" class="sh-btn" style="background:var(--accent);color:#1a1205;border-color:var(--accent);font-weight:700;padding:9px;font-size:13px">📁 Choose a backup folder now</button>'
+        +'<button id="_bkSetup" class="sh-btn" style="background:var(--accent);color:#1a1205;border-color:var(--accent);font-weight:700;padding:9px;font-size:13px">📁 Set it up now</button>'
         +'<div style="display:flex;gap:8px">'
           +'<button id="_bkLater" class="sh-btn" style="flex:1;padding:8px">Remind me later</button>'
           +'<button id="_bkNever" class="sh-btn" style="flex:1;padding:8px">No thanks</button>'
@@ -38805,17 +38836,37 @@ function backupSetupDialog(){
     ov.appendChild(box); document.body.appendChild(ov);
     let settled=false;
     const done=(v)=>{ if(settled)return; settled=true; try{document.body.removeChild(ov);}catch(_){} resolve(v); };
-    // IMPORTANT: run the folder picker straight from this click so it keeps the
-    // user gesture (showDirectoryPicker requires one). We close the dialog first,
-    // then invoke enable — enableDiskAutoBackup itself calls the picker.
+    // Run pickers straight from the click to keep the user gesture.
     box.querySelector('#_bkSetup').onclick=(e)=>{ e.stopPropagation(); if(settled)return; settled=true; try{document.body.removeChild(ov);}catch(_){}
-      // call synchronously within the gesture
-      enableDiskAutoBackup().then(()=>{ try{ if(S.__autoBackupDisk){ S.__backupPromptChoice='done'; saveState(); } }catch(_){}}); resolve('setup-inline'); };
+      runSaveAndBackupSetup(needSave, needBackup); resolve('setup-inline'); };
     box.querySelector('#_bkLater').onclick=(e)=>{ e.stopPropagation(); done('later'); };
     box.querySelector('#_bkNever').onclick=(e)=>{ e.stopPropagation(); done('never'); };
-    box.onclick=(e)=>{ e.stopPropagation(); };  // clicks inside the box never count as backdrop
+    box.onclick=(e)=>{ e.stopPropagation(); };
     ov.onclick=(e)=>{ if(e.target===ov) done('later'); };
   });
+}
+// Guides the user through picking a game-save folder and/or a cloud-backup folder,
+// one picker at a time (each needs its own gesture, so we chain via toasts/prompts).
+async function runSaveAndBackupSetup(needSave, needBackup){
+  try{
+    if(needSave){
+      toast('Pick your Path of Exile 2 game folder (for the .filter)…','ok');
+      try{
+        if(window.MF_WEB && window.MF_WEB.fsChooseFolder){
+          const nm=await window.MF_WEB.fsChooseFolder();
+          S.__lastExport=null; await saveState();
+          toast('Saving .filter to “'+nm+'” on Export/Quick-Save.','ok');
+        }
+      }catch(e){ if(!(e&&e.name==='AbortError')) toast('Save folder not set','err'); }
+    }
+    if(needBackup){
+      // Small pause so the second picker is a fresh, obvious action.
+      const goBackup = await customConfirm('Now pick a CLOUD-synced folder for timestamped backups (Google Drive, OneDrive, etc.). Continue?');
+      if(goBackup){ await enableDiskAutoBackup(); }
+    }
+    S.__backupPromptChoice='done'; await saveState();
+    if(typeof refreshBackupPanel==='function')refreshBackupPanel();
+  }catch(e){ console.warn('save/backup setup:',e); }
 }
 async function enableDiskAutoBackup(){
   // Must run synchronously from the click so the folder picker keeps its user
