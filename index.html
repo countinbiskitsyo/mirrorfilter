@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.174
+  MirrorFilter Web — VERSION 5.176
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -768,6 +768,14 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           </div>
           <div id="multiSaveLocList" style="margin:8px 0"></div>
           <button class="sh-btn" onclick="addMultiSaveLocation()" data-tip="Pick a folder to add as an extra save destination">📁 Add save location</button>
+        </div>
+        <div style="margin-top:12px;padding:14px;border:1px solid var(--border2);border-radius:10px;background:rgba(var(--accent-rgb),.03)">
+          <div style="font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:8px">🖥 Moving to a new PC?</div>
+          <div class="ibox">Your folder choices are saved <em>with</em> your filter — in the <code>.filter.meta.json</code> sidecar and in every backup JSON. Import either one on the new PC and MirrorFilter shows a checklist naming each folder you had, with a button per item.</div>
+          <div class="tip-box"><strong style='color:var(--accent)'>Why you still have to click:</strong> browsers never let a site remember a folder — the permission is tied to that one browser on that one PC, and the folder's full path is hidden for security. The checklist can't do the picking for you, but it means you never have to remember what you set up.</div>
+          <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+            <button class="sh-btn" onclick="openSetupChecklist()" data-tip="Show the recorded save/backup destinations and re-link them one by one">📋 Show setup checklist</button>
+          </div>
         </div>
       </div>
 
@@ -28109,7 +28117,41 @@ function buildMeta(state, orderedRules){
     sectionOrder: state.sectionOrder!==undefined ? state.sectionOrder : [],
     sectionDisabled: state.disabledSecs!==undefined ? state.disabledSecs : (state.sectionDisabled!==undefined ? state.sectionDisabled : {}),
     ruleFlags, ruleSections,
+    setupProfile: buildSetupProfile(state),
   };
+}
+
+// ── PORTABLE SETUP PROFILE ──────────────────────────────────────────────────
+// A folder LINK cannot travel between machines: showDirectoryPicker() hands us
+// an opaque FileSystemDirectoryHandle that lives in this browser profile's
+// IndexedDB, isn't serialisable to text, and needs a fresh user gesture to
+// re-grant permission. The browser also never reveals a picked folder's
+// absolute path. So we can't move the link — but we CAN move a description of
+// what the user had configured, which turns "reconfigure from memory" on a new
+// PC into "click through a checklist". This record rides along in the
+// .filter.meta.json sidecar and in the full backup JSON.
+function buildSetupProfile(state){
+  state = state || {};
+  try{
+    const locs = Array.isArray(state.multiSaveLocations) ? state.multiSaveLocations : [];
+    return {
+      savedAt: new Date().toISOString(),
+      fromVersion: (typeof CHANGELOG!=='undefined' && CHANGELOG[0]) ? CHANGELOG[0].v : null,
+      filterName: state.filterName || null,
+      league: state.league || null,
+      // Full export path if one was ever recorded (older desktop builds stored a
+      // real path); otherwise just the linked folder's name, which is all the
+      // browser will tell us.
+      exportPath: (state.exportPath||'').trim() || null,
+      // Via the bridge getter, NOT _dirHandle directly: this function lives at
+      // engine top level, while _dirHandle is scoped inside the backend-shim
+      // IIFE below and is invisible from here (same cross-scope trap that has
+      // bitten this file before). MF_WEB.dirName reads the live handle.
+      linkedFolderName: (window.MF_WEB && window.MF_WEB.dirName) ? window.MF_WEB.dirName : null,
+      diskBackupOn: !!state.__autoBackupDisk,
+      multiSave: locs.map(l=>({ path: l.path||l.name||'', scope: l.scope||'all' })),
+    };
+  }catch(_){ return null; }
 }
 
 function parseQuotedValues(rest){
@@ -28614,6 +28656,7 @@ window.MF_WEB = {
     return loadInitialState(embeddedState);
   },
   fsChooseFolder, fsRestore,
+  buildSetupProfile,
   get dirLinked(){ return !!_dirHandle; },
   get dirName(){ return _dirHandle ? _dirHandle.name : null; },
   fsSupported: FS_SUPPORTED,
@@ -30575,6 +30618,16 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.176',changes:[
+    '"Forget this saved setup" now asks for confirmation instead of acting on the first click, so a misclick can\u2019t wipe your re-link checklist. It explains what will and won\u2019t change (folders you\u2019ve already linked stay linked) and offers Yes, forget it / Keep it — "Keep it" changes nothing.',
+    'The confirmation is built into the checklist itself rather than using the standard confirm dialog, which would have opened behind the checklist and been invisible.'
+  ]},
+  {v:'5.175',changes:[
+    'Your save/backup folder setup now travels with your filter. Every export records the destinations you configured (save folder, timestamped backups, each extra save location and its scope) into the .filter.meta.json sidecar, and into every backup JSON.',
+    'New PC? Import that .filter (or restore a backup) and MirrorFilter shows a re-link checklist naming each folder you had, with a button per item and a tick as each one is linked. Honest about the limit: browsers never let a site remember a folder — the permission is tied to one browser on one PC and the full path is hidden — so the picking is still yours, you just no longer have to remember what to pick.',
+    'The checklist is always skippable: "Ignore this list — set up fresh instead" drops you into the normal setup (for a first-time setup, or when you just want different folders here), and "Forget this saved setup" stops it being offered again.',
+    'Added "🖥 Moving to a new PC?" to Saving Your Work → ① Save, with a Show setup checklist button you can open any time.'
+  ]},
   {v:'5.174',changes:[
     'Editor: the tier settings (Tier, Tier Sort Target, Unpriced Catch-All, Show Tier Badge) are now their own ⚡ Auto-Tiering card, separated from Basic Info, with a clear how-to on configuring a rule for Auto-Tier.',
     '"Default Filter Snapshot" renamed to "Filter Drift Check" and reworded so its job (a report that flags rules which moved to the wrong section — never a backup) is obvious and no longer overlaps with the Back up section.',
@@ -38409,6 +38462,19 @@ async function doImport(){
           metaMsg=' + restored tier config/theme';
         }
         if(hasHierarchy)metaMsg+=' (section hierarchy preserved)';
+        // Where this filter used to save/back up. Stored only — never acted on
+        // automatically, since every folder needs a fresh pick on this machine.
+        // If nothing is set up here yet, offer the re-link checklist.
+        if(profileHasContent(d.meta.setupProfile)){
+          S.__importedSetupProfile=d.meta.setupProfile;
+          if(!hasAnySaveSetup()){
+            S.__setupChecklistDone=true;
+            setTimeout(()=>{ try{ setupChecklistDialog(S.__importedSetupProfile); }catch(_){} }, 600);
+            metaMsg+=' · saved setup found (re-link checklist offered)';
+          } else {
+            metaMsg+=' · saved setup recorded';
+          }
+        }
       }
       // Heal identity on the freshly imported state so duplicate-named sections
       // get unique ids immediately and the collision guard is set correctly.
@@ -38754,6 +38820,10 @@ function buildFullSnapshot(){
     tiers:S.tiers, theme:S.theme, econScope:S.econScope,
     customConds:S.customConds, customBTs:S.customBTs, customSounds:S.customSounds,
     buildToggles:S.buildToggles, uiLayout:S.uiLayout, exportPath:S.exportPath,
+    // Where this filter was set up to save/back up, so a different PC can offer
+    // a re-link checklist instead of making you remember. Never restored
+    // silently — the folders always need a fresh pick (see buildSetupProfile).
+    setupProfile:(window.MF_WEB&&window.MF_WEB.buildSetupProfile)?window.MF_WEB.buildSetupProfile(S):null,
   };
 }
 async function writeDiskAutoBackup(reason){
@@ -38784,6 +38854,179 @@ async function backupNowFromButton(){
   else if(S.__autoBackupDisk) toast('In-browser restore point saved. Couldn\u2019t write the disk file (folder permission?) \u2014 check the folder in \u2461 Back up.','err');
   else toast('In-browser restore point saved. Turn on disk auto-backup above to also keep a file in your own folder.','ok');
 }
+// ── NEW-PC RE-LINK CHECKLIST ────────────────────────────────────────────────
+// A setup profile (see buildSetupProfile in the first script block) records what
+// save/backup destinations a filter was configured with. It arrives here from an
+// imported .filter's .meta.json sidecar or a restored backup JSON. The folder
+// LINKS can't be restored — the browser requires a fresh pick per machine — so
+// this checklist just tells you exactly what to pick and gives you a button per
+// item. It is always skippable: on a first-ever setup there's no profile to
+// follow, and even with one you may simply want different folders here.
+
+// Is anything at all configured on THIS machine already?
+function hasAnySaveSetup(){
+  const linked = !!(window.MF_WEB && window.MF_WEB.dirLinked);
+  const locs   = Array.isArray(S.multiSaveLocations) && S.multiSaveLocations.length>0;
+  return linked || locs || !!S.__autoBackupDisk;
+}
+// Does the profile actually describe anything worth re-linking?
+function profileHasContent(p){
+  if(!p) return false;
+  return !!(p.linkedFolderName || p.exportPath || p.diskBackupOn || (Array.isArray(p.multiSave)&&p.multiSave.length));
+}
+// Manual entry point (Resources → Saving Your Work → "Moving to a new PC?").
+async function openSetupChecklist(){
+  const p = S.__importedSetupProfile;
+  if(!profileHasContent(p)){
+    const go = await customConfirm(
+      'No saved setup to follow.\n\nA setup checklist comes from a filter that was already configured somewhere else — it rides along in the .filter.meta.json sidecar and in backup JSONs, so importing one of those on a new PC gives you a list to click through.\n\nSet up saving & backup fresh instead?');
+    if(go) runSaveAndBackupSetup(!(window.MF_WEB&&window.MF_WEB.dirLinked), !S.__autoBackupDisk);
+    return;
+  }
+  setupChecklistDialog(p);
+}
+// The modal. Stays open across picks (each folder picker needs its own click)
+// and re-renders after each one so you can see progress.
+function setupChecklistDialog(profile){
+  if(document.getElementById('_scWrap')) return;   // already open
+  const ov=document.createElement('div');
+  ov.id='_scWrap';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  const box=document.createElement('div');
+  box.style.cssText='max-width:560px;width:100%;max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--accent);border-radius:14px;padding:22px 24px;box-shadow:var(--shadow);color:var(--text)';
+  ov.appendChild(box); document.body.appendChild(ov);
+  const close=()=>{ try{document.body.removeChild(ov);}catch(_){} };
+  // Two-step confirm for the destructive "Forget" action, done INLINE rather
+  // than via customConfirm(): .moverlay is z-index 200 while this overlay is
+  // 99999, so a customConfirm would open behind the checklist and be invisible.
+  let confirmForget=false;
+
+  function render(){
+    const when = profile.savedAt ? new Date(profile.savedAt).toLocaleString() : 'an earlier session';
+    const linked  = !!(window.MF_WEB && window.MF_WEB.dirLinked);
+    const linkedNow = linked ? window.MF_WEB.dirName : null;
+    const rows=[];
+    // ① The linked folder (this one handle is what Export/Quick-Save writes to
+    // and what timestamped backups are written into — hence the shared note).
+    if(profile.linkedFolderName || profile.exportPath){
+      const was = profile.exportPath || ('folder “'+profile.linkedFolderName+'”');
+      rows.push({
+        label:'📤 Save folder (.filter)',
+        was:was,
+        done:linked,
+        doneText: linkedNow ? ('linked to “'+linkedNow+'”') : 'linked',
+        btn:'📁 Pick folder', act:'save'
+      });
+    }
+    // ② Timestamped disk backups
+    if(profile.diskBackupOn){
+      rows.push({
+        label:'🛡 Timestamped backups',
+        was:'was ON' + (profile.linkedFolderName?(' (folder “'+profile.linkedFolderName+'”)'):''),
+        done:!!S.__autoBackupDisk,
+        doneText:'on',
+        btn:'📁 Turn on & pick folder', act:'backup'
+      });
+    }
+    // ③ Extra save locations, each with the scope it was set to
+    const scopeLabel={filter:'just the .filter','filter_json':'.filter + .meta.json',all:'everything'};
+    (profile.multiSave||[]).forEach((m,i)=>{
+      const already=(S.multiSaveLocations||[]).some(l=>(l.path||'')===m.path);
+      rows.push({
+        label:'📁 Extra save location',
+        was:(m.path||'?')+' — '+(scopeLabel[m.scope]||m.scope||'everything'),
+        done:already, doneText:'added',
+        btn:'📁 Pick folder', act:'multi', idx:i
+      });
+    });
+    const allDone = rows.every(r=>r.done);
+    box.innerHTML=
+      '<div style="font-size:17px;font-weight:700;color:var(--accent);margin-bottom:10px">🖥 Re-link your save folders</div>'
+      +'<div style="font-size:12.5px;line-height:1.6;margin-bottom:12px">This filter was set up with the destinations below (recorded '+esc(when)+(profile.fromVersion?', v'+esc(profile.fromVersion):'')+'). Folder links can\u2019t move between computers — your browser makes you pick each folder yourself — so here\u2019s the list, with a button for each.</div>'
+      +'<div style="border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:12px">'
+      +rows.map((r,i)=>
+        '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:12px;'+(i?'border-top:1px solid var(--border);':'')+'background:'+(r.done?'rgba(90,200,138,.07)':'transparent')+'">'
+        +'<span style="flex:1;min-width:0">'
+          +'<div style="font-weight:700;color:var(--text)">'+r.label+'</div>'
+          +'<div style="color:var(--text3);font-size:11px;word-break:break-all;margin-top:1px">'+esc(r.was)+'</div>'
+        +'</span>'
+        +(r.done
+          ? '<span style="flex:0 0 auto;color:#5ac88a;font-weight:700;font-size:11.5px">\u2713 '+esc(r.doneText)+'</span>'
+          : '<button class="sh-btn" data-act="'+r.act+'" data-idx="'+(r.idx!==undefined?r.idx:'')+'" style="flex:0 0 auto;padding:6px 10px;font-size:11.5px">'+r.btn+'</button>')
+        +'</div>').join('')
+      +'</div>'
+      +(allDone?'<div style="font-size:12px;color:#5ac88a;font-weight:700;margin-bottom:12px">\u2713 All set — everything on the list is linked on this PC.</div>':'')
+      +'<div style="font-size:11.5px;line-height:1.55;color:var(--text2);margin-bottom:14px">The save folder and the backup folder are the same linked folder in the browser version, so picking one covers both. Recorded paths are a hint, not a guarantee — your username or drive letter may differ on this PC.</div>'
+      +'<div style="display:flex;flex-direction:column;gap:8px">'
+        +(confirmForget
+          ? '<div style="border:1px solid #e07a5a;border-radius:10px;padding:12px 14px;background:rgba(224,122,90,.08)">'
+              +'<div style="font-size:12.5px;font-weight:700;color:#e07a5a;margin-bottom:5px">Forget this saved setup?</div>'
+              +'<div style="font-size:11.5px;line-height:1.55;color:var(--text2);margin-bottom:10px">This clears the recorded list of folders so it won\u2019t be offered again. Any folders you\u2019ve <em>already</em> linked stay linked \u2014 this only drops the checklist. You\u2019d get a new list next time you import a filter that was set up elsewhere.</div>'
+              +'<div style="display:flex;gap:8px">'
+                +'<button id="_scForgetYes" class="sh-btn" style="flex:1;padding:8px;font-size:12px;border-color:#e07a5a;color:#e07a5a">Yes, forget it</button>'
+                +'<button id="_scForgetNo" class="sh-btn" style="flex:1;padding:8px;font-size:12px;font-weight:700">Keep it</button>'
+              +'</div>'
+            +'</div>'
+          : '<button id="_scDone" class="sh-btn" style="background:var(--accent);color:#1a1205;border-color:var(--accent);font-weight:700;padding:9px;font-size:13px">'+(allDone?'Done':'Close \u2014 finish the rest later')+'</button>'
+            +'<button id="_scFresh" class="sh-btn" style="padding:8px;font-size:12px">Ignore this list \u2014 set up fresh instead</button>'
+            +'<button id="_scForget" class="sh-btn" style="padding:8px;font-size:11.5px;color:var(--text3)">Forget this saved setup\u2026</button>')
+      +'</div>';
+    // Pickers must fire straight from the click to keep the user gesture.
+    box.querySelectorAll('button[data-act]').forEach(b=>{
+      b.onclick=async (e)=>{
+        e.stopPropagation();
+        const act=b.getAttribute('data-act'), idx=parseInt(b.getAttribute('data-idx'),10);
+        b.disabled=true;
+        try{
+          if(act==='save'){
+            const nm=await window.MF_WEB.fsChooseFolder();
+            S.__lastExport=null; await saveState();
+            toast('Saving .filter to \u201C'+nm+'\u201D on Export/Quick-Save.','ok');
+          } else if(act==='backup'){
+            await enableDiskAutoBackup();
+          } else if(act==='multi'){
+            const want=(profile.multiSave||[])[idx]||{};
+            const d=await API('/api/browse-folder','POST',{});
+            if(d && d.path){
+              if(!S.multiSaveLocations)S.multiSaveLocations=[];
+              if(S.multiSaveLocations.length>=4){ toast('Maximum 4 locations \u2014 remove one first','err'); }
+              else if(S.multiSaveLocations.some(l=>l.path===d.path)){ toast('That location is already added','inf'); }
+              else {
+                // Re-use the scope this location was originally set to.
+                S.multiSaveLocations.push({path:d.path,scope:want.scope||'all'});
+                await saveState();
+                toast('Added save location (\u201C'+(want.scope||'all')+'\u201D scope, as before)','ok');
+              }
+            }
+          }
+        }catch(err){ if(!(err&&err.name==='AbortError')) toast('Couldn\u2019t link that folder','err'); }
+        if(typeof renderMultiSaveLocations==='function')renderMultiSaveLocations();
+        if(typeof renderLocationsSummary==='function')renderLocationsSummary();
+        if(typeof refreshBackupPanel==='function')refreshBackupPanel();
+        render();     // redraw so the row flips to ✓
+      };
+    });
+    if(confirmForget){
+      box.querySelector('#_scForgetYes').onclick=async (e)=>{ e.stopPropagation(); close();
+        S.__importedSetupProfile=null; S.__setupChecklistDone=true; await saveState();
+        if(typeof renderLocationsSummary==='function')renderLocationsSummary();
+        toast('Saved setup forgotten. You can still set folders up in Saving Your Work.','ok'); };
+      // "Keep it" just disarms and redraws — nothing was changed or saved.
+      box.querySelector('#_scForgetNo').onclick=(e)=>{ e.stopPropagation(); confirmForget=false; render(); };
+    } else {
+      box.querySelector('#_scDone').onclick=(e)=>{ e.stopPropagation(); close(); };
+      box.querySelector('#_scFresh').onclick=(e)=>{ e.stopPropagation(); close();
+        // Straight into the normal setup flow, for a first-time setup or when you
+        // just want different folders on this machine.
+        runSaveAndBackupSetup(!(window.MF_WEB&&window.MF_WEB.dirLinked), !S.__autoBackupDisk); };
+      // Arms the confirm — does NOT clear anything yet.
+      box.querySelector('#_scForget').onclick=(e)=>{ e.stopPropagation(); confirmForget=true; render(); };
+    }
+  }
+  render();
+  box.onclick=(e)=>{ e.stopPropagation(); };
+  ov.onclick=(e)=>{ if(e.target===ov) close(); };
+}
 // First-run: if the user has never set up any off-browser protection (no disk
 // auto-backup folder AND no multi-save locations), offer to set up a backup
 // folder right away — before they start real work. Shown once; a "remind me
@@ -38799,6 +39042,14 @@ async function maybePromptFirstRunBackup(){
   const hasMultiSave= Array.isArray(S.multiSaveLocations) && S.multiSaveLocations.length>0;
   // If both a save destination and some off-browser backup exist, we're covered.
   if((hasGameSave || hasMultiSave) && (hasBackup || hasMultiSave)) return;
+  // If this filter arrived from another PC carrying a setup profile, show the
+  // re-link checklist instead of the generic prompt — it names the exact
+  // destinations to pick. (The checklist itself offers "set up fresh".)
+  if(profileHasContent(S.__importedSetupProfile) && !S.__setupChecklistDone){
+    S.__setupChecklistDone=true; await saveState();
+    setupChecklistDialog(S.__importedSetupProfile);
+    return;
+  }
   const choice = await backupSetupDialog({hasGameSave, hasBackup});
   if(choice==='setup-inline'){ /* handled inside the dialog to keep the click gesture */ }
   else if(choice==='never'){ S.__backupPromptChoice='never'; await saveState(); }
@@ -39012,8 +39263,21 @@ async function restoreFromDiskFile(){
       const cp=k=>{ if(d[k]!==undefined) S[k]=JSON.parse(JSON.stringify(d[k])); };
       ['rules','sectionTree','sectionOrder','collapsedSecs','disabledSecs','tiers','theme','econScope','customConds','customBTs','customSounds','buildToggles','uiLayout','exportPath','filterName','league'].forEach(cp);
       try{ const rep=healSectionIdentity(S); S.__sectionCollision=rep.remainingCollision||false; }catch(_){}
+      // Carry over the recorded save/backup destinations as a checklist. Folder
+      // links themselves can't be restored (fresh pick required per machine),
+      // so this is offered, never applied silently.
+      let scMsg='';
+      if(profileHasContent(d.setupProfile)){
+        S.__importedSetupProfile=d.setupProfile;
+        if(!hasAnySaveSetup()){
+          S.__setupChecklistDone=true;
+          setTimeout(()=>{ try{ setupChecklistDialog(S.__importedSetupProfile); }catch(_){} }, 600);
+          scMsg=' · saved setup found — re-link checklist opening';
+        } else { scMsg=' · saved setup recorded'; }
+      }
       await saveState(); if(typeof renderList==='function')renderList(); refreshBackupPanel();
-      toast('Restored from '+f.name+' (saved '+when+')','ok');
+      if(typeof renderLocationsSummary==='function')renderLocationsSummary();
+      toast('Restored from '+f.name+' (saved '+when+')'+scMsg,'ok');
     };
     inp.click();
   }catch(e){ if(e&&e.name!=='AbortError') toast('Could not restore from file','err'); }
