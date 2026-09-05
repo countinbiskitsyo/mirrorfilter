@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.176
+  MirrorFilter Web — VERSION 5.179
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -328,7 +328,7 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 /* Rules column: a fixed, centered strip between the two stat panels. Wide enough
    to read the rule names comfortably, but the stat panels get all the flex space
    on either side. */
-#vizMain{flex:0 0 420px;width:420px;display:flex;flex-direction:column;overflow:hidden}
+#vizMain{flex:0 0 470px;width:470px;display:flex;flex-direction:column;overflow:hidden}
 #lootSimWrap{flex-shrink:0;border-bottom:1px solid var(--border);display:flex;flex-direction:column}
 #lootSimHead{padding:9px 14px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 #lootSimGround{
@@ -396,7 +396,7 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 .bgrec-sw{cursor:pointer;transition:transform .1s}
 .bgrec-sw:hover{transform:scale(1.15)}
 /* SETTINGS — overflow-y:auto is the critical fix for Chrome */
-#settingsLayout{flex:1;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:18px;gap:16px}
+#settingsLayout{flex:1;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:14px 18px;gap:10px}
 #settingsLayout::-webkit-scrollbar{width:6px}
 #settingsLayout::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 /* Help & Guide */
@@ -425,7 +425,7 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 .help-no-results{text-align:center;color:var(--text3);font-size:13px;padding:20px}
 
 .ss{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);flex-shrink:0}
-.ss-head{padding:9px 13px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px}
+.ss-head{padding:8px 13px;border-bottom:1px solid var(--border);font-size:13.5px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px}
 .coll-head:hover{background:var(--card)}
 .coll-head .coll-caret{flex-shrink:0}
 .ss-body{padding:13px}
@@ -621,10 +621,10 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     <option>Standard</option>
     <option>Dawn of the Hunt</option>
     <option>Rise of the Abyssal</option>
-    <option>Hardcore Runes of Aldur</option>
-    <option>Hardcore</option>
-    <option>Hardcore Dawn of the Hunt</option>
   </select>
+  <label id="hcToggleWrap" style="font-size:11px;color:var(--text2);display:flex;align-items:center;gap:4px;cursor:pointer;flex-shrink:0" data-tip="Pull Hardcore prices for the selected league. Hardcore economies price very differently, so this changes Auto-Tier's results.">
+    <input type="checkbox" id="hcToggle" style="accent-color:var(--accent);margin:0">HC
+  </label>
   <button class="tb-btn sec" id="autoTierBtn" onclick="runAutoTier()" data-tip="Fetch live prices from poe.ninja. Sorts BaseTypes across Tier Sort Target rules. Never changes visuals." style="border-color:#5a9cf5;color:#5a9cf5">⚡ Auto-Tier</button>
   <button class="tb-btn sec" onclick="openM('newM')" data-tip="Clear all rules and start a new blank filter" style="border-color:#3dd6c4;color:#3dd6c4">🗒 New</button>
   <button class="tb-btn sec" onclick="openM('importM')" data-tip="Load an existing .filter file into MirrorFilter" style="border-color:#e0a030;color:#e0a030">📂 Import</button>
@@ -720,7 +720,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 <div id="settingsLayout">
 
   <!-- ══ HELP & GUIDE ══ -->
-  <div style="margin:22px 0 8px 0;padding:6px 2px;border-bottom:2px solid #e8c06a"><span style="font-size:15px;font-weight:800;letter-spacing:.6px;color:#e8c06a;text-transform:uppercase">⭐ Start Here</span></div>
+  <div style="margin:10px 0 4px 0;padding:3px 2px;border-bottom:2px solid #e8c06a"><span style="font-size:16px;font-weight:800;letter-spacing:.6px;color:#e8c06a;text-transform:uppercase">⭐ Start Here</span></div>
   <div class="ss" style="border-left:4px solid var(--accent);background:rgba(var(--accent-rgb),.10)">
     <div class="ss-head" style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="toggleHelpSection()" id="helpSectionHead">
       📖 Guides &amp; Tutorials
@@ -804,7 +804,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       </div>
     </div>
   </div>
-  <div style="margin:22px 0 8px 0;padding:6px 2px;border-bottom:2px solid #5ac88a"><span style="font-size:15px;font-weight:800;letter-spacing:.6px;color:#5ac88a;text-transform:uppercase">⚡ Core Setup</span></div>
+  <div style="margin:10px 0 4px 0;padding:3px 2px;border-bottom:2px solid #5ac88a"><span style="font-size:16px;font-weight:800;letter-spacing:.6px;color:#5ac88a;text-transform:uppercase">⚡ Core Setup</span></div>
   <div class="ss" style="border-left:4px solid #5ac88a;background:#5ac88a12">
     <div class="ss-head coll-head" onclick="toggleSS('ss-tiers')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
       ⚡ Tier System &amp; Auto-Tier Configuration
@@ -957,7 +957,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       <div id="defaultDriftReportBox"></div>
     </div>
   </div>
-  <div style="margin:22px 0 8px 0;padding:6px 2px;border-bottom:2px solid #b478f5"><span style="font-size:15px;font-weight:800;letter-spacing:.6px;color:#b478f5;text-transform:uppercase">🎨 Customize</span></div>
+  <div style="margin:10px 0 4px 0;padding:3px 2px;border-bottom:2px solid #b478f5"><span style="font-size:16px;font-weight:800;letter-spacing:.6px;color:#b478f5;text-transform:uppercase">🎨 Customize</span></div>
   <div class="ss" style="border-left:4px solid #b478f5;background:#b478f512">
     <div class="ss-head coll-head" onclick="toggleSS('ss-themes')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
       🎨 UI Themes Configuration
@@ -1263,7 +1263,20 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       </div>
     </div>
   </div>
-  <div style="margin:22px 0 8px 0;padding:6px 2px;border-bottom:2px solid #e0435a"><span style="font-size:15px;font-weight:800;letter-spacing:.6px;color:#e0435a;text-transform:uppercase">🧹 Maintenance & Data</span></div>
+  <div style="margin:10px 0 4px 0;padding:3px 2px;border-bottom:2px solid #e0435a"><span style="font-size:16px;font-weight:800;letter-spacing:.6px;color:#e0435a;text-transform:uppercase">🧹 Maintenance & Data</span></div>
+
+  <div class="ss" style="border-left:4px solid #e0435a">
+    <div class="ss-head coll-head" onclick="toggleSS('ss-league')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      🗓 League Content <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">&mdash; items added or removed between leagues</span>
+      <span class="coll-caret" id="ss-league-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:transform .14s;display:inline-block;transform:">&#9654;</span>
+    </div>
+    <div class="ss-body" id="ss-league-body" style="display:none">
+      <div class="ibox">BaseTypes are <strong>never deleted</strong> when a league removes them &mdash; they keep their tiers, visuals and rule placement, and come straight back if the item returns. You record the exception here instead, and MirrorFilter holds those items back from the exported <code>.filter</code> while an affected league is selected.</div>
+      <div class="tip-box"><strong style="color:var(--accent)">Only exceptions need recording.</strong> Everything is assumed to exist in every league unless you say otherwise, so a new league costs you a few entries for what actually changed &mdash; not a re-tag of all <span id="lcDbCount">&mdash;</span> BaseTypes. An item with no entry is treated as existing, because a name you’ve never flagged is one MirrorFilter has no reason to doubt — which is exactly why the check below matters.</div>
+      <div class="warn-box"><strong style="color:#e87820">A BaseType the game doesn’t recognise breaks the whole filter</strong> — PoE2 errors on it and refuses to load the file, so it isn’t a stray harmless line. That makes keeping this list current the difference between a working filter and none at all on league day. Run the check below after a patch.</div>
+      <div id="leagueContentPanel" style="margin-top:12px"></div>
+    </div>
+  </div>
   <div class="ss" style="border-left:4px solid #e0435a;background:#e0435a12">
     <div class="ss-head coll-head" id="ss-cleanup-head" onclick="toggleSS('ss-cleanup')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
       🧹 Filter Cleanup Tools
@@ -1440,7 +1453,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       <div class="tip-box" style="margin-top:10px">Click ✕ next to any single value to remove just that one — handy once you've reported it and don't need it cluttering the list anymore. "Clear" wipes the whole list at once. "Check for Added Items" doesn't remove anything by itself — it just pre-checks (shown in green) whatever it finds already in the tool, so you can review and uncheck anything first. Once you've got the right items checked: <strong>Remove Checked from Checklist</strong> only clears this tracker log, <strong>Remove Checked from Database</strong> only strikes them from the Custom database (they'll stay logged here), and <strong>Remove Checked from Both</strong> does both at once.</div>
     </div>
   </div>
-  <div style="margin:22px 0 8px 0;padding:6px 2px;border-bottom:2px solid #5a9cf5"><span style="font-size:15px;font-weight:800;letter-spacing:.6px;color:#5a9cf5;text-transform:uppercase">📋 About</span></div>
+  <div style="margin:10px 0 4px 0;padding:3px 2px;border-bottom:2px solid #5a9cf5"><span style="font-size:16px;font-weight:800;letter-spacing:.6px;color:#5a9cf5;text-transform:uppercase">📋 About</span></div>
   <div class="ss" style="border-left:4px solid #5a9cf5;background:#5a9cf512">
     <div class="ss-head coll-head" onclick="toggleSS('ss-todo')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
       📝 Planned Features &amp; To-Do
@@ -4475,19 +4488,9 @@ window.__MF_EXAMPLE__ = {
       "enabled": true,
       "action": "Show",
       "conditions": {
-        "BaseTypeOp": "==",
         "ClassOp": "==",
         "Class": [
           "Omen"
-        ],
-        "BaseType": [
-          "Omen of Corruption",
-          "Omen of Dextral Alchemy",
-          "Omen of Dextral Coronation",
-          "Omen of Greater Annulment",
-          "Omen of Homogenising Exaltation",
-          "Omen of Sinistral Alchemy",
-          "Omen of Sinistral Coronation"
         ]
       },
       "visuals": {
@@ -27929,6 +27932,64 @@ function normalizeOperatorSpacing(valStr){
   return valStr.replace(/^(>=|<=|>|<|=)(\S)/, '$1 $2');
 }
 
+// ── LEAGUE CONTENT AVAILABILITY ─────────────────────────────────────────────
+// PoE2 adds and removes BaseTypes each league. Deleting removed items from the
+// database would lose their tiers/visuals and mean re-adding them by hand if
+// GGG brings them back, so nothing is ever deleted here. Instead the DEFAULT is
+// "this item exists in every league", and we record only the EXCEPTIONS —
+// which league an item arrived in and which league it left. That keeps the
+// per-league maintenance to the handful of items that actually changed, rather
+// than re-tagging all ~2,350 entries every time.
+//
+// Chronological order. Adding a league = append one name here (plus one <option>).
+const LEAGUE_TIMELINE=['Dawn of the Hunt','Rise of the Abyssal','Runes of Aldur'];
+// Ships empty on purpose — this is user-maintained data (Resources → League
+// Content), merged over by state.btLifecycle. Shape:
+//   'Thaumaturgic Flux': { addedIn:'Runes of Aldur', removedIn:'<next league>' }
+// addedIn/removedIn are both optional; removedIn means "gone AS OF that league".
+const BASETYPE_LIFECYCLE_SEED={};
+
+// Strip the Hardcore prefix — HC and SC share identical item content, so
+// availability only ever depends on the base league.
+function leagueBaseName(full){
+  const v=(full||'').trim();
+  if(v==='Hardcore') return 'Standard';
+  if(v.indexOf('Hardcore ')===0) return v.slice(9);
+  return v;
+}
+function getLifecycleMap(state){
+  return Object.assign({}, BASETYPE_LIFECYCLE_SEED, (state&&state.btLifecycle)||{});
+}
+// Is `bt` present in the game during `leagueFull`?
+//
+// FAILS OPEN in every uncertain case. A missing lifecycle entry, an unknown
+// league, or a typo'd league name all return true, because the cost of wrongly
+// keeping an item is a single ignorable line in the filter, while the cost of
+// wrongly dropping one is an item silently not showing on the ground.
+function isBaseTypeAvailable(bt, leagueFull, map){
+  const entry = map && map[bt];
+  if(!entry) return true;                       // no exception recorded → exists
+  const base = leagueBaseName(leagueFull);
+  if(base==='Standard') return true;            // Standard keeps legacy content
+  const idx = LEAGUE_TIMELINE.indexOf(base);
+  if(idx<0) return true;                        // league we don't know → don't hide
+  if(entry.addedIn){
+    const a=LEAGUE_TIMELINE.indexOf(entry.addedIn);
+    if(a>=0 && idx<a) return false;             // not introduced yet
+  }
+  if(entry.removedIn){
+    const r=LEAGUE_TIMELINE.indexOf(entry.removedIn);
+    if(r>=0 && idx>=r) return false;            // gone as of that league
+  }
+  return true;
+}
+// Split a BaseType list into what ships and what's held back for this league.
+function splitByAvailability(list, leagueFull, map){
+  const keep=[], withheld=[];
+  (list||[]).forEach(bt=>{ (isBaseTypeAvailable(bt,leagueFull,map)?keep:withheld).push(bt); });
+  return {keep, withheld};
+}
+
 function generateFilter(state, versionStr, timestampStr){
   const rules = state.rules || [];
   const filterName = state.filterName || "MyFilter";
@@ -27938,6 +27999,12 @@ function generateFilter(state, versionStr, timestampStr){
   const customBt = state.customBTs || [];
   const theme = state.theme || "darkGold";
   const league = state.league || "Standard";
+  // League content filtering. Defaults to on, but with no lifecycle entries
+  // recorded it is a complete no-op, so existing filters export byte-identical
+  // until the user actually marks something as added/removed.
+  const lifeMap = getLifecycleMap(state);
+  const leagueFilterOn = (state.leagueFilterExport!==false) && Object.keys(lifeMap).length>0;
+  const leagueFilterComments = state.leagueFilterComments!==false;
 
   const lines = [
     `# PoE2 Filter: ${filterName}`,
@@ -28023,12 +28090,32 @@ function generateFilter(state, versionStr, timestampStr){
     }
     for(const rule of srules){
       orderedRules.push(rule);
-      const ruleEnabled = (rule.enabled!==false) && !secDisabled;
+      let ruleEnabled = (rule.enabled!==false) && !secDisabled;
       const ruleLines=[];
       const tierDisp = rule.tier || "\u2014";
-      ruleLines.push(`# ${rule.name} (Tier: ${tierDisp})` + (ruleEnabled ? "" : " [DISABLED]"));
+      // League availability: hold back BaseTypes that don't exist in the league
+      // being exported for. They stay in the tool untouched — this only affects
+      // what reaches the .filter.
+      let conds = rule.conditions || {};
+      let withheldBTs=[];
+      if(leagueFilterOn && Array.isArray(conds.BaseType) && conds.BaseType.length){
+        const split=splitByAvailability(conds.BaseType, state.league, lifeMap);
+        if(split.withheld.length){
+          withheldBTs=split.withheld;
+          conds=Object.assign({}, conds, {BaseType:split.keep});
+        }
+      }
+      // If EVERY BaseType was withheld, the rule must not ship. Emitting it
+      // would drop the BaseType line entirely (see the empty-list guard) and
+      // leave a rule matching whatever its other conditions cover — e.g. a bare
+      // Class, catching every item of that class. Comment it out instead.
+      const lostAllBTs = withheldBTs.length>0 && (!conds.BaseType || conds.BaseType.length===0);
+      if(lostAllBTs) ruleEnabled=false;
+      ruleLines.push(`# ${rule.name} (Tier: ${tierDisp})` + (ruleEnabled ? "" : (lostAllBTs ? " [NO CONTENT THIS LEAGUE]" : " [DISABLED]")));
+      if(withheldBTs.length && leagueFilterComments){
+        ruleLines.push(`#   held back for ${state.league||'this league'}: ${withheldBTs.join(", ")}`);
+      }
       ruleLines.push(rule.action);
-      const conds = rule.conditions || {};
       for(const key of Object.keys(conds)){
         const val = conds[key];
         if(key==="ExplicitModMin") continue;
@@ -28038,6 +28125,13 @@ function generateFilter(state, versionStr, timestampStr){
           continue;
         }
         if(Array.isArray(val)){
+          // An empty list must emit NOTHING. Emitting `BaseType ==` with no
+          // values is a malformed line the game rejects, and dropping just the
+          // values while keeping the rule would silently widen it to whatever
+          // its remaining conditions match (e.g. a whole Class). Any caller
+          // that empties a list — Auto-Tier pruning, league availability
+          // filtering — relies on this guard.
+          if(val.length===0) continue;
           if(UNQUOTED_ARRAY_KEYS.has(key)){
             ruleLines.push(`    ${key} ${val.map(v=>String(v)).join(" ")}`);
             continue;
@@ -28092,7 +28186,12 @@ function generateFilter(state, versionStr, timestampStr){
         for(const ln of ruleLines) lines.push(ln);
       } else {
         lines.push(ruleLines[0]);
-        for(let i=1;i<ruleLines.length;i++) lines.push("# "+ruleLines[i]);
+        // Don't double-prefix lines that are already comments (the withheld-
+        // BaseTypes note), or they come out as "# #   held back for …".
+        for(let i=1;i<ruleLines.length;i++){
+          const ln=ruleLines[i];
+          lines.push(ln.trimStart().startsWith("#") ? ln : ("# "+ln));
+        }
       }
       lines.push("");
     }
@@ -30618,6 +30717,27 @@ function partitionTodoItems(){
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
 const CHANGELOG=[
+  {v:'5.179',changes:[
+    'Rules-list panel on Visuals &amp; Stats widened to 470px. The Loot Drop Simulator is unchanged and still spans the full monitor width.',
+    'Corrected the League Content panel: an earlier draft said an unrecognised BaseType was a harmless stray line. It isn\u2019t \u2014 PoE2 errors and refuses to load the file, so a missed removal costs you the entire filter. The panel now says so.',
+    'Added a BaseType review list (Resources \u2192 League Content) showing names in your shipping rules that aren\u2019t in MirrorFilter\u2019s database. Deliberately NOT wired to export warnings: measured against the bundled 364-rule filter it lists 122 of 1,056 names, including Divine Orb and Mirror of Kalandra, because the database is a suggestion list rather than a complete inventory. It\u2019s a list to skim after a patch, not a fault list.',
+    'Disabled rules and disabled sections are skipped by that check, since they export commented out and can\u2019t break loading.'
+  ]},
+  {v:'5.178',changes:[
+    'League Content system (Resources \u2192 Maintenance &amp; Data). BaseTypes are never deleted when a league removes them \u2014 they keep their tiers, visuals and rule placement and return instantly if the item comes back. You record only the EXCEPTIONS: which league an item arrived in and which league it left. Everything else is assumed to exist always, so a new league costs a few entries for what actually changed rather than re-tagging all 2,359 BaseTypes.',
+    'On export, BaseTypes that don\u2019t exist in the selected league are held back from the .filter while staying in the tool, with an optional # comment listing what was withheld. Hardcore shares its base league\u2019s content, and Standard keeps all legacy content so nothing is ever held back there.',
+    'SAFETY: if every BaseType in a rule is held back, the rule is commented out with [NO CONTENT THIS LEAGUE] rather than shipped. Without this a rule would lose its BaseType line and silently widen to whatever remained \u2014 e.g. a bare Class matching every item of that class.',
+    'Availability fails OPEN everywhere: a missing entry, an unrecognised league or a typo all mean \u201Cthis item exists\u201D. A stray line in the filter is harmless; an item silently not dropping is not. With no entries recorded the whole system is a no-op and exports are byte-identical.',
+    'Lifecycle data and both export toggles are saved with your filter and carried in full backups.',
+    'Widened the rules-list panel on Visuals &amp; Stats from 420px to 470px.'
+  ]},
+  {v:'5.177',changes:[
+    'Hardcore is now a checkbox next to the League dropdown instead of separate "Hardcore &lt;league&gt;" entries. The dropdown holds only base league names, so a new league needs one entry rather than two. Old saves migrate automatically — a stored "Hardcore Dawn of the Hunt" reopens as Dawn of the Hunt with HC ticked, and Auto-Tier still sends the full poe.ninja name (including the special case where Hardcore Standard is just "Hardcore").',
+    'A league that no longer exists in the dropdown now falls back to the default instead of leaving the selector blank and pricing against nothing.',
+    'Removed 7 BaseTypes from the database: Omen of Corruption, Omen of Dextral Alchemy, Omen of Dextral Coronation, Omen of Greater Annulment, Omen of Homogenising Exaltation, Omen of Sinistral Alchemy, and Omen of Sinistral Coronation. Also cleared them from the bundled example filter.',
+    'SAFETY: a condition list that ends up empty now emits no line at all. Previously an empty BaseType list wrote a bare "BaseType ==" with no values — a malformed line the game rejects — and any rule left that way would silently widen to whatever its remaining conditions matched (e.g. an entire Class). This was hit by the Omens cleanup above and guards every future case where a list gets emptied.',
+    'Resources tab: tightened the spacing between sections and group headers so everything fits on one screen without scrolling (content is ~215px shorter), and increased the section header font from 12px to 13.5px, with group headers up from 15px to 16px.'
+  ]},
   {v:'5.176',changes:[
     '"Forget this saved setup" now asks for confirmation instead of acting on the first click, so a misclick can\u2019t wipe your re-link checklist. It explains what will and won\u2019t change (folders you\u2019ve already linked stay linked) and offers Yes, forget it / Keep it — "Keep it" changes nothing.',
     'The confirmation is built into the checklist itself rather than using the standard confirm dialog, which would have opened behind the checklist and been invisible.'
@@ -32093,7 +32213,8 @@ async function init(){
   if(S.lastInferredKeys)_inferredPriceKeys=new Set(S.lastInferredKeys);
   if(S.priceMidBias)priceMidBias=S.priceMidBias;
   if(S.priceGradientPreset)priceGradientPreset=S.priceGradientPreset;
-    document.getElementById('leagueSelect').value=S.league||'Standard';
+    syncLeagueUI();
+    if(typeof renderLeagueContent==='function')renderLeagueContent();
     applyTheme(S.theme);
     syncSecOrder();
     // Always start collapsed — session state only, not persisted
@@ -32266,9 +32387,49 @@ function syncSecOrder(){
   S.sectionOrder.forEach(s=>{if(!ordered.includes(s))ordered.push(s);});
   S.sectionOrder=ordered;
 }
+// ── LEAGUE + HARDCORE ───────────────────────────────────────────────────────
+// The dropdown holds only base league names; Hardcore is a separate checkbox,
+// so a new league needs one <option> instead of two. S.league keeps storing the
+// FULL poe.ninja league string ("Hardcore Runes of Aldur"), which is what
+// /api/autotier sends and what backups/sidecars already record — so nothing
+// downstream changes and old saves keep working.
+const LEAGUE_BASES=['Runes of Aldur','Standard','Dawn of the Hunt','Rise of the Abyssal'];
+// poe.ninja names the hardcore variant of Standard just "Hardcore", not
+// "Hardcore Standard" — that one special case is why this isn't a bare concat.
+function composeLeague(base, hc){
+  if(!hc) return base;
+  return base==='Standard' ? 'Hardcore' : 'Hardcore '+base;
+}
+// Split a stored league string back into {base, hc}. Handles the legacy values
+// from when Hardcore variants were their own dropdown entries.
+function parseLeague(str){
+  const v=(str||'').trim();
+  if(v==='Hardcore') return {base:'Standard', hc:true};
+  if(v.indexOf('Hardcore ')===0) return {base:v.slice(9), hc:true};
+  return {base:v||'Runes of Aldur', hc:false};
+}
+// Read the current UI selection as a full poe.ninja league string.
+function effectiveLeague(){
+  const sel=document.getElementById('leagueSelect');
+  const hcEl=document.getElementById('hcToggle');
+  if(!sel) return S.league||'Runes of Aldur';
+  return composeLeague(sel.value, !!(hcEl&&hcEl.checked));
+}
+// Push S.league into the dropdown + checkbox (migrating legacy compound names).
+function syncLeagueUI(){
+  const sel=document.getElementById('leagueSelect');
+  const hcEl=document.getElementById('hcToggle');
+  if(!sel) return;
+  const {base, hc}=parseLeague(S.league);
+  // A league we no longer list (or a typo) falls back to the default rather
+  // than leaving the select blank and silently pricing against nothing.
+  sel.value = LEAGUE_BASES.indexOf(base)>=0 ? base : 'Runes of Aldur';
+  if(hcEl) hcEl.checked=hc;
+  S.league=composeLeague(sel.value, hc);
+}
 async function saveState(includeEconData){
   S.filterName=document.getElementById('filterName').value||'MyFilter';
-  S.league=document.getElementById('leagueSelect').value;
+  S.league=effectiveLeague();
   if(includeEconData){
     await API('/api/state','POST',S);
   } else {
@@ -34263,11 +34424,11 @@ const CSUGG_BASETYPES_POE2=[
   'Omen of Amelioration','Omen of Resurgence','Omen of Refreshment','Omen of Answered Prayers',
   'Omen of Gambling','Omen of Putrefaction',
   'Omen of Bartering','Omen of Chance','Omen of Whittling','Omen of Sinistral Erasure',
-  'Omen of Dextral Erasure','Omen of Greater Annulment','Omen of Sinistral Annulment',
+  'Omen of Dextral Erasure','Omen of Sinistral Annulment',
   'Omen of Dextral Annulment','Omen of Greater Exaltation','Omen of Sinistral Exaltation',
-  'Omen of Dextral Exaltation','Omen of Homogenising Exaltation','Omen of Catalysing Exaltation',
-  'Omen of Sinistral Coronation','Omen of Dextral Coronation','Omen of Sinistral Alchemy',
-  'Omen of Dextral Alchemy','Omen of the Blessed','Omen of Corruption','Omen of the Ancients',
+  'Omen of Dextral Exaltation','Omen of Catalysing Exaltation',
+  
+  'Omen of the Blessed','Omen of the Ancients',
   'Omen of Abyssal Echoes','Omen of Light','Omen of Chaotic Rarity','Omen of Chaotic Quantity',
   'Omen of Chaotic Monsters','Omen of Chaotic Effectiveness','Aldur\'s Saga','Medved\'s Saga',
   'Olroth\'s Saga','Vorana\'s Saga','Uhtred\'s Saga','Abyss Tablet','Breach Tablet',
@@ -38297,7 +38458,7 @@ function loadExampleFilter(){
     closeM('newM');
     document.getElementById('filterName').value=S.filterName||'MyFilter';
     autoSizeFilterName();
-    if(document.getElementById('leagueSelect'))document.getElementById('leagueSelect').value=S.league||'Runes of Aldur';
+    syncLeagueUI();
     if(typeof applyTheme==='function'&&S.theme)applyTheme(S.theme);
     saveState();
     renderList();
@@ -38820,6 +38981,8 @@ function buildFullSnapshot(){
     tiers:S.tiers, theme:S.theme, econScope:S.econScope,
     customConds:S.customConds, customBTs:S.customBTs, customSounds:S.customSounds,
     buildToggles:S.buildToggles, uiLayout:S.uiLayout, exportPath:S.exportPath,
+    btLifecycle:S.btLifecycle, leagueFilterExport:S.leagueFilterExport,
+    leagueFilterComments:S.leagueFilterComments,
     // Where this filter was set up to save/back up, so a different PC can offer
     // a re-link checklist instead of making you remember. Never restored
     // silently — the folders always need a fresh pick (see buildSetupProfile).
@@ -38853,6 +39016,163 @@ async function backupNowFromButton(){
   if(r.disk) toast('Backed up \u2014 in-browser restore point + timestamped file saved to your folder.','ok');
   else if(S.__autoBackupDisk) toast('In-browser restore point saved. Couldn\u2019t write the disk file (folder permission?) \u2014 check the folder in \u2461 Back up.','err');
   else toast('In-browser restore point saved. Turn on disk auto-backup above to also keep a file in your own folder.','ok');
+}
+// ── UNKNOWN BASETYPE CHECK ──────────────────────────────────────────────────
+// PoE2 refuses to load a filter containing a BaseType it doesn't recognise —
+// one bad name means no filter at all in game, not a skipped line. So before an
+// export it's worth checking every exact-match BaseType against the database.
+// Only rules that actually SHIP are checked: a disabled rule (or one in a
+// disabled section) is written out commented, so it can't break anything.
+function knownBaseTypeSet(){
+  const set=new Set(typeof CSUGG_BASETYPES_POE2!=='undefined'?CSUGG_BASETYPES_POE2:[]);
+  (S.customBTs||[]).forEach(b=>set.add(typeof b==='string'?b:(b&&b.value)));
+  return set;
+}
+function findUnknownBaseTypes(){
+  const known=knownBaseTypeSet();
+  const disabledSecs=S.disabledSecs||{};
+  const exact=[], partial=[];
+  (S.rules||[]).forEach(r=>{
+    if(r.enabled===false) return;                 // commented out on export
+    if(disabledSecs[r.section]) return;           // whole section commented out
+    const c=r.conditions||{};
+    if(!Array.isArray(c.BaseType)||!c.BaseType.length) return;
+    const bad=c.BaseType.filter(bt=>!known.has(bt));
+    if(!bad.length) return;
+    const op=(c.BaseTypeOp||'').trim();
+    const row={rule:r.name||'(unnamed)', section:r.section||'', op:op||'(partial)', bad};
+    // `==` is an exact-name match, so an unknown name there is the case that
+    // errors. Without the operator PoE substring-matches, where an unmatched
+    // string may be tolerated — reported separately rather than as a certainty.
+    (op==='=='?exact:partial).push(row);
+  });
+  return {exact, partial};
+}
+function renderBaseTypeCheck(){
+  const el=document.getElementById('lcCheckResult');
+  if(!el) return;
+  const {exact, partial}=findUnknownBaseTypes();
+  const fmt=(rows,tone,head)=>
+    '<div style="font-size:12px;font-weight:700;color:'+tone+';margin:8px 0 4px">'+head+'</div>'
+    +rows.map(r=>'<div style="font-size:11.5px;padding:4px 0;border-bottom:1px solid var(--border);word-break:break-word">'
+      +'<span style="color:var(--text2)">'+esc(r.section||'—')+' › </span><strong>'+esc(r.rule)+'</strong>'
+      +' <span style="color:var(--text3)">['+esc(r.op)+']</span><br>'
+      +'<span style="color:var(--text3)">'+esc(r.bad.join(', '))+'</span></div>').join('');
+  if(!exact.length && !partial.length){
+    el.innerHTML='<div style="font-size:12px;color:#5ac88a;padding:6px 0">\u2713 Every BaseType in your shipping rules is present in the database.</div>';
+    return;
+  }
+  el.innerHTML=
+    (exact.length?fmt(exact,'#e0a030','\u2139 '+exact.length+' rule'+(exact.length!==1?'s':'')+' use'+(exact.length!==1?'':'s')+' exact-match BaseTypes not in the database — review, not a verdict'):'')
+    +(partial.length?fmt(partial,'var(--text2)','\u2139 '+partial.length+' partial-match rule'+(partial.length!==1?'s':'')+' reference unknown names (substring matching, lower risk)'):'')
+    +'<div style="font-size:11px;color:var(--text3);margin-top:8px">Checked against the '+((typeof CSUGG_BASETYPES_POE2!=='undefined')?CSUGG_BASETYPES_POE2.length.toLocaleString():'?')+'-entry database plus your custom BaseTypes. <strong>The database has known gaps</strong> — Divine Orb and Mirror of Kalandra are both missing from it — so most names here are perfectly valid. Treat this as a list to skim after a patch, not a fault list. Disabled rules and sections are skipped because they export commented out.</div>';
+}
+// ── LEAGUE CONTENT PANEL ────────────────────────────────────────────────────
+// Editor for the BaseType lifecycle exceptions consumed by generateFilter.
+// Kept in state (S.btLifecycle) rather than hardcoded, so a new league is a few
+// clicks here instead of an edit to this file.
+function lcEntries(){ return S.btLifecycle || (S.btLifecycle={}); }
+function renderLeagueContent(){
+  const el=document.getElementById('leagueContentPanel');
+  if(!el) return;
+  const cnt=document.getElementById('lcDbCount');
+  if(cnt && typeof CSUGG_BASETYPES_POE2!=='undefined') cnt.textContent=CSUGG_BASETYPES_POE2.length.toLocaleString();
+  const map=lcEntries();
+  const keys=Object.keys(map).sort((a,b)=>a.localeCompare(b));
+  const league=S.league||'Runes of Aldur';
+  const base=leagueBaseName(league);
+  // What would actually be held back from an export right now.
+  const withheldNow=keys.filter(k=>!isBaseTypeAvailable(k, league, map));
+  const filterOn=S.leagueFilterExport!==false;
+  const commentsOn=S.leagueFilterComments!==false;
+  const opts=(sel)=>'<option value="">—</option>'+LEAGUE_TIMELINE.map(l=>
+    '<option value="'+esc(l)+'"'+(l===sel?' selected':'')+'>'+esc(l)+'</option>').join('');
+
+  let rows;
+  if(!keys.length){
+    rows='<div style="font-size:11.5px;color:var(--text3);padding:8px 2px">No exceptions recorded — every BaseType is treated as existing in every league, and exports are unaffected.</div>';
+  } else {
+    rows=keys.map(k=>{
+      const e=map[k]||{};
+      const gone=!isBaseTypeAvailable(k, league, map);
+      return '<div class="sli" style="flex-wrap:wrap;gap:6px;align-items:center">'
+        +'<span class="sli-lbl" style="flex:1 1 100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:'+(gone?'var(--text3)':'var(--text)')+'">'
+          +(gone?'⊘ ':'✓ ')+esc(k)
+          +'<span style="color:var(--text3);font-size:10.5px;margin-left:6px">'+(gone?'held back for '+esc(base):'ships this league')+'</span>'
+        +'</span>'
+        +'<label style="font-size:10.5px;color:var(--text3);display:flex;align-items:center;gap:4px">added'
+          +'<select onchange="lcSet(this.getAttribute(\'data-bt\'),\'addedIn\',this.value)" data-bt="'+esc(k)+'" style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:2px 4px;border-radius:var(--radius);font-size:10.5px">'+opts(e.addedIn)+'</select></label>'
+        +'<label style="font-size:10.5px;color:var(--text3);display:flex;align-items:center;gap:4px">removed'
+          +'<select onchange="lcSet(this.getAttribute(\'data-bt\'),\'removedIn\',this.value)" data-bt="'+esc(k)+'" style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:2px 4px;border-radius:var(--radius);font-size:10.5px">'+opts(e.removedIn)+'</select></label>'
+        +'<span class="sli-x" onclick="lcRemove(this.getAttribute(\'data-bt\'))" data-bt="'+esc(k)+'" data-tip="Stop tracking this BaseType (it goes back to always available)">\u00d7</span>'
+      +'</div>';
+    }).join('');
+  }
+
+  el.innerHTML=
+    '<div style="border:1px solid var(--border2);border-radius:10px;padding:11px 13px;background:var(--card);margin-bottom:10px">'
+      +'<div style="font-size:12px;color:var(--text2)">Exporting for <strong style="color:var(--accent)">'+esc(league)+'</strong>'
+      +(base==='Standard'?' — Standard keeps all legacy content, so nothing is held back.':'')
+      +'</div>'
+      +'<div style="font-size:12px;color:'+(withheldNow.length?'#e0a030':'var(--text3)')+';margin-top:4px">'
+        +(withheldNow.length
+          ? '⚠ '+withheldNow.length+' BaseType'+(withheldNow.length!==1?'s':'')+' would be held back from the .filter: '+esc(withheldNow.join(', '))
+          : 'Nothing is currently held back.')
+      +'</div>'
+    +'</div>'
+    +'<label style="display:flex;align-items:center;gap:7px;font-size:12px;margin-bottom:5px;cursor:pointer">'
+      +'<input type="checkbox" id="lcFilterOn" '+(filterOn?'checked':'')+' onchange="lcToggle(\'leagueFilterExport\',this.checked)" style="accent-color:var(--accent)">'
+      +'Hold unavailable BaseTypes back when exporting</label>'
+    +'<label style="display:flex;align-items:center;gap:7px;font-size:12px;margin-bottom:10px;cursor:pointer">'
+      +'<input type="checkbox" id="lcComments" '+(commentsOn?'checked':'')+' onchange="lcToggle(\'leagueFilterComments\',this.checked)" style="accent-color:var(--accent)">'
+      +'List what was held back as a <code>#</code> comment in the .filter</label>'
+    +'<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">'
+      +'<input id="lcNewBt" type="text" placeholder="BaseType name…" list="lcBtSuggest" style="flex:1;min-width:180px;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:5px 7px;border-radius:var(--radius);font-size:12px">'
+      +'<button class="sh-btn" onclick="lcAdd()" data-tip="Start tracking this BaseType\u2019s availability">+ Track BaseType</button>'
+    +'</div>'
+    +'<datalist id="lcBtSuggest"></datalist>'
+    +rows
+    +'<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border2)">'
+      +'<div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-bottom:5px">🔍 BaseType check</div>'
+      +'<div style="font-size:11.5px;color:var(--text2);line-height:1.5;margin-bottom:7px">Lists BaseTypes in your shipping rules that aren\u2019t in MirrorFilter\u2019s database — a skim list after a patch, not a fault list. The database is incomplete (Divine Orb isn\u2019t in it), so appearing here does <em>not</em> mean the game will reject the name.</div>'
+      +'<button class="sh-btn" onclick="renderBaseTypeCheck()" data-tip="Scan all enabled rules for BaseTypes not in the database">Run check</button>'
+      +'<div id="lcCheckResult" style="margin-top:8px"></div>'
+    +'</div>';
+
+  // Populate suggestions from the real database so names can't be typo'd.
+  const dl=document.getElementById('lcBtSuggest');
+  if(dl && typeof CSUGG_BASETYPES_POE2!=='undefined'){
+    dl.innerHTML=CSUGG_BASETYPES_POE2.map(b=>'<option value="'+esc(b)+'">').join('');
+  }
+}
+async function lcToggle(key,val){ S[key]=!!val; await saveState(); renderLeagueContent(); }
+async function lcAdd(){
+  const inp=document.getElementById('lcNewBt');
+  const bt=(inp&&inp.value||'').trim();
+  if(!bt){ toast('Type or pick a BaseType name first','err'); return; }
+  const map=lcEntries();
+  if(map[bt]){ toast('Already tracking that BaseType','inf'); return; }
+  // Warn but allow: a BaseType removed from the database in an earlier cleanup
+  // is still a legitimate thing to track for a future return.
+  if(typeof CSUGG_BASETYPES_POE2!=='undefined' && !CSUGG_BASETYPES_POE2.includes(bt)){
+    toast('Note: “'+bt+'” isn\u2019t in the BaseType database — tracking it anyway','inf');
+  }
+  map[bt]={};
+  if(inp) inp.value='';
+  await saveState(); renderLeagueContent();
+  toast('Tracking “'+bt+'” — set the league it was added and/or removed in','ok');
+}
+async function lcSet(bt, field, val){
+  const map=lcEntries();
+  if(!map[bt]) return;
+  if(val) map[bt][field]=val; else delete map[bt][field];
+  await saveState(); renderLeagueContent();
+}
+async function lcRemove(bt){
+  const map=lcEntries();
+  delete map[bt];
+  await saveState(); renderLeagueContent();
+  toast('“'+bt+'” is available in every league again','ok');
 }
 // ── NEW-PC RE-LINK CHECKLIST ────────────────────────────────────────────────
 // A setup profile (see buildSetupProfile in the first script block) records what
@@ -39261,7 +39581,8 @@ async function restoreFromDiskFile(){
       if(!await customConfirm('Restore from this backup?\n\nFile: '+f.name+'\nSaved: '+when+'\n'+(d.rules.length||0)+' rules · '+(d.filterName||'')+'\n\nThis replaces what\u2019s in the editor now. Your current state is backed up first, so it\u2019s reversible.'))return;
       saveNamedBackup('pre-restore');
       const cp=k=>{ if(d[k]!==undefined) S[k]=JSON.parse(JSON.stringify(d[k])); };
-      ['rules','sectionTree','sectionOrder','collapsedSecs','disabledSecs','tiers','theme','econScope','customConds','customBTs','customSounds','buildToggles','uiLayout','exportPath','filterName','league'].forEach(cp);
+      ['rules','sectionTree','sectionOrder','collapsedSecs','disabledSecs','tiers','theme','econScope','customConds','customBTs','customSounds','buildToggles','uiLayout','exportPath','filterName','league','btLifecycle','leagueFilterExport','leagueFilterComments'].forEach(cp);
+      syncLeagueUI(); if(typeof renderLeagueContent==='function')renderLeagueContent();
       try{ const rep=healSectionIdentity(S); S.__sectionCollision=rep.remainingCollision||false; }catch(_){}
       // Carry over the recorded save/backup destinations as a checklist. Folder
       // links themselves can't be restored (fresh pick required per machine),
@@ -39297,7 +39618,7 @@ async function runAutoTier(onlySection){
   // Always snapshot before this rewrites anything, so a bad run (e.g. partial
   // prices) is one click to undo.
   autoBackupBeforeRisky('pre-autotier');
-  const league=document.getElementById('leagueSelect').value;
+  const league=effectiveLeague();
   const btn=document.getElementById('autoTierBtn');
   if(btn)btn.classList.add('attention-pulse');
   const scopeLabel=onlySection?(' for '+secName(onlySection)):'';
@@ -39989,7 +40310,11 @@ document.getElementById('secMInput').addEventListener('keydown',e=>{if(e.key==='
 })();
 
 document.getElementById('filterName').addEventListener('input',()=>{S.filterName=document.getElementById('filterName').value;saveState();setStatus(_lastStatusBase);});
-document.getElementById('leagueSelect').addEventListener('change',()=>{S.league=document.getElementById('leagueSelect').value;saveState();});
+document.getElementById('leagueSelect').addEventListener('change',()=>{S.league=effectiveLeague();saveState();
+  if(typeof renderLeagueContent==='function')renderLeagueContent();});
+document.getElementById('hcToggle').addEventListener('change',()=>{S.league=effectiveLeague();saveState();
+  if(typeof renderLeagueContent==='function')renderLeagueContent();
+  toast('Auto-Tier will now price against \u201C'+S.league+'\u201D.','inf');});
 init();
 </script>
 </body>
