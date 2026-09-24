@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.179
+  MirrorFilter Web — VERSION 5.181
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -612,7 +612,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 <div id="middleCol">
 <div id="topbar">
   <div id="topbarSpacer" style="display:none;flex-shrink:0"></div>
-  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em id="mfVerLabel">Web</em><em style="margin-left:6px;opacity:.7">by Adamg</em></div>
+  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em id="mfVerLabel">Web</em><em id="mfGameVerLabel" style="margin-left:7px"></em><em style="margin-left:7px;opacity:.7">by Adamg</em></div>
   <input id="filterName" type="text" value="MyFilter" placeholder="Filter name…" data-tip="Name used when exporting your .filter file" oninput="autoSizeFilterName()">
   <span id="filterNameMeasure" style="position:absolute;visibility:hidden;white-space:pre;font-size:13px"></span>
   <span style="font-size:11px;color:var(--text3);flex-shrink:0;margin-right:-2px" data-tip="Which league's prices Auto-Tier pulls">League:</span>
@@ -30716,7 +30716,32 @@ function partitionTodoItems(){
   if(!_todoItems)return;
   _todoItems.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
 }
+// The PoE2 patch this tool's BaseType database is aligned to. Shown in the
+// header next to the tool version so it's obvious at a glance whether the
+// DATABASE is behind the GAME, which is the thing that actually breaks filters
+// (the game refuses to load a filter containing a BaseType it doesn't know).
+//
+// UPDATE THIS whenever you do a content pass for a new patch. It is NOT derived
+// from the changelog, because the tool version bumps constantly for UI work
+// while the game alignment only moves when items are actually added/removed.
+// Alignment means "the items audited for this patch are in" — see Resources
+// -> League Content for the known gaps.
+const GAME_PATCH_BASELINE='0.5.4';
+const GAME_PATCH_LEAGUE='Runes of Aldur';
+
 const CHANGELOG=[
+  {v:'5.181',changes:[
+    'Added 17 Soul Cores to the BaseType database: Jiquani\u2019s Soul Core of Abundance, Automation, Malediction, Munitions, Quaking, Radiance, Rallying, Rippling, Severing, Snares, Squalls, Targeting and Thundering, plus Atziri\u2019s Soul Core of Devotion, Alacrity, Inoculation and Vitality. Database is now 2,376 entries with no duplicates.',
+    'New \u201C\u{1F4CB} Paste list\u201D button on the BaseType and Class conditions (Editor tab), next to \u201C+ BaseType\u201D. Paste a whole list at once instead of adding chips one at a time. Accepts bullets ( * - \u2022 1. 2) > ), plain lines, pasted filter syntax like BaseType == \u201CA\u201D \u201CB\u201D, and a leading BaseType:/Class: keyword; blank lines and # comments are ignored.',
+    'Live preview before committing: how many values will be added, how many are already in the rule (skipped), and a warning listing any name not found in the database \u2014 since a name the game doesn\u2019t recognise stops the whole filter loading. Optional Replace mode clears the existing list first and logs every removal to the Removed Values Log.',
+    'Pasted text is normalised first: curly apostrophes become straight ones, so a name copied off a wiki (\u201CJiquani\u2019s\u201D) matches the database instead of quietly becoming an unrecognised name that breaks the filter in game. Curly double quotes, non-breaking spaces and unicode hyphens are folded too.',
+    'Commas are NOT treated as separators by default, and never on a bulleted line. This file already records a paste-parsing bug where sites listing uniques as \u201CFlavor Name, Base Type\u201D had both halves added, polluting the database with values that match nothing. There is an opt-in checkbox for genuinely comma-separated input, with the reason stated next to it.'
+  ]},
+  {v:'5.180',changes:[
+    'The header now shows both versions, each labelled for what it actually refers to: "Web tool v5.180" (this tool\u2019s build) and "PoE2 game 0.5.4" (the game patch the BaseType database is aligned to, tinted in the accent color to keep them visually distinct). Hovering either explains which is which.',
+    'The game patch lives in one constant (GAME_PATCH_BASELINE, next to the changelog) that feeds both the header and the League Content panel, so they can\u2019t drift. It is deliberately NOT derived from the tool version \u2014 the tool bumps constantly for UI work while game alignment only moves when items are actually added or removed.',
+    'Resources \u2192 League Content now states the alignment patch too, so next league you can see what you\u2019re diffing from without digging through the changelog.'
+  ]},
   {v:'5.179',changes:[
     'Rules-list panel on Visuals &amp; Stats widened to 470px. The Loot Drop Simulator is unchanged and still spans the full monitor width.',
     'Corrected the League Content panel: an earlier draft said an unrecognised BaseType was a harmless stray line. It isn\u2019t \u2014 PoE2 errors and refuses to load the file, so a missed removal costs you the entire filter. The panel now says so.',
@@ -32156,8 +32181,17 @@ async function init(){
     try{
       const vEl=document.getElementById('mfVerLabel');
       if(vEl&&typeof CHANGELOG!=='undefined'&&CHANGELOG[0]&&CHANGELOG[0].v){
-        vEl.textContent='Web v'+CHANGELOG[0].v;
-        vEl.setAttribute('data-tip','MirrorFilter Web build '+CHANGELOG[0].v+' \u2014 see Resources \u2192 Changelog for what\u2019s new. This matches the newest changelog entry.');
+        vEl.textContent='Web tool v'+CHANGELOG[0].v;
+        vEl.setAttribute('data-tip','THIS TOOL\u2019s build: MirrorFilter Web v'+CHANGELOG[0].v+'. Bumps for any change, including UI-only ones \u2014 see Resources \u2192 Changelog. Nothing to do with the game\u2019s version.');
+      }
+      // Separate chip for the GAME patch, so the two can never be mistaken for
+      // each other. Tinted differently on purpose.
+      const gEl=document.getElementById('mfGameVerLabel');
+      if(gEl&&typeof GAME_PATCH_BASELINE!=='undefined'){
+        gEl.textContent='\u00b7 PoE2 game '+GAME_PATCH_BASELINE;
+        gEl.style.color='var(--accent)';
+        gEl.style.opacity='.85';
+        gEl.setAttribute('data-tip','THE GAME\u2019s patch that this tool\u2019s BaseType database is aligned to: PoE2 '+GAME_PATCH_BASELINE+(typeof GAME_PATCH_LEAGUE!=='undefined'?' ('+GAME_PATCH_LEAGUE+')':'')+'. If the live game is ahead of this, items added or removed since then may be missing or stale \u2014 and an item the game no longer recognises stops the whole filter loading. See Resources \u2192 League Content.');
       }
     }catch(_){}
     await window.MF_WEB.install(window.__MF_SEED__);
@@ -34708,7 +34742,18 @@ const CSUGG_BASETYPES_POE2=[
   'Soul Core of Zalatl','Tacati\'s Soul Core of Affliction','Topotante\'s Soul Core of Dampening',
   'Tzamoto\'s Soul Core of Ferocity','Uromoti\'s Soul Core of Attenuation',
   'Xipocado\'s Soul Core of Dominion','Xopec\'s Soul Core of Power',
-  'Zalatl\'s Soul Core of Insulation','Idol of the Martyr','Idol of the Pharisee',
+  'Zalatl\'s Soul Core of Insulation',
+  // PoE2 0.5 Soul Cores — Jiquani's and Atziri's variants
+  'Jiquani\'s Soul Core of Abundance','Jiquani\'s Soul Core of Automation',
+  'Jiquani\'s Soul Core of Malediction','Jiquani\'s Soul Core of Munitions',
+  'Jiquani\'s Soul Core of Quaking','Jiquani\'s Soul Core of Radiance',
+  'Jiquani\'s Soul Core of Rallying','Jiquani\'s Soul Core of Rippling',
+  'Jiquani\'s Soul Core of Severing','Jiquani\'s Soul Core of Snares',
+  'Jiquani\'s Soul Core of Squalls','Jiquani\'s Soul Core of Targeting',
+  'Jiquani\'s Soul Core of Thundering','Atziri\'s Soul Core of Devotion',
+  'Atziri\'s Soul Core of Alacrity','Atziri\'s Soul Core of Inoculation',
+  'Atziri\'s Soul Core of Vitality',
+  'Idol of the Martyr','Idol of the Pharisee',
   'Idol of the Sycophant','Idol of Greust','Idol of Silk','Idol of Yeena','Ox Idol','Panther Idol',
   'Primate Idol','Snake Idol','Stoat Idol','Runic Alloy','Abyssal Signet','Cinched Boots',
   'Closed Helm','Explorer Armour','Grand Cuisses','Penetrating Quiver','Visceral Quiver',
@@ -36256,6 +36301,16 @@ function renderCondListED(rule){
       const ab=ce('span','tag-add');ab.textContent='+ '+key;ab.setAttribute('data-tip','Add another '+key+' value to this condition');
       ab.onclick=()=>inlineAddValue(rule,key,row,ab);
       vl.appendChild(ab);
+      // Bulk paste for the two long-list conditions. Adding 17 soul cores one
+      // chip at a time is the tedium this removes.
+      if(key==='BaseType'||key==='Class'){
+        const pb=ce('span','tag-add');
+        pb.textContent='\u{1F4CB} Paste list';
+        pb.style.marginLeft='4px';
+        pb.setAttribute('data-tip','Paste a whole list of '+key+' values at once \u2014 bullets, one per line, or quoted filter syntax');
+        pb.onclick=()=>pasteValueListDialog(rule,key);
+        vl.appendChild(pb);
+      }
     }else{
       const OPERATOR_SCALAR_KEYS=['ItemLevel','DropLevel','AreaLevel','WaystoneTier','Quality','GemLevel','StackSize','Sockets','Height','Width','BaseArmour','BaseEvasion','BaseEnergyShield','UnidentifiedItemTier'];
       if(OPERATOR_SCALAR_KEYS.includes(key)){
@@ -36370,6 +36425,200 @@ function renderCondListED(rule){
     };
     row.append(kl,vl,del);div.appendChild(row);
   });
+}
+// ── BULK VALUE LIST IMPORT (BaseType / Class) ───────────────────────────────
+// Parses a pasted list into individual values. LINE-BASED BY DESIGN: this file
+// already carries a warning about a previous paste-parsing bug where sites
+// rendering uniques as "Flavor Name, Base Type" got comma-split and both halves
+// were added, polluting the database with unmatchable values. So commas are
+// NOT treated as separators unless the caller explicitly opts in, and never on
+// a line that carried a bullet marker (a bullet means "one item per line").
+//
+// Handles: "* Item", "- Item", "1. Item", "> Item", bullet glyphs, plain lines,
+// quoted filter syntax (BaseType == "A" "B"), and a leading condition keyword.
+function parseValueList(text, splitCommas){
+  const out=[], seen=new Set();
+  String(text||'').split(/\r?\n/).forEach(rawLine=>{
+    // Normalise typography BEFORE anything else. Copying names off a wiki or
+    // trade site usually yields curly apostrophes, which would not match the
+    // straight ones the game and this database use ("Jiquani’s" vs
+    // "Jiquani's"). That mismatch is not cosmetic: the game refuses to load a
+    // filter containing a name it doesn't recognise, so silently passing the
+    // curly form through would produce a filter that fails to load at all.
+    // Curly double quotes are folded too so pasted filter syntax still parses.
+    let line=String(rawLine)
+      .replace(/[\u2018\u2019\u201B\u02BC\u2032]/g, "'")
+      .replace(/[\u201C\u201D\u201F\u2033]/g, '"')
+      .replace(/[\u00A0\u2007\u202F]/g, ' ')
+      .replace(/[\u2010\u2011]/g, '-')
+      .trim();
+    if(!line) return;
+    if(/^#/.test(line)) return;                                  // filter comment
+    // Drop a leading condition keyword so a copied filter line pastes cleanly.
+    // Anchored to the start, so a NAME containing a colon survives intact
+    // (e.g. "Zarokh's Reliquary Key: Against the Darkness").
+    line=line.replace(/^(BaseType|Class)\s*(==|=|:)?\s*/i,'').trim();
+    if(!line) return;
+    const hadBullet=/^([*\-\u2022\u00b7\u2023\u25e6+>]|\d+[.)])\s+/.test(line);
+    line=line.replace(/^([*\-\u2022\u00b7\u2023\u25e6+>]|\d+[.)])\s+/,'').trim();
+    if(!line) return;
+    let parts;
+    const quoted=line.match(/"[^"]*"/g);
+    if(quoted){
+      parts=quoted.map(q=>q.slice(1,-1));                        // quoted wins outright
+    } else if(splitCommas && !hadBullet && line.indexOf(',')>=0){
+      parts=line.split(',');
+    } else {
+      parts=[line];
+    }
+    parts.forEach(pp=>{
+      const v=pp.trim().replace(/^["']+|["']+$/g,'').trim();
+      if(!v) return;
+      const k=v.toLowerCase();
+      if(seen.has(k)) return;                                     // de-dupe the paste itself
+      seen.add(k); out.push(v);
+    });
+  });
+  return out;
+}
+function pasteValueListDialog(rule, key){
+  if(document.getElementById('_pvWrap')) return;
+  const ov=document.createElement('div');
+  ov.id='_pvWrap';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  const box=document.createElement('div');
+  box.style.cssText='max-width:620px;width:100%;max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--accent);border-radius:14px;padding:22px 24px;box-shadow:var(--shadow);color:var(--text)';
+  ov.appendChild(box); document.body.appendChild(ov);
+  const close=()=>{ try{document.body.removeChild(ov);}catch(_){} };
+
+  const title=document.createElement('div');
+  title.style.cssText='font-size:17px;font-weight:700;color:var(--accent);margin-bottom:8px';
+  title.textContent='\u{1F4CB} Paste '+key+' list';
+  const blurb=document.createElement('div');
+  blurb.style.cssText='font-size:12.5px;line-height:1.6;margin-bottom:10px;color:var(--text2)';
+  blurb.textContent='One value per line. Bullets ( * - \u2022 1. ) are stripped automatically, and a pasted filter line like  '+key+' == "A" "B"  works too. Blank lines and # comments are ignored.';
+  box.append(title, blurb);
+
+  const ta=document.createElement('textarea');
+  ta.placeholder='* Jiquani\u2019s Soul Core of Abundance\n* Jiquani\u2019s Soul Core of Automation\n* Atziri\u2019s Soul Core of Vitality';
+  ta.style.cssText='width:100%;min-height:150px;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:9px;border-radius:var(--radius);font-size:12px;font-family:monospace;outline:none;resize:vertical';
+  box.appendChild(ta);
+
+  const optRow=document.createElement('div');
+  optRow.style.cssText='margin-top:9px;display:flex;flex-direction:column;gap:5px';
+  const mkChk=(id,label,tip,checked)=>{
+    const l=document.createElement('label');
+    l.style.cssText='display:flex;align-items:flex-start;gap:7px;font-size:12px;cursor:pointer';
+    const c=document.createElement('input'); c.type='checkbox'; c.id=id; c.checked=!!checked;
+    c.style.cssText='accent-color:var(--accent);margin-top:2px;flex-shrink:0';
+    const sp=document.createElement('span'); sp.innerHTML=label;
+    if(tip) l.setAttribute('data-tip',tip);
+    l.append(c,sp); optRow.appendChild(l); return c;
+  };
+  const chkReplace=mkChk('_pvReplace','Replace the existing '+val0Count(rule,key)+' value'+(val0Count(rule,key)!==1?'s':'')+' instead of adding to them',
+    'Off: pasted values are appended, duplicates skipped. On: the current list is cleared first (removals are logged).',false);
+  const chkCommas=mkChk('_pvCommas','Also split on commas <span style="color:var(--text3)">(off by default \u2014 see note)</span>',
+    'Only affects lines with no bullet marker. Left off because comma-splitting once corrupted this database.',false);
+  box.appendChild(optRow);
+
+  const warn=document.createElement('div');
+  warn.className='tip-box';
+  warn.style.marginTop='8px';
+  warn.innerHTML='<strong style="color:var(--accent)">Why commas are off:</strong> some sites list uniques as \u201CFlavor Name, Base Type\u201D. Splitting those adds a flavour name that matches nothing in game \u2014 which previously polluted this database. Bulleted lines are never comma-split regardless.';
+  box.appendChild(warn);
+
+  const preview=document.createElement('div');
+  preview.style.cssText='margin-top:10px;font-size:12px;min-height:40px';
+  box.appendChild(preview);
+
+  let parsed=[];
+  const known=(function(){
+    try{
+      if(key==='BaseType') return new Set([].concat(typeof ALL_BASETYPES!=='undefined'?ALL_BASETYPES:[], (S.customBTs||[]).map(b=>typeof b==='string'?b:(b&&b.value))));
+      return new Set([].concat((CSUGG&&CSUGG.Class)||[], (typeof CSUGG_CLASSES_POE2!=='undefined'?CSUGG_CLASSES_POE2:[])));
+    }catch(_){ return null; }
+  })();
+  function refreshPreview(){
+    parsed=parseValueList(ta.value, chkCommas.checked);
+    const cur=Array.isArray(rule.conditions[key])?rule.conditions[key]:[];
+    const curLower=new Set(cur.map(v=>String(v).toLowerCase()));
+    const dupes=chkReplace.checked?[]:parsed.filter(v=>curLower.has(v.toLowerCase()));
+    const fresh=chkReplace.checked?parsed:parsed.filter(v=>!curLower.has(v.toLowerCase()));
+    const unknown=known?parsed.filter(v=>!known.has(v)):[];
+    preview.innerHTML='';
+    if(!ta.value.trim()){ preview.innerHTML='<span style="color:var(--text3)">Nothing pasted yet.</span>'; return; }
+    const add=document.createElement('div');
+    add.style.cssText='font-weight:700;color:'+(fresh.length?'#5ac88a':'var(--text3)');
+    add.textContent=(chkReplace.checked?'Will replace with ':'Will add ')+fresh.length+' value'+(fresh.length!==1?'s':'')
+      +(dupes.length?'  \u00b7  '+dupes.length+' already in this rule (skipped)':'');
+    preview.appendChild(add);
+    if(fresh.length){
+      const list=document.createElement('div');
+      list.style.cssText='margin-top:5px;font-size:11px;color:var(--text2);max-height:120px;overflow:auto;line-height:1.6';
+      list.textContent=fresh.join(' \u00b7 ');
+      preview.appendChild(list);
+    }
+    if(unknown.length){
+      const u=document.createElement('div');
+      u.style.cssText='margin-top:7px;font-size:11px;color:#e0a030;line-height:1.55';
+      u.textContent='\u26A0 '+unknown.length+' not in the database: '+unknown.join(', ')
+        +'. They will still be added \u2014 the database has known gaps \u2014 but a name the game does not recognise stops the whole filter loading, so check the spelling.';
+      preview.appendChild(u);
+    }
+  }
+  ta.addEventListener('input', refreshPreview);
+  chkCommas.addEventListener('change', refreshPreview);
+  chkReplace.addEventListener('change', refreshPreview);
+  refreshPreview();
+
+  const btnRow=document.createElement('div');
+  btnRow.style.cssText='display:flex;gap:8px;margin-top:14px';
+  const ok=document.createElement('button');
+  ok.className='sh-btn';
+  ok.style.cssText='flex:1;background:var(--accent);color:#1a1205;border-color:var(--accent);font-weight:700;padding:9px;font-size:13px';
+  ok.textContent='Add to rule';
+  const cancel=document.createElement('button');
+  cancel.className='sh-btn'; cancel.style.cssText='flex:0 0 auto;padding:9px 14px;font-size:12px';
+  cancel.textContent='Cancel';
+  btnRow.append(ok,cancel); box.appendChild(btnRow);
+
+  cancel.onclick=(e)=>{ e.stopPropagation(); close(); };
+  ok.onclick=async (e)=>{
+    e.stopPropagation();
+    if(!parsed.length){ toast('Nothing to add \u2014 paste a list first','err'); return; }
+    const cur=Array.isArray(rule.conditions[key])?rule.conditions[key].slice():[];
+    let addedCount=0;
+    if(chkReplace.checked){
+      // Clearing a list is a removal — log it the same way rmCond does, or
+      // these values would vanish without ever reaching the Removed Values Log.
+      if(!S.removedValuesLog)S.removedValuesLog=[];
+      cur.forEach(v=>{
+        S.removedValuesLog.push({type:key,value:v,ruleName:rule.name,section:rule.section,tier:rule.tier,
+          when:new Date().toISOString(),how:'Replaced by a pasted '+key+' list (Editor tab)'});
+      });
+      rule.conditions[key]=parsed.slice();
+      addedCount=parsed.length;
+    } else {
+      const curLower=new Set(cur.map(v=>String(v).toLowerCase()));
+      parsed.forEach(v=>{ if(!curLower.has(v.toLowerCase())){ cur.push(v); curLower.add(v.toLowerCase()); addedCount++; } });
+      rule.conditions[key]=cur;
+    }
+    // A pasted list is exact full names, so make sure the match operator is
+    // explicit rather than inheriting a partial-match default.
+    if(rule.conditions[key+'Op']===undefined) rule.conditions[key+'Op']='==';
+    close();
+    await saveState();
+    renderCondListED(rule); renderList(); updatePv(rule); renderRaw(rule);
+    if(typeof renderRemovedValuesLog==='function')renderRemovedValuesLog();
+    toast(addedCount+' '+key+' value'+(addedCount!==1?'s':'')+(chkReplace.checked?' set':' added'),'ok');
+  };
+  box.onclick=(e)=>{ e.stopPropagation(); };
+  ov.onclick=(e)=>{ if(e.target===ov) close(); };
+  setTimeout(()=>{ try{ta.focus();}catch(_){} },50);
+}
+// How many values the condition currently holds (for the Replace label).
+function val0Count(rule,key){
+  return Array.isArray(rule.conditions[key])?rule.conditions[key].length:0;
 }
 function rmCond(key,idx){
   const r=byId(activeId);if(!r||!Array.isArray(r.conditions[key]))return;
@@ -39111,6 +39360,11 @@ function renderLeagueContent(){
 
   el.innerHTML=
     '<div style="border:1px solid var(--border2);border-radius:10px;padding:11px 13px;background:var(--card);margin-bottom:10px">'
+      +'<div style="font-size:11.5px;color:var(--text3);margin-bottom:5px;padding-bottom:5px;border-bottom:1px solid var(--border)">'
+        +'BaseType database aligned to <strong style="color:var(--accent)">PoE2 '+esc(typeof GAME_PATCH_BASELINE!=='undefined'?GAME_PATCH_BASELINE:'?')+'</strong>'
+        +(typeof GAME_PATCH_LEAGUE!=='undefined'?' ('+esc(GAME_PATCH_LEAGUE)+')':'')
+        +' \u2014 this is the <em>game</em> patch, not the tool version. If the live game is ahead, that gap is what you\u2019re diffing from.'
+      +'</div>'
       +'<div style="font-size:12px;color:var(--text2)">Exporting for <strong style="color:var(--accent)">'+esc(league)+'</strong>'
       +(base==='Standard'?' — Standard keeps all legacy content, so nothing is held back.':'')
       +'</div>'
