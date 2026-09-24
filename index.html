@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.183
+  MirrorFilter Web — VERSION 5.184
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -612,7 +612,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 <div id="middleCol">
 <div id="topbar">
   <div id="topbarSpacer" style="display:none;flex-shrink:0"></div>
-  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em id="mfVerLabel">Web</em><em id="mfGameVerLabel" style="margin-left:7px"></em><em style="margin-left:7px;opacity:.7">by Adamg</em></div>
+  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em id="mfVerLabel">Web</em><em style="margin-left:7px;opacity:.7">by Adamg and Claude</em><em id="mfGameVerLabel" style="margin-left:7px"></em></div>
   <input id="filterName" type="text" value="MyFilter" placeholder="Filter name…" data-tip="Name used when exporting your .filter file" oninput="autoSizeFilterName()">
   <span id="filterNameMeasure" style="position:absolute;visibility:hidden;white-space:pre;font-size:13px"></span>
   <span style="font-size:11px;color:var(--text3);flex-shrink:0;margin-right:-2px" data-tip="Which league's prices Auto-Tier pulls">League:</span>
@@ -30730,6 +30730,9 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.184',changes:[
+    'Header reordered and credit updated: \u201CMirrorFilter \u2726 Web tool v5.184 by Adamg and Claude \u00b7 current with PoE2 patch 0.5.5\u201D. The byline now sits between the two versions, so the tool version reads with its authors and the game patch closes the line on its own.'
+  ]},
   {v:'5.183',changes:[
     'Tool is now current with PoE2 patch 0.5.5. The 17 Jiquani\u2019s and Atziri\u2019s Soul Cores added in v5.181 were the 0.5.5 content, so GAME_PATCH_BASELINE moves from 0.5.4 to 0.5.5.',
     'The header now reads \u201Ccurrent with PoE2 patch 0.5.5\u201D rather than just naming the number, so there is no ambiguity about what the second version refers to. Resources \u2192 League Content uses the same wording.'
