@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.181
+  MirrorFilter Web — VERSION 5.182
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -170,8 +170,8 @@ html.shading-swapped .sec-hdr{background:linear-gradient(180deg,rgba(255,255,255
 .ri{display:flex;align-items:center;gap:4px;padding:3px 5px 3px 14px;border-radius:var(--radius);cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008));border:1px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,.22);margin-bottom:2px;transition:background .12s,border-color .12s,box-shadow .08s,opacity .12s}
 html.shading-swapped .ri{background:linear-gradient(180deg,rgba(0,0,0,.16),rgba(0,0,0,.05))}
 .ri:hover{border-color:rgba(var(--accent-rgb),.5);box-shadow:0 0 0 1px rgba(var(--accent-rgb),.35), 0 0 8px 1px rgba(var(--accent-rgb),.22)}
-.ri.active{background:rgba(var(--accent-rgb),.20);border:2px solid var(--accent)!important;padding:2px 4px 2px 13px;box-shadow:0 0 0 1px var(--accent), 0 0 10px 2px rgba(var(--accent-rgb),.5)}
-.ri.active:hover{box-shadow:0 0 0 1px var(--accent), 0 0 12px 2px rgba(var(--accent-rgb),.6)}
+.ri.active{background:rgba(var(--accent-rgb),.20);border:2px solid var(--accent)!important;padding:2px 4px 2px 13px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.6), inset 0 0 0 3px rgba(var(--accent-rgb),.75), 0 0 0 1px var(--accent), 0 0 10px 2px rgba(var(--accent-rgb),.55)!important}
+.ri.active:hover{box-shadow:inset 0 0 0 1px rgba(0,0,0,.6), inset 0 0 0 3px rgba(var(--accent-rgb),.9), 0 0 0 1px var(--accent), 0 0 13px 3px rgba(var(--accent-rgb),.7)!important}
 .ri.off{opacity:.35}
 .ri-tog{width:24px;height:14px;border-radius:7px;position:relative;cursor:pointer;flex-shrink:0;transition:.14s}
 .ri-tog.on{background:var(--accent)}
@@ -30730,6 +30730,11 @@ const GAME_PATCH_BASELINE='0.5.4';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.182',changes:[
+    'Fixed a selected rule changing color in the sidebar the moment you edited it. The color change had nothing to do with the edit: the colorful row background was being skipped for whichever rule was selected, but selectRule() only toggles the \u2018active\u2019 class on existing rows and never re-runs that code \u2014 so the row kept its old background and only lost it on the next full sidebar rebuild, which any edit triggers. What you saw was the row catching up to a decision made one click earlier.',
+    'Selection is now purely a CSS concern and no longer depends on which rule is active, so nothing can go stale. A selected rule keeps showing its real in-game color, which is more useful than losing it.',
+    '.ri.active gained inset rings (a dark separator hugging an accent ring) so the selection highlight reads clearly over any rule color \u2014 verified against near-black, bright pink, sky blue and pale cream rows, including colors close to the accent gold itself.'
+  ]},
   {v:'5.181',changes:[
     'Added 17 Soul Cores to the BaseType database: Jiquani\u2019s Soul Core of Abundance, Automation, Malediction, Munitions, Quaking, Radiance, Rallying, Rippling, Severing, Snares, Squalls, Targeting and Thundering, plus Atziri\u2019s Soul Core of Devotion, Alacrity, Inoculation and Vitality. Database is now 2,376 entries with no duplicates.',
     'New \u201C\u{1F4CB} Paste list\u201D button on the BaseType and Class conditions (Editor tab), next to \u201C+ BaseType\u201D. Paste a whole list at once instead of adding chips one at a time. Accepts bullets ( * - \u2022 1. 2) > ), plain lines, pasted filter syntax like BaseType == \u201CA\u201D \u201CB\u201D, and a leading BaseType:/Class: keyword; blank lines and # comments are ignored.',
@@ -33105,14 +33110,22 @@ function buildRI(rule){
   vis.style.borderColor=rgba(v.borderColor||[100,100,100,255]);
   vis.setAttribute('data-tip','Item label color preview');
   const nm=ce('div','ri-name');nm.textContent=rule.name;
-  if(getSidebarColorMode()==='colorful'&&rule.action==='Show'&&rule.id!==activeId){
+  if(getSidebarColorMode()==='colorful'&&rule.action==='Show'){
     // Same idea as the section header treatment: a solid background if
     // this specific rule has one configured, or — if it doesn't — the row
     // stays transparent and the rule's own NAME text is colored to match
     // what it would actually look like in-game (plain colored text, no box).
-    // Skipped entirely for the currently-active/selected rule — that state
-    // has its own important accent-colored highlight (.ri.active) that a
-    // custom background would visually compete with or obscure.
+    //
+    // This deliberately does NOT depend on activeId. It used to skip the
+    // selected rule so the .ri.active highlight couldn't be obscured, but
+    // selectRule() only toggles the 'active' class on existing nodes — it
+    // never re-runs this function — so the row kept whatever background it
+    // was last painted with and only lost it on the next full renderList()
+    // (i.e. the next unrelated edit). The colour appeared to change in
+    // response to editing when it was really the first re-render since
+    // selection. Selection is now purely a CSS concern: .ri.active carries
+    // an accent border plus inset/outset rings that read over any
+    // background, so nothing here can go stale.
     const ruleBg=v.bgColor;
     const ALPHA_VISIBLE=10;
     let rowBgStyle=null;
