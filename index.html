@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.182
+  MirrorFilter Web — VERSION 5.183
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -30726,10 +30726,14 @@ function partitionTodoItems(){
 // while the game alignment only moves when items are actually added/removed.
 // Alignment means "the items audited for this patch are in" — see Resources
 // -> League Content for the known gaps.
-const GAME_PATCH_BASELINE='0.5.4';
+const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.183',changes:[
+    'Tool is now current with PoE2 patch 0.5.5. The 17 Jiquani\u2019s and Atziri\u2019s Soul Cores added in v5.181 were the 0.5.5 content, so GAME_PATCH_BASELINE moves from 0.5.4 to 0.5.5.',
+    'The header now reads \u201Ccurrent with PoE2 patch 0.5.5\u201D rather than just naming the number, so there is no ambiguity about what the second version refers to. Resources \u2192 League Content uses the same wording.'
+  ]},
   {v:'5.182',changes:[
     'Fixed a selected rule changing color in the sidebar the moment you edited it. The color change had nothing to do with the edit: the colorful row background was being skipped for whichever rule was selected, but selectRule() only toggles the \u2018active\u2019 class on existing rows and never re-runs that code \u2014 so the row kept its old background and only lost it on the next full sidebar rebuild, which any edit triggers. What you saw was the row catching up to a decision made one click earlier.',
     'Selection is now purely a CSS concern and no longer depends on which rule is active, so nothing can go stale. A selected rule keeps showing its real in-game color, which is more useful than losing it.',
@@ -32193,10 +32197,10 @@ async function init(){
       // each other. Tinted differently on purpose.
       const gEl=document.getElementById('mfGameVerLabel');
       if(gEl&&typeof GAME_PATCH_BASELINE!=='undefined'){
-        gEl.textContent='\u00b7 PoE2 game '+GAME_PATCH_BASELINE;
+        gEl.textContent='\u00b7 current with PoE2 patch '+GAME_PATCH_BASELINE;
         gEl.style.color='var(--accent)';
         gEl.style.opacity='.85';
-        gEl.setAttribute('data-tip','THE GAME\u2019s patch that this tool\u2019s BaseType database is aligned to: PoE2 '+GAME_PATCH_BASELINE+(typeof GAME_PATCH_LEAGUE!=='undefined'?' ('+GAME_PATCH_LEAGUE+')':'')+'. If the live game is ahead of this, items added or removed since then may be missing or stale \u2014 and an item the game no longer recognises stops the whole filter loading. See Resources \u2192 League Content.');
+        gEl.setAttribute('data-tip','THE GAME\u2019s patch this tool is current with: PoE2 '+GAME_PATCH_BASELINE+(typeof GAME_PATCH_LEAGUE!=='undefined'?' ('+GAME_PATCH_LEAGUE+')':'')+'. If the live game is ahead of this, items added or removed since then may be missing or stale \u2014 and an item the game no longer recognises stops the whole filter loading. See Resources \u2192 League Content.');
       }
     }catch(_){}
     await window.MF_WEB.install(window.__MF_SEED__);
@@ -34756,7 +34760,8 @@ const CSUGG_BASETYPES_POE2=[
   'Tzamoto\'s Soul Core of Ferocity','Uromoti\'s Soul Core of Attenuation',
   'Xipocado\'s Soul Core of Dominion','Xopec\'s Soul Core of Power',
   'Zalatl\'s Soul Core of Insulation',
-  // PoE2 0.5 Soul Cores — Jiquani's and Atziri's variants
+  // PoE2 0.5.5 Soul Cores — Jiquani's and Atziri's variants (this batch is
+  // what moved GAME_PATCH_BASELINE from 0.5.4 to 0.5.5)
   'Jiquani\'s Soul Core of Abundance','Jiquani\'s Soul Core of Automation',
   'Jiquani\'s Soul Core of Malediction','Jiquani\'s Soul Core of Munitions',
   'Jiquani\'s Soul Core of Quaking','Jiquani\'s Soul Core of Radiance',
@@ -39374,7 +39379,7 @@ function renderLeagueContent(){
   el.innerHTML=
     '<div style="border:1px solid var(--border2);border-radius:10px;padding:11px 13px;background:var(--card);margin-bottom:10px">'
       +'<div style="font-size:11.5px;color:var(--text3);margin-bottom:5px;padding-bottom:5px;border-bottom:1px solid var(--border)">'
-        +'BaseType database aligned to <strong style="color:var(--accent)">PoE2 '+esc(typeof GAME_PATCH_BASELINE!=='undefined'?GAME_PATCH_BASELINE:'?')+'</strong>'
+        +'BaseType database current with <strong style="color:var(--accent)">PoE2 patch '+esc(typeof GAME_PATCH_BASELINE!=='undefined'?GAME_PATCH_BASELINE:'?')+'</strong>'
         +(typeof GAME_PATCH_LEAGUE!=='undefined'?' ('+esc(GAME_PATCH_LEAGUE)+')':'')
         +' \u2014 this is the <em>game</em> patch, not the tool version. If the live game is ahead, that gap is what you\u2019re diffing from.'
       +'</div>'
