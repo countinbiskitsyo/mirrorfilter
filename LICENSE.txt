@@ -1,0 +1,30 @@
+"Adamg MirrorFilter" — License
+
+Copyright (c) 2026 Adamg. All rights reserved.
+
+This software is shared for PERSONAL USE ONLY.
+
+You may:
+  - Use MirrorFilter to create and edit your own Path of Exile 2 item filters.
+  - Share the .filter files you produce with it, freely and without restriction.
+    Your filters are your own work.
+
+You may not, without prior written permission from the copyright holder:
+  - Redistribute, rehost, or republish this software or its source code.
+  - Sell it, or include it in anything sold.
+  - Create or distribute modified versions of it.
+  - Remove or alter the attribution and copyright notices it displays.
+
+No warranty. This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties of
+merchantability, fitness for a particular purpose and noninfringement. In no
+event shall the copyright holder be liable for any claim, damages or other
+liability arising from, out of or in connection with the software or its use.
+
+Not affiliated with Grinding Gear Games.
+MirrorFilter is not affiliated with, authorized, maintained, sponsored, or
+endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2
+are trademarks of Grinding Gear Games.
+
+Economy data is provided by poe.ninja (https://poe.ninja) and is subject to
+their terms.

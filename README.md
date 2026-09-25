@@ -39,18 +39,25 @@ MirrorFilter is a full visual editor for PoE2 `.filter` files. Instead of hand-w
 
 ## Where your data lives (important)
 
-MirrorFilter runs entirely in your browser. **Your work is saved automatically in your browser's local storage** as you edit — close the tab, restart your PC, come back later, and it's still there.
+MirrorFilter runs entirely in your browser. **Your work is saved automatically in your browser's storage** as you edit — close the tab, restart your PC, come back later, and it's still there.
 
 A few things worth understanding:
 
 - **Nothing is uploaded.** Your filter never leaves your computer. This site only serves the app itself.
 - **Your data is per-browser, per-machine.** It doesn't automatically follow you to a different browser or a different computer.
-- **Clearing your browser's site data / cookies for this site will erase your in-progress work.** (A normal "clear cached images and files" does not.)
-- **Export is your backup.** The `.filter` (and its `.meta.json` sidecar) you export to disk is the real, portable copy of your work. To move your filter to another computer, **Export** it there and **Import** it here.
+- **Clearing your browser's site data for this site will erase your in-progress work**, and so will a browser reset or reinstall, a "cleaner" utility, or a wiped Windows profile. It goes without warning, and there is no cloud copy or account to recover from. (A normal "clear cached images and files" does *not* touch it.)
 
-So: **auto-save keeps your session safe in this browser; Export/Import is how you back up and move your work.**
+### Set up a folder backup — this is the important one
 
-For extra safety, the **Saving Your Work** section (Resources tab) lets you set up **folder backups** — a complete, timestamped copy of your whole filter written to any folder you choose (e.g. a cloud-synced drive), updated automatically on every save and every few minutes. That way your work also lives as a real file in *your* hands, not only in the browser.
+**Resources → Saving Your Work → ② Back up.** Point it at a folder once, and every save writes a complete, timestamped snapshot of your entire editor state there. Pick a folder inside **OneDrive, Google Drive or Dropbox** and the same ten-second setup gets you three things at once: your work off the browser, version history you can roll back through, and a copy already waiting on any other PC you sign into.
+
+### Exporting the `.filter` is not the same as backing up
+
+The `.filter` is the **output** the game reads. Exporting also writes a `.filter.meta.json` sidecar beside it, which carries your tier configuration, section hierarchy and save locations — so importing the pair together restores considerably more than the `.filter` alone.
+
+But the sidecar is not a full snapshot. It does **not** carry your custom BaseTypes, custom conditions, custom alert sounds, build toggles, or League Content setup. Only the backup JSON has everything.
+
+**Rule of thumb:** Export to play the game. Back up to protect your work.
 
 ---
 
@@ -71,7 +78,7 @@ Prices are cached briefly and shared across users, so it's fast and light on poe
 
 ## Not affiliated with Grinding Gear Games
 
-"Adamg MirrorFilter" © 2026 by Adamg. All rights reserved. Shared for personal use.
+"Adamg MirrorFilter" © 2026 by Adamg. All rights reserved. Shared for personal use — see `LICENSE.txt`.
 
 Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.
 
