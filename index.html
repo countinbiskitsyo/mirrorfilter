@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.195
+  MirrorFilter Web — VERSION 5.196
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -91,7 +91,9 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 #statusBar{font-size:11px;color:var(--text2);white-space:nowrap;flex-shrink:0}
 #tabBar{flex-shrink:0;display:flex;background:var(--panel);border-bottom:1px solid var(--border);padding:0 14px;gap:2px;position:relative;align-items:center;min-height:38px}
 #tabBarBtns{display:flex;gap:2px;position:absolute;top:50%;transform:translate(-50%,-50%)}
-#closeAllTopicsBtn{position:absolute;right:14px;top:50%;transform:translateY(-50%)}
+/* Left-aligned to match the Expand All / Collapse All controls in the Editor
+   sidebar, so the same kind of action lives in the same place on both tabs. */
+#closeAllTopicsBtn{position:absolute;left:14px;top:50%;transform:translateY(-50%)}
 .tab-btn{padding:11px 22px;font-size:15px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--text2);border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;transition:.12s;white-space:nowrap}
 .tab-btn:hover{color:var(--text);background:rgba(255,255,255,.04)}
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(var(--accent-rgb),.06);text-shadow:0 0 8px rgba(var(--accent-rgb),.35);animation:mainTabPulse 2.8s ease-in-out infinite}
@@ -632,6 +634,11 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   <button class="tb-btn sec" onclick="openTestItemModal()" data-tip="Paste an item's copied text (Ctrl+C in-game) or fill in attributes manually, and see exactly which rule would match it and why" style="border-color:#b478f5;color:#b478f5">🧪 Test Item</button>
   <button class="tb-btn sec" id="quickSaveBtn" onclick="quickSave()" data-tip="One-click save to the same location as your last export" style="border-color:var(--green);color:var(--green)">💾 Quick-Save</button>
   <span id="statusBar" data-tip="Your work auto-saves in your browser as you go. Click Export or Quick-Save to write your .filter to disk." style="white-space:nowrap;flex-shrink:0">Ready</span>
+  <span id="filesHint" onclick="switchTab('settings');setTimeout(()=>scrollToSaveStage('stageBackup'),250)"
+        data-tip="THE 3 FILES THAT MATTER — .filter: what the game reads (Export/Quick-Save). .filter.meta.json: rides beside it, carries tier config and section structure. mirrorfilter-backup-*.json: your COMPLETE work, the only one that restores everything. Click to open Back up."
+        style="white-space:nowrap;flex-shrink:0;margin-left:10px;font-size:10.5px;color:var(--text3);cursor:pointer;border-left:1px solid var(--border2);padding-left:10px">
+    📁 <span style="color:var(--text2)">.filter</span> + <span style="color:var(--text2)">.meta.json</span> + <span style="color:var(--accent);font-weight:700">backup.json</span>
+  </span>
   <div class="tb-spacer"></div>
 </div>
 <div id="tabBar">
@@ -656,6 +663,20 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       <div id="noSel"><div class="ns-i" style="opacity:.85;margin-bottom:8px">
         <span class="ns-logo-text">MirrorFilter</span>
       </div><div style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:.3px">&quot;Adamg MirrorFilter&quot; &copy; 2026 by Adamg. All rights reserved.</div><div style="text-align:center;font-size:10px;color:var(--text3);margin-bottom:20px;opacity:.75;max-width:420px;margin-left:auto;margin-right:auto">Shared for personal use only — see LICENSE.txt. Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.</div><p>Select a rule from the left panel.<br><br>Use <strong>+ Section</strong> to create a section, <strong>+ Rule</strong> to add a rule.<br><br>Refer to the <strong>Resources</strong> tab for guides, tutorials, customizations and configurations.<br><br><span class="save-pulse" style="display:inline-block;border:1px solid var(--accent);border-radius:10px;padding:14px 20px;background:rgba(var(--accent-rgb),.06);font-size:13px;max-width:680px;text-align:left"><strong style="color:var(--accent)">💾 Protect your work — Save, Back up &amp; Restore</strong><br><span style="display:block;margin-top:6px;color:var(--text2);line-height:1.6">Your filter is saved automatically as you edit — but it is saved <strong>inside this browser</strong>, not as a file on your computer. That matters more than it sounds. Clearing your browsing data, &ldquo;cleaning&rdquo; tools like CCleaner, a browser reset, a reinstall, a new PC, or even just using a different browser will take your filter with it. There is no cloud copy and no account to recover from. <strong style="color:var(--accent)">Setting up a backup folder takes about ten seconds and is the single most important thing you can do here.</strong></span><span style="display:block;margin-top:8px;padding:8px 11px;border-left:3px solid var(--accent);background:rgba(var(--accent-rgb),.07);color:var(--text2);line-height:1.6;font-size:12px"><strong>Pick a cloud-synced folder</strong> (OneDrive, Google Drive, Dropbox) when you set this up. Then your work is backed up and carried to any other PC at the same time, and MirrorFilter writes a fresh timestamped copy on every save — so you can go back to yesterday’s version, not just the latest one.</span><br><span style="display:block;margin-top:8px;line-height:1.8">• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Save</span> — write the game <code>.filter</code> to your Path of Exile 2 folder, optionally to several folders at once.<br>• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Back up</span> — <strong>do this first.</strong> Point it at a folder once and every save writes a full copy of your entire editor state there: rules, sections, tiers, colours, sounds and settings. The <code>.filter</code> alone is not enough — it is the output, not your work.<br>• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Restore</span> — load any backup back in one click, or move your filter to another computer.</span></span></p></div>
+      <div style="margin-top:12px;padding:11px 13px;border:1px solid var(--accent);border-radius:8px;background:rgba(var(--accent-rgb),.06)">
+        <div style="font-weight:800;color:var(--accent);margin-bottom:7px;font-size:12.5px">📁 The three files — what each one is for</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:5px 10px;font-size:11.5px;line-height:1.55;align-items:start">
+          <code style="white-space:nowrap">YourFilter.filter</code>
+          <span><strong>The game reads this one.</strong> Goes in <code>Documents\My Games\Path of Exile 2</code>. Written by Export / Quick-Save. On its own it restores your rules but <em>not</em> your tier setup or section structure.</span>
+          <code style="white-space:nowrap">YourFilter.filter.meta.json</code>
+          <span><strong>Rides beside the .filter.</strong> Carries tier configuration, section hierarchy and your save locations. Keep it in the same folder — import the pair together and far more comes back.</span>
+          <code style="white-space:nowrap;color:var(--accent)">mirrorfilter-backup-*.json</code>
+          <span><strong style="color:var(--accent)">Your complete work. This is the one that matters.</strong> Everything: rules, sections, tiers, colours, sounds, custom BaseTypes, custom conditions, themes, league setup. <strong>Only this file can restore you fully.</strong> Written to your backup folder on every save, timestamped.</span>
+        </div>
+        <div style="margin-top:9px;font-size:11.5px;color:var(--text2);line-height:1.55">
+          <strong>To move to another PC or recover from anything:</strong> take the <code>backup.json</code> and use ③ Restore. The other two are for the game, not for you.
+        </div>
+      </div>
       <div id="edContent" style="display:none"></div>
     </div>
   </div>
@@ -30815,6 +30836,12 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.196',changes:[
+    'FIXED A REGRESSION I SHIPPED IN v5.191. The Visuals & Stats left-hand stat panels were blank and the console showed \u201CacrossIgnored is not defined\u201D. My ignored-count edit declared its two counters in the WRONG FUNCTION, so renderVizStatsLeft threw before drawing anything. Declaration moved into the function that uses it; all six left cards and nine right cards render again.',
+    'FIXED: \u201CNew\u201D did not actually give you a blank filter. It cleared rules and section order but left sectionTree untouched, so the whole old section hierarchy survived \u2014 exporting a \u201Cblank\u201D filter produced 448 lines of empty section headers with no rules. Now 8 lines. Name, league, tiers, theme and custom data are still kept on purpose: you are starting a new rule set, not resetting your setup.',
+    'The three files you actually need are now stated in two always-visible places. The header carries a permanent \u201C.filter + .meta.json + backup.json\u201D indicator (click it to jump straight to Back up), and the Protect your work box gained a table explaining what each file is for \u2014 and which single one restores you fully.',
+    'Moved \u25b2 Close All Topics and Headers to the LEFT of the tab bar, matching where Expand All / Collapse All sit on the Editor tab.'
+  ]},
   {v:'5.195',changes:[
     '7b: the README carried the same false claim the guides did \u2014 \u201CExport is your backup\u201D and \u201CExport/Import is how you back up your work\u201D, with folder backups mentioned afterwards as merely \u201Cextra safety\u201D. It now leads with the folder backup and explains precisely what the .filter.meta.json sidecar does and does not carry (it has tiers, theme and section hierarchy; it does NOT have custom BaseTypes, custom conditions, custom sounds, build toggles or League Content setup).',
     '7b: README said work is saved in \u201Clocal storage\u201D. The main state actually lives in IndexedDB; only the rolling restore points use localStorage. Corrected, and the list of things that erase your work now matches the in-app warning.',
@@ -32838,7 +32865,6 @@ function findRelevantCleanupReport(){
   const excluded=S.dupeCheckExcludedSections||{};
   const ignoredBTSame=new Set(S.dupeIgnoredBTSameSection||[]);
   const ignoredRuleGroups=new Set(S.dupeIgnoredRuleGroupsSameSection||[]);
-    let sameIgnored=0, acrossIgnored=0;   // suppressed by the Ignore lists
   const ignoredBTAcross=new Set(S.dupeIgnoredBTAcrossSections||[]);
   const ignoredSecGroups=new Set(S.dupeIgnoredSectionGroups||[]);
   const groupKey=ids=>[...ids].sort().join('||');
@@ -38429,6 +38455,11 @@ function renderVizStatsLeft(){
         bySectionLabel[r.section][groupK]=v;
       });
     });
+    // Counters for what the Ignore lists suppress. MUST be declared here, in
+    // renderVizStatsLeft — an earlier edit put them in a different function
+    // entirely, so this whole panel threw ReferenceError and the left-hand
+    // stats column rendered blank.
+    let sameIgnored=0, acrossIgnored=0;
     const sameFindings=[];
     Object.entries(bySectionMap).forEach(([secId,btMap])=>{
       Object.entries(btMap).forEach(([groupK,refs])=>{
@@ -38913,7 +38944,14 @@ async function addRule(){
   await saveState();
 }
 
-function doNewFilter(){S.rules=[];S.sectionOrder=[];S.collapsedSecs={};S.disabledSecs={};activeId=null;closeM('newM');saveState();renderList();clearEditor();toast('Started new filter','inf');}
+function doNewFilter(){
+  // sectionTree MUST be cleared alongside sectionOrder. It used to be left
+  // behind, so “new blank filter” kept the entire old section hierarchy —
+  // exporting one produced hundreds of lines of empty section headers with
+  // no rules in them. Everything else (name, league, tiers, theme, custom
+  // BaseTypes/sounds) is intentionally kept: you are starting a new rule
+  // set, not resetting your whole setup.
+  S.rules=[];S.sectionOrder=[];S.sectionTree=[];S.collapsedSecs={};S.disabledSecs={};activeId=null;closeM('newM');saveState();renderList();clearEditor();toast('Started new filter','inf');}
 function loadExampleFilter(){
   if(!window.__MF_EXAMPLE__){toast('Example filter not available','err');return;}
   try{
