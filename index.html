@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.196
+  MirrorFilter Web — VERSION 5.197
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -817,6 +817,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:14px">3</span><span style="font-size:15px;font-weight:700;color:#5a9cf5">Restore — load a backup back</span></div>
         <p style="font-size:12.5px">Pick a saved backup and load it. Your current state is backed up first, so it's always reversible.</p>
         <div class="tip-box" style="margin-bottom:8px"><strong style="color:var(--accent)">From your backup folder?</strong> Backups are <code>mirrorfilter-backup-DATE_TIME.json</code> — newest = latest date. (The <code>.filter</code>/<code>.meta.json</code> there are the game files, not full backups — load a <code>.filter</code> via <strong>Import</strong> at the top.)</div>
+        <div id="restoreFolderHint" style="margin-bottom:8px"></div>
         <div style="display:flex;gap:6px;margin:8px 0;flex-wrap:wrap">
           <button class="sh-btn" onclick="refreshBackupPanel()">↻ Refresh list</button>
           <button class="sh-btn" onclick="restoreFromDiskFile()" data-tip="Load a timestamped mirrorfilter-backup-*.json from disk">📂 Restore from a backup file…</button>
@@ -30836,6 +30837,13 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.197',changes:[
+    '\u2461 Back up now names the folder it is writing to, in a highlighted line under the description, alongside the time of the last backup. Previously it said a backup folder was ON without ever saying WHICH folder.',
+    '\u2462 Restore now names the same folder, tells you the filename pattern to look for (mirrorfilter-backup-DATE_TIME.json), and points out that the newest date is your latest work \u2014 so you are not hunting blind at the moment you most need the file.',
+    'With no backup folder set up, Restore now says so plainly and explains that only the in-browser restore points are available, rather than leaving an unexplained empty area.',
+    'Both sections warn when the folder link is not active in the current browser session, since that is when the link needs re-picking and the reason a backup might silently not be written.',
+    'Note: browsers only expose a picked folder\u2019s NAME, never its full path \u2014 so the folder name plus the filename pattern is the most any web app can tell you.'
+  ]},
   {v:'5.196',changes:[
     'FIXED A REGRESSION I SHIPPED IN v5.191. The Visuals & Stats left-hand stat panels were blank and the console showed \u201CacrossIgnored is not defined\u201D. My ignored-count edit declared its two counters in the WRONG FUNCTION, so renderVizStatsLeft threw before drawing anything. Declaration moved into the function that uses it; all six left cards and nine right cards render again.',
     'FIXED: \u201CNew\u201D did not actually give you a blank filter. It cleared rules and section order but left sectionTree untouched, so the whole old section hierarchy survived \u2014 exporting a \u201Cblank\u201D filter produced 448 lines of empty section headers with no rules. Now 8 lines. Name, league, tiers, theme and custom data are still kept on purpose: you are starting a new rule set, not resetting your setup.',
@@ -40087,10 +40095,40 @@ function refreshBackupPanel(){
       '<div style="border:1px solid '+(on?'#4fd18b55':'var(--border2)')+';border-radius:8px;padding:10px;margin-bottom:10px;background:'+(on?'#4fd18b0a':'transparent')+'">'
       +'<div style="font-weight:800;color:'+(on?'#4fd18b':'var(--accent)')+';margin-bottom:3px">💽 Auto-backup to a folder you control '+(on?'· ON':'· off')+'</div>'
       +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px">Saves a new timestamped backup (<code>'+BACKUP_PREFIX+'DATE_TIME.json</code>) to a real folder you pick — on every save and every 5 minutes, keeping the newest '+KEEP_DISK_BACKUPS+'. This is your data in <em>your</em> hands, not just the browser\u2019s.'+(on?(' Last written: '+esc(last)+(S.__lastDiskBackupName?(' ('+esc(S.__lastDiskBackupName)+')'):'')+'.'):'')+'</div>'
+      // Name the actual folder. The browser only exposes the folder NAME, never
+      // its full path, so that is the most we can show — but it is enough to
+      // answer "where is this going?" at a glance instead of having to guess.
       +(on
-        ? '<button class="sh-btn" onclick="disableDiskAutoBackup()">Turn off disk backup</button> <span style="font-size:11px;color:var(--text2);margin-left:6px">Use \u201C\uD83D\uDCBE Back up now\u201D below to write immediately.</span>'
+        ? '<div style="font-size:11.5px;margin-bottom:8px;padding:6px 9px;border-left:3px solid #4fd18b;background:#4fd18b12;border-radius:0 4px 4px 0">'
+            +'\uD83D\uDCC1 Writing to folder: <strong style="color:#4fd18b">'
+            +esc((window.MF_WEB&&window.MF_WEB.dirName)||'(link lost \u2014 re-pick the folder)')+'</strong>'
+            +'<div style="color:var(--text3);font-size:10.5px;margin-top:2px">Last backup: '+esc(last)+'</div>'
+            +(!(window.MF_WEB&&window.MF_WEB.dirLinked)
+              ? '<div style="color:#e0a030;font-size:10.5px;margin-top:3px">\u26A0 The folder link is not active in this browser session \u2014 click \u201CChoose a folder\u2026\u201D to re-link it.</div>' : '')
+          +'</div>'
+          +'<button class="sh-btn" onclick="disableDiskAutoBackup()">Turn off disk backup</button> <span style="font-size:11px;color:var(--text2);margin-left:6px">Use \u201C\uD83D\uDCBE Back up now\u201D below to write immediately.</span>'
         : '<button class="sh-btn" style="background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:800" onclick="enableDiskAutoBackup()">Choose a folder…</button>')
       +'</div>';
+  }
+  // Tell the user WHERE to look for the file they are about to restore, and
+  // WHAT it is called. Browsers only expose the folder name, never the full
+  // path, so the name plus the filename pattern is the most we can give.
+  const rfh=document.getElementById('restoreFolderHint');
+  if(rfh){
+    const linked=!!(window.MF_WEB&&window.MF_WEB.dirLinked);
+    const nm=(window.MF_WEB&&window.MF_WEB.dirName)||null;
+    if(S.__autoBackupDisk&&nm){
+      rfh.innerHTML='<div style="font-size:11.5px;padding:7px 10px;border-left:3px solid var(--accent);background:rgba(var(--accent-rgb),.08);border-radius:0 4px 4px 0">'
+        +'\uD83D\uDCC1 Your backups are in folder <strong style="color:var(--accent)">'+esc(nm)+'</strong>'
+        +'<div style="color:var(--text2);margin-top:3px">Look for <code>'+BACKUP_PREFIX+'DATE_TIME.json</code> \u2014 the newest date is your latest work. '
+        +'Use <strong>\uD83D\uDCC2 Restore from a backup file\u2026</strong> below and pick it from there.</div>'
+        +(linked?'':'<div style="color:#e0a030;margin-top:3px">\u26A0 The folder link is not active this session, so you may need to browse to it manually.</div>')
+        +'</div>';
+    } else {
+      rfh.innerHTML='<div style="font-size:11.5px;padding:7px 10px;border-left:3px solid var(--border2);background:rgba(255,255,255,.02);border-radius:0 4px 4px 0;color:var(--text2)">'
+        +'No backup folder is set up yet, so there are no backup files on disk to restore from \u2014 only the in-browser restore points listed below. '
+        +'Set one up in <strong>\u2461 Back up</strong> above.</div>';
+    }
   }
   if(!listEl)return;
   const arr=loadBackups().slice().reverse();
