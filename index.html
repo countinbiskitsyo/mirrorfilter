@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.184
+  MirrorFilter Web — VERSION 5.188
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -841,7 +841,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           <strong style="color:#3dd6c4">poe2db.tw</strong>
           <span style="color:var(--text3);font-size:11px">— last resort. A live economy tracker with no public API, so this parses its pages directly for whatever the first two still missed — mainly Runes/Soul Cores/Essences/Fragments as a backup for poe.ninja's own coverage of those.</span>
         </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--text3)">Every attempt — success or failure, from all three sources — is written to <code>UserData\economy_debug.log</code> if you ever need to see exactly what happened on a given run.</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text3)">Auto-Tier reports the outcome of each run in the app — if a source fails, the error is shown there and the last good prices for that league are reused from cache rather than wiping what you had. There is no log file to hunt down; the browser version keeps everything in the app.</div>
       </div>
       <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Tier Configuration</div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Tiers are checked highest-threshold first. Items with chaos value ≥ the threshold get that tier. The lowest tier (0 threshold) is the catch-all.</div>
@@ -24682,7 +24682,7 @@ window.__MF_EXAMPLE__ = {
     }
   ],
   "theme": "black3dV2",
-  "exportPath": "C:\\Users\\adama\\AppData\\Local\\MirrorFilter Installs\\mirrorfilter_v5_151\\MirrorFilter\\UserData\\AdamsMirrorFilter.filter",
+  "exportPath": "",
   "tiers": [
     {
       "name": "A",
@@ -27941,13 +27941,31 @@ function normalizeOperatorSpacing(valStr){
 // per-league maintenance to the handful of items that actually changed, rather
 // than re-tagging all ~2,350 entries every time.
 //
-// Chronological order. Adding a league = append one name here (plus one <option>).
-const LEAGUE_TIMELINE=['Dawn of the Hunt','Rise of the Abyssal','Runes of Aldur'];
+// ══ ADD A NEW LEAGUE HERE — THIS LINE ONLY ══════════════════════════════════
+// Chronological order, OLDEST first, newest LAST. Append the new league's name
+// to the end and everything follows from it: the dropdown options, the default
+// selection for new users, the Hardcore variants, and the League Content
+// availability maths. Nothing else needs editing.
+//
+// Leave old leagues in place — PoE2 runs leagues in parallel (Runes of Aldur
+// stays playable alongside Forbidden Rites until 1.0), and removing a name
+// would strand any filter already saved against it.
+//
+// The name must match poe.ninja's league string exactly, because it is sent
+// there verbatim by Auto-Tier.
+const LEAGUE_TIMELINE=['Dawn of the Hunt','Rise of the Abyssal','Runes of Aldur','Forbidden Rites'];
+// Newest first for the dropdown, then Standard. Derived — don't edit.
+const LEAGUE_CHOICES=[...LEAGUE_TIMELINE].reverse().concat(['Standard']);
 // Ships empty on purpose — this is user-maintained data (Resources → League
 // Content), merged over by state.btLifecycle. Shape:
 //   'Thaumaturgic Flux': { addedIn:'Runes of Aldur', removedIn:'<next league>' }
 // addedIn/removedIn are both optional; removedIn means "gone AS OF that league".
-const BASETYPE_LIFECYCLE_SEED={};
+const BASETYPE_LIFECYCLE_SEED={
+  // Forbidden Rites event-league exclusive (patch 0.5.5). Shipped rather than
+  // left to the user because it is a documented, game-wide fact, not a
+  // personal preference. state.btLifecycle still overrides it.
+  'Sacred Bloom': { addedIn:'Forbidden Rites' },
+};
 
 // Strip the Hardcore prefix — HC and SC share identical item content, so
 // availability only ever depends on the base league.
@@ -28061,11 +28079,25 @@ function generateFilter(state, versionStr, timestampStr){
     "HasVaalUniqueMod","IsVaalUnique","TwiceCorrupted","AlwaysShow",
     "HasSearingExarchImplicit","HasEaterOfWorldsImplicit","HasInfluence",
   ]);
-  const SCALAR_RANGE_KEYS = new Set([
-    "ItemLevel","DropLevel","AreaLevel","WaystoneTier","Quality",
-    "StackSize","GemLevel","Height","Width","Sockets",
-    "BaseArmour","BaseEvasion","BaseEnergyShield","UnidentifiedItemTier",
-  ]);
+  // Single source of truth. The second <script> block declares
+  // SCALAR_RANGE_KEYS at top level, and a top-level `const` in a classic
+  // script lives in the shared global lexical environment — so it is visible
+  // from here at call time. This used to be a second, separately-maintained
+  // copy of the same 14 keys: identical today, but adding a scalar condition
+  // in one place and not the other would have made the EXPORT disagree with
+  // the EDITOR about whether a condition takes an operator, with no error.
+  // The literal fallback only applies if this somehow runs before that block
+  // evaluated (it is reached via user action, long after load).
+  let SCALAR_KEYS;
+  try{
+    SCALAR_KEYS = SCALAR_RANGE_KEYS;
+  }catch(_){
+    SCALAR_KEYS = new Set([
+      "ItemLevel","DropLevel","AreaLevel","WaystoneTier","Quality",
+      "StackSize","GemLevel","Height","Width","Sockets",
+      "BaseArmour","BaseEvasion","BaseEnergyShield","UnidentifiedItemTier",
+    ]);
+  }
 
   for(const [section, sectionPath] of orderedPairs){
     const srules = rulesBySection[section]||[];
@@ -28120,7 +28152,7 @@ function generateFilter(state, versionStr, timestampStr){
         const val = conds[key];
         if(key==="ExplicitModMin") continue;
         if(key==="BaseTypeOp"||key==="ClassOp") continue;
-        if(SCALAR_RANGE_KEYS.has(key) && Array.isArray(val)){
+        if(SCALAR_KEYS.has(key) && Array.isArray(val)){
           for(const constraint of val) ruleLines.push(`    ${key} ${constraint}`);
           continue;
         }
@@ -28843,7 +28875,7 @@ const DEFAULT_TIERS=[
   {name:'E',minChaos:0, textColor:'#999999',bgColor:'#242424'},
   {name:'\u2205',minChaos:0,textColor:'#9c8cff',bgColor:'#1a1a1a'},
 ];
-let S={rules:[],filterName:'MyFilter',league:'Runes of Aldur',sectionOrder:[],collapsedSecs:{},disabledSecs:{},customConds:[],customBTs:[],customSounds:[],theme:'darkGold',exportPath:'',tiers:JSON.parse(JSON.stringify(DEFAULT_TIERS)),uiLayout:{sidebarW:340,previewW:310,pvEconH:null},sectionTree:[],econScope:'rule'};
+let S={rules:[],filterName:'MyFilter',league:defaultLeague(),sectionOrder:[],collapsedSecs:{},disabledSecs:{},customConds:[],customBTs:[],customSounds:[],theme:'darkGold',exportPath:'',tiers:JSON.parse(JSON.stringify(DEFAULT_TIERS)),uiLayout:{sidebarW:340,previewW:310,pvEconH:null},sectionTree:[],econScope:'rule'};
 let activeId=null,econData={},secMode='add',secTarget=null;
 let _inferredPriceKeys=new Set();
 const API=async(path,method='GET',body=null)=>window.API(path,method,body);
@@ -30730,6 +30762,32 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.188',changes:[
+    'Added Sacred Bloom to the BaseType database (currency half). It is a BaseType \u2014 an individual item name \u2014 not a Class; the Class is whatever container it sits in, which you can confirm by hovering the item in game.',
+    'Sacred Bloom ships with a lifecycle entry of addedIn: Forbidden Rites, since GGG\u2019s notes lock it to that event league. It is therefore held back automatically from filters exported for Runes of Aldur or earlier \u2014 the first real use of the League Content system, and no custom entry needed from you.',
+    '1b audit (import/export round trip): rules, rule order, tiers, disabled rules, disabled sections, duplicate-named sections and nesting all survive a round trip intact. 364 rules in, 364 out.',
+    '1b KNOWN ISSUE, pre-existing and unchanged since at least v5.174: sections whose IDs were auto-generated (sec_xxxx) are re-homed to readable path IDs on import, leaving behind an empty ghost section. A round trip of the 364-rule filter turns 86 sections into 91. It converges (a second round trip stays at 91), loses no rules, and does not affect the exported .filter at all \u2014 the ghosts are empty and emit nothing. Documented here rather than silently changed, because the section-identity system is load-bearing.'
+  ]},
+  {v:'5.187',changes:[
+    'Added the Forbidden Rites league (PoE2 patch 0.5.5). It is now the default for a new filter, and the tool was already current with 0.5.5 \u2014 the 17 Soul Cores added in v5.181 were that patch\u2019s content.',
+    'Runes of Aldur is deliberately KEPT in the list. GGG runs the two leagues in parallel until the 1.0 release, so filters saved against Runes of Aldur keep working and you can still price against it.',
+    'Adding a league is now ONE line. LEAGUE_TIMELINE (just above the changelog) is the single source of truth: append the new name to the end and the dropdown options, the default for new users, the Hardcore variants and the League Content availability maths all follow. It used to take three separate edits \u2014 the timeline, a second league list, and a hand-written <option> in the HTML \u2014 which is exactly the kind of split that drifts.',
+    'An unrecognised saved league now falls back to the NEWEST league rather than a hardcoded name, so that fallback stays correct every future league without being touched.'
+  ]},
+  {v:'5.186',changes:[
+    '8d: in-browser restore points were saving only SIX keys (rules, sections, order, tiers, disabled sections, filter name) while disk backups saved everything \u2014 so the two \u201Csafety nets\u201D were never equivalent despite being presented as such. Restoring an in-browser point silently discarded your custom BaseTypes, custom HasExplicitMods and their PoE1/PoE2 tags, custom sounds, custom conditions, theme, league, build toggles, layout and the entire League Content configuration. Restore points now carry the full snapshot: those keys add about 1KB to a ~266KB payload, and 8 points on a 364-rule filter total 2.1MB against a ~5MB cap.',
+    'FIXED: restoring a backup never actually restored the filter name or league, because saveState() re-reads both FROM THE DOM and ran after the restore set them \u2014 the stale on-screen values overwrote the restored ones every time. Both restore paths now push restored values into the controls before saving. A Hardcore league selection now survives a round trip.',
+    'Old restore points saved before this change still work and no longer wipe anything: keys they don\u2019t carry are left alone rather than overwritten with undefined, and the toast says which kind of restore point it was.',
+    'Browser-storage quota failures are no longer silent. Previously a full localStorage meant restore points stopped saving with only a console warning \u2014 you would believe you were protected when you were not. It now retries keeping fewer points (an older backup beats none) and tells you plainly if even one will not fit, pointing at folder backups.',
+    '8c verified already complete and closed: per-mod PoE1/PoE2/Both tagging for HasExplicitMods works correctly in all three game modes, untagged legacy mods never vanish, tags are editable and persist, and values already in rules export regardless of mode.'
+  ]},
+  {v:'5.185',changes:[
+    'FIXED A REAL BUG, and corrected a wrong claim this tool was making. The BaseType check only consulted CSUGG_BASETYPES_POE2, ignoring CSUGG_CURRENCY_POE2 \u2014 the other half of the database, where Divine Orb, Chaos Orb, Mirror of Kalandra and every other currency live. It therefore flagged 122 perfectly valid names in the 364-rule filter as \u201Cmissing\u201D, and the UI repeated that as fact, telling you the database had gaps it does not have. It now checks ALL_BASETYPES (both halves), and the same filter flags ZERO.',
+    'Because that noise is gone, exporting now warns when a rule uses a BaseType the database doesn\u2019t contain \u2014 the case that makes PoE2 refuse to load the whole file. It warns, never blocks. This was the right behaviour all along; the false positives were the only reason it was held back.',
+    '2a: removed 4 cross-list duplicates. Kamasa\u2019s, Kopec\u2019s, Yaomac\u2019s and Yugul\u2019s Orb of Sacrifice were in BOTH the BaseType and currency lists, so they appeared twice in autocomplete. They are currency, so the BaseType copies were dropped.',
+    '1l: SCALAR_RANGE_KEYS was defined twice, once per script block. Identical today, but adding a scalar condition to one and not the other would have made the EXPORT disagree with the EDITOR about whether a condition takes an operator, silently. Now one definition with a guarded fallback.',
+    '3e: the economy panel claimed every Auto-Tier attempt is written to UserData\\economy_debug.log. That is a desktop-version file that does not exist in the browser; the text now describes what actually happens. Also cleared a stale desktop install path left in the bundled example filter\u2019s exportPath.'
+  ]},
   {v:'5.184',changes:[
     'Header reordered and credit updated: \u201CMirrorFilter \u2726 Web tool v5.184 by Adamg and Claude \u00b7 current with PoE2 patch 0.5.5\u201D. The byline now sits between the two versions, so the tool version reads with its authors and the game patch closes the line on its own.'
   ]},
@@ -32209,7 +32267,7 @@ async function init(){
     await window.MF_WEB.install(window.__MF_SEED__);
     await window.MF_WEB.fsRestore();
     const loaded=await API('/api/state');
-    S=Object.assign({rules:[],filterName:'MyFilter',league:'Runes of Aldur',sectionOrder:[],collapsedSecs:{},disabledSecs:{},customConds:[],customBTs:[],customSounds:[],theme:'darkGold',exportPath:'',tiers:JSON.parse(JSON.stringify(DEFAULT_TIERS))},loaded);
+    S=Object.assign({rules:[],filterName:'MyFilter',league:defaultLeague(),sectionOrder:[],collapsedSecs:{},disabledSecs:{},customConds:[],customBTs:[],customSounds:[],theme:'darkGold',exportPath:'',tiers:JSON.parse(JSON.stringify(DEFAULT_TIERS))},loaded);
     if(loaded.collapsedSections&&!loaded.collapsedSecs)S.collapsedSecs=loaded.collapsedSections;
     // Migrate: if no sectionTree yet, build one from flat sectionOrder
     if(!S.sectionTree||!S.sectionTree.length){
@@ -32439,7 +32497,22 @@ function syncSecOrder(){
 // FULL poe.ninja league string ("Hardcore Runes of Aldur"), which is what
 // /api/autotier sends and what backups/sidecars already record — so nothing
 // downstream changes and old saves keep working.
-const LEAGUE_BASES=['Runes of Aldur','Standard','Dawn of the Hunt','Rise of the Abyssal'];
+// Derived from LEAGUE_TIMELINE (see the first script block) so there is exactly
+// one list to maintain. Falls back to a literal only if that block failed.
+const LEAGUE_BASES=(typeof LEAGUE_CHOICES!=='undefined')?LEAGUE_CHOICES.slice()
+  :['Forbidden Rites','Runes of Aldur','Rise of the Abyssal','Dawn of the Hunt','Standard'];
+// The league a brand-new user starts on: the newest in the timeline.
+function defaultLeague(){
+  return (typeof LEAGUE_TIMELINE!=='undefined'&&LEAGUE_TIMELINE.length)
+    ? LEAGUE_TIMELINE[LEAGUE_TIMELINE.length-1] : 'Standard';
+}
+// Build the dropdown from LEAGUE_BASES so adding a league needs no HTML edit.
+function buildLeagueOptions(){
+  const sel=document.getElementById('leagueSelect');
+  if(!sel) return;
+  const want=LEAGUE_BASES;
+  sel.innerHTML=want.map(l=>'<option>'+esc(l)+'</option>').join('');
+}
 // poe.ninja names the hardcore variant of Standard just "Hardcore", not
 // "Hardcore Standard" — that one special case is why this isn't a bare concat.
 function composeLeague(base, hc){
@@ -32452,7 +32525,7 @@ function parseLeague(str){
   const v=(str||'').trim();
   if(v==='Hardcore') return {base:'Standard', hc:true};
   if(v.indexOf('Hardcore ')===0) return {base:v.slice(9), hc:true};
-  return {base:v||'Runes of Aldur', hc:false};
+  return {base:v||defaultLeague(), hc:false};
 }
 // Read the current UI selection as a full poe.ninja league string.
 function effectiveLeague(){
@@ -32466,10 +32539,11 @@ function syncLeagueUI(){
   const sel=document.getElementById('leagueSelect');
   const hcEl=document.getElementById('hcToggle');
   if(!sel) return;
+  if(sel.options.length!==LEAGUE_BASES.length) buildLeagueOptions();
   const {base, hc}=parseLeague(S.league);
   // A league we no longer list (or a typo) falls back to the default rather
   // than leaving the select blank and silently pricing against nothing.
-  sel.value = LEAGUE_BASES.indexOf(base)>=0 ? base : 'Runes of Aldur';
+  sel.value = LEAGUE_BASES.indexOf(base)>=0 ? base : defaultLeague();
   if(hcEl) hcEl.checked=hc;
   S.league=composeLeague(sel.value, hc);
 }
@@ -34266,6 +34340,10 @@ const CSUGG_CLASSES_POE1=[
   'Trinkets','Veiled Items',
 ];
 const CSUGG_CURRENCY_POE2=[
+  // Forbidden Rites (0.5.5) league-exclusive. GGG's notes lock Sacred Blooms
+  // to this event league, so it carries a lifecycle entry below and is held
+  // back from filters exported for earlier leagues.
+  'Sacred Bloom',
 // PoE2 Currency — cleaned up as of v5.151: removed confirmed PoE1-only items
 // (Divination Cards, Chromatic Orb, Orb of Fusing — v5.151), plus items tied
 // to mechanics not in PoE2 (Delve/Fossils/Resonators, Blight/Oils,
@@ -34829,8 +34907,8 @@ const CSUGG_BASETYPES_POE2=[
   'Tideseer Mantle','Titan Mitts','Tonal Focus','Toxic Quiver','Twig Circlet','Twig Focus',
   'Vagabond Armour','Veiled Mask','Vicious Talisman','Visored Helm','Votive Raiment','Warden Bow',
   'Warpick','Warrior Greathelm','Waxed Jacket','Wayfarer Jacket','Wicker Tiara','Wooden Buckler',
-  'Wooden Club','Woven Focus','Wrapped Quarterstaff','Kamasa\'s Orb of Sacrifice',
-  'Kopec\'s Orb of Sacrifice','Yaomac\'s Orb of Sacrifice','Yugul\'s Orb of Sacrifice',
+  'Wooden Club','Woven Focus','Wrapped Quarterstaff',
+  
 
   // Batch added per direct request — Jewels/Tablets/Relics/Charms/Flasks
   // entries here follow the "fullname" (unique+space+basetype) pattern that
@@ -36583,7 +36661,7 @@ function pasteValueListDialog(rule, key){
       const u=document.createElement('div');
       u.style.cssText='margin-top:7px;font-size:11px;color:#e0a030;line-height:1.55';
       u.textContent='\u26A0 '+unknown.length+' not in the database: '+unknown.join(', ')
-        +'. They will still be added \u2014 the database has known gaps \u2014 but a name the game does not recognise stops the whole filter loading, so check the spelling.';
+        +'. They will still be added, but a name the game does not recognise stops the whole filter loading \u2014 check the spelling, or add it under Custom BaseTypes if you know it is real.';
       preview.appendChild(u);
     }
   }
@@ -38723,7 +38801,7 @@ function loadExampleFilter(){
   if(!window.__MF_EXAMPLE__){toast('Example filter not available','err');return;}
   try{
     const ex=JSON.parse(JSON.stringify(window.__MF_EXAMPLE__));
-    S=Object.assign({rules:[],filterName:'MyFilter',league:'Runes of Aldur',sectionOrder:[],collapsedSecs:{},disabledSecs:{},customConds:[],customBTs:[],customSounds:[],theme:'darkGold',exportPath:'',tiers:JSON.parse(JSON.stringify(DEFAULT_TIERS)),uiLayout:{sidebarW:340,previewW:310,pvEconH:null},sectionTree:[],econScope:'rule'},ex);
+    S=Object.assign({rules:[],filterName:'MyFilter',league:defaultLeague(),sectionOrder:[],collapsedSecs:{},disabledSecs:{},customConds:[],customBTs:[],customSounds:[],theme:'darkGold',exportPath:'',tiers:JSON.parse(JSON.stringify(DEFAULT_TIERS)),uiLayout:{sidebarW:340,previewW:310,pvEconH:null},sectionTree:[],econScope:'rule'},ex);
     activeId=null;
     closeM('newM');
     document.getElementById('filterName').value=S.filterName||'MyFilter';
@@ -38933,6 +39011,20 @@ async function doImport(){
 
 function exportFilter(){
   var nm=document.getElementById('filterName').value||'MyFilter';
+  // An unrecognised BaseType makes PoE2 reject the ENTIRE file, so surface it
+  // here rather than letting you find out in game. Safe to warn on now: against
+  // the real 364-rule filter this fires zero times. It previously produced 122
+  // false positives by ignoring the currency half of the database, which is why
+  // it was not wired up before. Warns, never blocks — the database can lag a
+  // patch and you may know better than it does.
+  try{
+    var _chk=findUnknownBaseTypes();
+    if(_chk.exact.length){
+      var _n=_chk.exact.reduce(function(a,r){return a+r.bad.length;},0);
+      toast('\u26A0 '+_n+' BaseType'+(_n!==1?'s':'')+' in '+_chk.exact.length+' rule'+(_chk.exact.length!==1?'s':'')
+        +' aren\u2019t in the database. If the game doesn\u2019t recognise them it refuses to load the whole filter. See Resources \u2192 League Content \u2192 BaseType check.','err',null,false,9000);
+    }
+  }catch(_){}
   var prev=document.getElementById('exportPreviewName');
   if(prev)prev.textContent=nm+'.filter';
   var info=document.getElementById('exportDestInfo');
@@ -39215,9 +39307,45 @@ function healSectionIdentity(state){
 const MAX_BACKUPS=8;
 function _backupKey(){return 'mf_backups_v1';}
 function loadBackups(){try{return JSON.parse(localStorage.getItem(_backupKey())||'[]');}catch(_){return [];}}
-function persistBackups(arr){try{localStorage.setItem(_backupKey(),JSON.stringify(arr.slice(-MAX_BACKUPS)));}catch(e){console.warn('backup persist failed',e);}}
+function persistBackups(arr){
+  // A quota failure here means restore points have silently stopped saving —
+  // exactly when the user believes they are protected. Retry with progressively
+  // fewer points (an older backup is worth more than none), and if even one
+  // won't fit, say so out loud instead of only warning to a console nobody has
+  // open. Returns how many were actually written.
+  let keep=Math.min(arr.length, MAX_BACKUPS);
+  while(keep>0){
+    try{
+      localStorage.setItem(_backupKey(), JSON.stringify(arr.slice(-keep)));
+      if(keep<Math.min(arr.length,MAX_BACKUPS)){
+        try{ toast('Storage is nearly full \u2014 keeping only the newest '+keep+' restore point'+(keep!==1?'s':'')+'. Turn on backups to a folder (\u2461 Back up) so your work isn\u2019t only in the browser.','err',null,false,9000); }catch(_){}
+      }
+      return keep;
+    }catch(e){ keep--; }
+  }
+  console.warn('[MirrorFilter] backup persist failed: storage full');
+  try{ toast('\u26A0 Couldn\u2019t save an in-browser restore point \u2014 browser storage is full. Your work is still saved, but in-browser undo history is not. Use \u2461 Back up to keep files in a folder you control.','err',null,false,11000); }catch(_){}
+  return 0;
+}
 function saveNamedBackup(label, snapshot){
-  const snap=snapshot||{rules:S.rules,sectionTree:S.sectionTree,sectionOrder:S.sectionOrder,tiers:S.tiers,disabledSecs:S.disabledSecs,filterName:S.filterName};
+  // Full snapshot, same as the disk backup writes. This used to store only six
+  // keys (rules/sectionTree/sectionOrder/tiers/disabledSecs/filterName), so an
+  // in-browser restore silently dropped custom BaseTypes, custom HasExplicitMods
+  // and their PoE1/PoE2 tags, custom sounds, custom conditions, theme, league,
+  // build toggles, layout and the whole League Content configuration — the two
+  // "safety nets" were not equivalent despite being presented as such.
+  // Cost of fixing: those keys total ~1KB against a ~266KB rules payload, so
+  // restore points grew well under 1% and 8 of them still sit around 2MB.
+  let snap=snapshot;
+  if(!snap){
+    try{ snap=buildFullSnapshot(); }
+    catch(e){
+      // Never let a snapshot failure mean NO backup — fall back to the old
+      // minimal shape rather than throwing away the restore point entirely.
+      console.warn('[MirrorFilter] full snapshot failed, saving minimal backup',e);
+      snap={rules:S.rules,sectionTree:S.sectionTree,sectionOrder:S.sectionOrder,tiers:S.tiers,disabledSecs:S.disabledSecs,filterName:S.filterName};
+    }
+  }
   const arr=loadBackups();
   arr.push({label,ts:Date.now(),filterName:S.filterName||'MyFilter',ruleCount:(S.rules||[]).length,data:JSON.parse(JSON.stringify(snap))});
   persistBackups(arr);
@@ -39291,10 +39419,23 @@ async function backupNowFromButton(){
 // PoE2 refuses to load a filter containing a BaseType it doesn't recognise —
 // one bad name means no filter at all in game, not a skipped line. So before an
 // export it's worth checking every exact-match BaseType against the database.
+//
+// NOTE: this must check ALL_BASETYPES (both halves). An earlier version read
+// only CSUGG_BASETYPES_POE2 and so reported 122 false positives on the real
+// 364-rule filter — Divine Orb, Mirror of Kalandra and every other currency
+// live in CSUGG_CURRENCY_POE2. That noise was the only reason this wasn't
+// wired to export. With both halves consulted the same filter flags zero.
 // Only rules that actually SHIP are checked: a disabled rule (or one in a
 // disabled section) is written out commented, so it can't break anything.
 function knownBaseTypeSet(){
-  const set=new Set(typeof CSUGG_BASETYPES_POE2!=='undefined'?CSUGG_BASETYPES_POE2:[]);
+  // ALL_BASETYPES, not CSUGG_BASETYPES_POE2 alone. The database is split across
+  // TWO lists — CSUGG_CURRENCY_POE2 holds Divine Orb, Chaos Orb, Mirror of
+  // Kalandra, Orb of Annulment and every other currency — and checking only the
+  // second one flagged 122 perfectly valid names in a 364-rule filter as
+  // "missing". ALL_BASETYPES is the concatenation of both and is what the
+  // BaseType autocomplete already uses, so this now matches what the editor
+  // itself considers a real name.
+  const set=new Set(typeof ALL_BASETYPES!=='undefined'?ALL_BASETYPES:[]);
   (S.customBTs||[]).forEach(b=>set.add(typeof b==='string'?b:(b&&b.value)));
   return set;
 }
@@ -39329,13 +39470,13 @@ function renderBaseTypeCheck(){
       +' <span style="color:var(--text3)">['+esc(r.op)+']</span><br>'
       +'<span style="color:var(--text3)">'+esc(r.bad.join(', '))+'</span></div>').join('');
   if(!exact.length && !partial.length){
-    el.innerHTML='<div style="font-size:12px;color:#5ac88a;padding:6px 0">\u2713 Every BaseType in your shipping rules is present in the database.</div>';
+    el.innerHTML='<div style="font-size:12px;color:#5ac88a;padding:6px 0">\u2713 Every BaseType in your shipping rules is present in the database \u2014 nothing here would stop the filter loading.</div>';
     return;
   }
   el.innerHTML=
-    (exact.length?fmt(exact,'#e0a030','\u2139 '+exact.length+' rule'+(exact.length!==1?'s':'')+' use'+(exact.length!==1?'':'s')+' exact-match BaseTypes not in the database — review, not a verdict'):'')
+    (exact.length?fmt(exact,'#e0435a','\u26A0 '+exact.length+' rule'+(exact.length!==1?'s':'')+' use'+(exact.length!==1?'':'s')+' exact-match BaseTypes not in the database — these can stop the filter loading'):'')
     +(partial.length?fmt(partial,'var(--text2)','\u2139 '+partial.length+' partial-match rule'+(partial.length!==1?'s':'')+' reference unknown names (substring matching, lower risk)'):'')
-    +'<div style="font-size:11px;color:var(--text3);margin-top:8px">Checked against the '+((typeof CSUGG_BASETYPES_POE2!=='undefined')?CSUGG_BASETYPES_POE2.length.toLocaleString():'?')+'-entry database plus your custom BaseTypes. <strong>The database has known gaps</strong> — Divine Orb and Mirror of Kalandra are both missing from it — so most names here are perfectly valid. Treat this as a list to skim after a patch, not a fault list. Disabled rules and sections are skipped because they export commented out.</div>';
+    +'<div style="font-size:11px;color:var(--text3);margin-top:8px">Checked against the full '+((typeof ALL_BASETYPES!=='undefined')?ALL_BASETYPES.length.toLocaleString():'?')+'-entry database (both the BaseType and currency halves) plus your custom BaseTypes. A name listed here is one the game may reject, which stops the filter loading entirely — check the spelling, or add it under Custom BaseTypes if you know it is real. Disabled rules and sections are skipped because they export commented out.</div>';
 }
 // ── LEAGUE CONTENT PANEL ────────────────────────────────────────────────────
 // Editor for the BaseType lifecycle exceptions consumed by generateFilter.
@@ -39409,7 +39550,7 @@ function renderLeagueContent(){
     +rows
     +'<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border2)">'
       +'<div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-bottom:5px">🔍 BaseType check</div>'
-      +'<div style="font-size:11.5px;color:var(--text2);line-height:1.5;margin-bottom:7px">Lists BaseTypes in your shipping rules that aren\u2019t in MirrorFilter\u2019s database — a skim list after a patch, not a fault list. The database is incomplete (Divine Orb isn\u2019t in it), so appearing here does <em>not</em> mean the game will reject the name.</div>'
+      +'<div style="font-size:11.5px;color:var(--text2);line-height:1.5;margin-bottom:7px">Checks every BaseType in your shipping rules against the database. A name PoE2 doesn\u2019t recognise stops the whole filter loading, so run this after a patch — exporting warns you automatically too.</div>'
       +'<button class="sh-btn" onclick="renderBaseTypeCheck()" data-tip="Scan all enabled rules for BaseTypes not in the database">Run check</button>'
       +'<div id="lcCheckResult" style="margin-top:8px"></div>'
     +'</div>';
@@ -39807,6 +39948,16 @@ function refreshBackupPanel(){
       +'</div>';
   }).join('');
 }
+// saveState() re-reads the filter name and league FROM THE DOM, so any restore
+// that sets S.filterName / S.league and then calls saveState() has those values
+// silently overwritten by whatever is still on screen. Every restore path must
+// push the restored values into the controls FIRST. (This is why restoring a
+// backup never actually restored the filter name.)
+function syncRestoredIdentityToDOM(){
+  const fn=document.getElementById('filterName');
+  if(fn && S.filterName){ fn.value=S.filterName; if(typeof autoSizeFilterName==='function')autoSizeFilterName(); }
+  if(typeof syncLeagueUI==='function')syncLeagueUI();
+}
 async function restoreBackup(idx){
   const arr=loadBackups();
   const b=arr[idx]; if(!b){toast('Backup not found','err');return;}
@@ -39819,10 +39970,24 @@ async function restoreBackup(idx){
   if(d.tiers)S.tiers=JSON.parse(JSON.stringify(d.tiers));
   if(d.disabledSecs)S.disabledSecs=JSON.parse(JSON.stringify(d.disabledSecs));
   if(d.filterName)S.filterName=d.filterName;
+  // Everything else the snapshot carries. Guarded per key so an OLD restore
+  // point (saved before these were included) still restores cleanly — it simply
+  // leaves the current values alone rather than wiping them with undefined.
+  ['league','theme','econScope','customConds','customBTs','customSounds',
+   'buildToggles','uiLayout','exportPath','collapsedSecs','btLifecycle',
+   'leagueFilterExport','leagueFilterComments'].forEach(k=>{
+    if(d[k]!==undefined) S[k]=(typeof d[k]==='object'&&d[k]!==null)?JSON.parse(JSON.stringify(d[k])):d[k];
+  });
   // Re-heal after restore to re-establish the collision flag correctly.
   try{ const rep=healSectionIdentity(S); S.__sectionCollision=rep.remainingCollision||false; }catch(_){}
-  await saveState(); if(typeof renderList==='function')renderList(); refreshBackupPanel();
-  toast('Backup restored','ok');
+  syncRestoredIdentityToDOM();          // MUST precede saveState() — see above
+  await saveState();
+  if(typeof applyTheme==='function')applyTheme(S.theme);
+  if(typeof renderList==='function')renderList();
+  if(typeof renderLeagueContent==='function')renderLeagueContent();
+  refreshBackupPanel();
+  const older=(d.customBTs===undefined&&d.theme===undefined);
+  toast(older?'Backup restored (an older restore point \u2014 it only carried rules and sections, so your other settings were left as they are).':'Backup restored \u2014 rules, sections and all settings.','ok');
 }
 // Restore from a mirrorfilter-autobackup.json (or full snapshot) the user picks
 // off disk — the counterpart to the disk auto-backup. Reversible: current state
@@ -39871,7 +40036,10 @@ async function restoreFromDiskFile(){
           scMsg=' · saved setup found — re-link checklist opening';
         } else { scMsg=' · saved setup recorded'; }
       }
+      syncRestoredIdentityToDOM();      // MUST precede saveState() — see above
       await saveState(); if(typeof renderList==='function')renderList(); refreshBackupPanel();
+      if(typeof applyTheme==='function')applyTheme(S.theme);
+      if(typeof renderLeagueContent==='function')renderLeagueContent();
       if(typeof renderLocationsSummary==='function')renderLocationsSummary();
       toast('Restored from '+f.name+' (saved '+when+')'+scMsg,'ok');
     };
