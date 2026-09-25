@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.189
+  MirrorFilter Web — VERSION 5.190
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -28145,7 +28145,11 @@ function generateFilter(state, versionStr, timestampStr){
       if(lostAllBTs) ruleEnabled=false;
       ruleLines.push(`# ${rule.name} (Tier: ${tierDisp})` + (ruleEnabled ? "" : (lostAllBTs ? " [NO CONTENT THIS LEAGUE]" : " [DISABLED]")));
       if(withheldBTs.length && leagueFilterComments){
-        ruleLines.push(`#   held back for ${state.league||'this league'}: ${withheldBTs.join(", ")}`);
+        // Prefixed with @league-held: so the importer skips it. A bare prose
+        // comment here was being parsed as a SECTION HEADER on re-import
+        // (any unrecognised # line that isn't "Name (Tier: X)" becomes one),
+        // which invented a phantom section named after the note.
+        ruleLines.push(`#   @league-held: ${state.league||'this league'} \u2014 ${withheldBTs.join(", ")}`);
       }
       ruleLines.push(rule.action);
       for(const key of Object.keys(conds)){
@@ -28358,9 +28362,17 @@ function parseFilterText(text){
         "PoE2 Filter:","PoE Filter:","Exported:","Custom Conditions:","Custom BaseTypes:","Custom Sounds:"];
       if(headerPrefixes.some(p=>comment.startsWith(p))){ i++; continue; }
       if(comment.startsWith("(no rules")){ i++; continue; }
+      // League-availability note emitted next to a rule — data, not a section.
+      if(comment.startsWith("@league-held:")){ i++; continue; }
       if(comment.startsWith("[DISABLED]")){ i++; continue; }
-      const ruleDisabledTag=comment.endsWith("[DISABLED]");
-      if(ruleDisabledTag) comment=comment.slice(0,comment.length-"[DISABLED]".length).trim();
+      // "[NO CONTENT THIS LEAGUE]" marks a rule whose every BaseType was held
+      // back for the exported league. It is commented out in the file exactly
+      // like a disabled rule, so re-import it as disabled — otherwise it would
+      // return ENABLED with its BaseType line missing, i.e. silently widened.
+      const noContentTag=comment.endsWith("[NO CONTENT THIS LEAGUE]");
+      if(noContentTag) comment=comment.slice(0,comment.length-"[NO CONTENT THIS LEAGUE]".length).trim();
+      const ruleDisabledTag=noContentTag || comment.endsWith("[DISABLED]");
+      if(comment.endsWith("[DISABLED]")) comment=comment.slice(0,comment.length-"[DISABLED]".length).trim();
       const m=comment.match(/^(.+?)\s*\(Tier:\s*([^)]+)\)/);
       if(m){
         pendingName=m[1].trim();
@@ -30762,6 +30774,10 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.190',changes:[
+    'FIXED A BUG I INTRODUCED. The \u201Cheld back for <league>\u201D note written next to a rule was being parsed as a SECTION HEADER on re-import, inventing a phantom section named after the note and moving rules into it. Any unrecognised # comment that is not \u201CName (Tier: X)\u201D becomes a section, and free prose hit that path. The note is now tagged @league-held: and the importer skips it. Verified on the real 364-rule filter: sections 88 \u2192 88, zero phantoms.',
+    'A rule commented out as [NO CONTENT THIS LEAGUE] now re-imports as DISABLED. Previously it came back ENABLED with its BaseType line missing \u2014 i.e. silently widened to whatever its remaining conditions matched, the exact failure the export guard exists to prevent.'
+  ]},
   {v:'5.189',changes:[
     'The + Class / + BaseType and \u{1F4CB} Paste list controls now sit at the START of the value list instead of trailing the chips. With 22 BaseTypes wrapping over four lines, a trailing button moved every time the list changed and had to be hunted for; at the front it is always in the same place. The Match selector and Copy-all stay to their left, untouched.'
   ]},
