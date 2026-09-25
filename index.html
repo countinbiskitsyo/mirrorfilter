@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.188
+  MirrorFilter Web — VERSION 5.189
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -30762,6 +30762,9 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.189',changes:[
+    'The + Class / + BaseType and \u{1F4CB} Paste list controls now sit at the START of the value list instead of trailing the chips. With 22 BaseTypes wrapping over four lines, a trailing button moved every time the list changed and had to be hunted for; at the front it is always in the same place. The Match selector and Copy-all stay to their left, untouched.'
+  ]},
   {v:'5.188',changes:[
     'Added Sacred Bloom to the BaseType database (currency half). It is a BaseType \u2014 an individual item name \u2014 not a Class; the Class is whatever container it sits in, which you can confirm by hovering the item in game.',
     'Sacred Bloom ships with a lifecycle entry of addedIn: Forbidden Rites, since GGG\u2019s notes lock it to that event league. It is therefore held back automatically from filters exported for Runes of Aldur or earlier \u2014 the first real use of the League Content system, and no custom entry needed from you.',
@@ -36335,6 +36338,7 @@ function renderCondListED(rule){
       // a long list. Copies straight to the clipboard as a comma-separated
       // line, ready to paste elsewhere (another rule's picker, a text
       // file, wherever).
+      let _firstChipEl=null;
       if(Array.isArray(val)&&val.length>1){
         const selAllRow=document.createElement('div');
         selAllRow.style.cssText='margin-bottom:6px';
@@ -36396,19 +36400,28 @@ function renderCondListED(rule){
           t.addEventListener('dragend',()=>{t.style.opacity='';});
         }
         vl.appendChild(t);
+        if(!_firstChipEl) _firstChipEl=t;      // anchor for the controls below
       });
+      // The add/paste controls go at the START of the value list, not the end.
+      // With 22 BaseType chips wrapping over several lines, a trailing button
+      // moves every time the list changes and has to be hunted for; at the
+      // front it is always in the same place, right next to the Match selector.
+      // Built here, then inserted before the first chip via insertBefore.
+      const firstChip = _firstChipEl || null;   // before the first CHIP, so the
+      // Match: selector and Copy-all stay together to the left of them.
       const ab=ce('span','tag-add');ab.textContent='+ '+key;ab.setAttribute('data-tip','Add another '+key+' value to this condition');
       ab.onclick=()=>inlineAddValue(rule,key,row,ab);
-      vl.appendChild(ab);
+      ab.style.marginRight='4px';
+      vl.insertBefore(ab, firstChip);
       // Bulk paste for the two long-list conditions. Adding 17 soul cores one
       // chip at a time is the tedium this removes.
       if(key==='BaseType'||key==='Class'){
         const pb=ce('span','tag-add');
         pb.textContent='\u{1F4CB} Paste list';
-        pb.style.marginLeft='4px';
+        pb.style.marginRight='6px';
         pb.setAttribute('data-tip','Paste a whole list of '+key+' values at once \u2014 bullets, one per line, or quoted filter syntax');
         pb.onclick=()=>pasteValueListDialog(rule,key);
-        vl.appendChild(pb);
+        vl.insertBefore(pb, firstChip);
       }
     }else{
       const OPERATOR_SCALAR_KEYS=['ItemLevel','DropLevel','AreaLevel','WaystoneTier','Quality','GemLevel','StackSize','Sockets','Height','Width','BaseArmour','BaseEvasion','BaseEnergyShield','UnidentifiedItemTier'];
