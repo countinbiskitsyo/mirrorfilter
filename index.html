@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.200
+  MirrorFilter Web — VERSION 5.201
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -676,20 +676,37 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
         <span class="ns-logo-text">MirrorFilter</span>
       </div><div style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:.3px">&quot;Adamg MirrorFilter&quot; &copy; 2026 by Adamg. All rights reserved.</div><div style="text-align:center;font-size:10px;color:var(--text3);margin-bottom:20px;opacity:.75;max-width:420px;margin-left:auto;margin-right:auto">Shared for personal use only — see LICENSE.txt. Not affiliated with, authorized, maintained, sponsored, or endorsed by Grinding Gear Games or Tencent. Path of Exile and Path of Exile 2 are trademarks of Grinding Gear Games.</div><p>Select a rule from the left panel.<br><br>Use <strong>+ Section</strong> to create a section, <strong>+ Rule</strong> to add a rule.<br><br>Refer to the <strong>Resources</strong> tab for guides, tutorials, customizations and configurations.<br><br></p><!-- Two safety boxes SIDE BY SIDE, capped and centred: stacked full width
            they overflowed the panel vertically and stretched across 2560px. -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch;max-width:1480px;margin:0 auto;text-align:left"><span class="save-pulse" style="display:inline-block;border:1px solid var(--accent);border-radius:10px;padding:14px 20px;background:rgba(var(--accent-rgb),.06);font-size:13px;max-width:none;height:100%;box-sizing:border-box;text-align:left"><strong style="color:var(--accent)">💾 Protect your work — Save, Back up &amp; Restore</strong><br><span style="display:block;margin-top:6px;color:var(--text2);line-height:1.6">Your filter is saved automatically as you edit — but it is saved <strong>inside this browser</strong>, not as a file on your computer. That matters more than it sounds. Clearing your browsing data, &ldquo;cleaning&rdquo; tools like CCleaner, a browser reset, a reinstall, a new PC, or even just using a different browser will take your filter with it. There is no cloud copy and no account to recover from. <strong style="color:var(--accent)">Setting up a backup folder takes about ten seconds and is the single most important thing you can do here.</strong></span><span style="display:block;margin-top:8px;padding:8px 11px;border-left:3px solid var(--accent);background:rgba(var(--accent-rgb),.07);color:var(--text2);line-height:1.6;font-size:12px"><strong>Pick a cloud-synced folder</strong> (OneDrive, Google Drive, Dropbox) when you set this up. Then your work is backed up and carried to any other PC at the same time, and MirrorFilter writes a fresh timestamped copy on every save — so you can go back to yesterday’s version, not just the latest one.</span><br><span style="display:block;margin-top:8px;line-height:1.8">• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Save</span> — write the game <code>.filter</code> to your Path of Exile 2 folder, optionally to several folders at once.<br>• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Back up</span> — <strong>do this first.</strong> Point it at a folder once and every save writes a full copy of your entire editor state there: rules, sections, tiers, colours, sounds and settings. The <code>.filter</code> alone is not enough — it is the output, not your work.<br>• <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Restore</span> — load any backup back in one click, or move your filter to another computer.</span></span><div style="padding:11px 13px;margin:0;height:100%;box-sizing:border-box;border:1px solid var(--accent);border-radius:8px;background:rgba(var(--accent-rgb),.06)">
-        <div style="font-weight:800;color:var(--accent);margin-bottom:7px;font-size:12.5px">📁 The three files — what each one is for</div>
-        <div style="display:grid;grid-template-columns:auto 1fr;gap:5px 10px;font-size:11.5px;line-height:1.55;align-items:start">
-          <code style="white-space:nowrap">YourFilter.filter</code>
-          <span><strong>The game reads this one.</strong> Goes in <code>Documents\My Games\Path of Exile 2</code>. Written by Export / Quick-Save. On its own it restores your rules but <em>not</em> your tier setup or section structure.</span>
-          <code style="white-space:nowrap">YourFilter.filter.meta.json</code>
-          <span><strong>Rides beside the .filter.</strong> Carries tier configuration, section hierarchy and your save locations. Keep it in the same folder — import the pair together and far more comes back.</span>
-          <code style="white-space:nowrap;color:var(--accent)">mirrorfilter-backup-*.json</code>
-          <span><strong style="color:var(--accent)">Your complete work. This is the one that matters.</strong> Everything: rules, sections, tiers, colours, sounds, custom BaseTypes, custom conditions, themes, league setup. <strong>Only this file can restore you fully.</strong> Written to your backup folder on every save, timestamped.</span>
+      <!-- One box, short lines. Everything here is about the same thing: your work
+           lives in the browser, so get it onto disk. Two boxes said it twice. -->
+      <span class="save-pulse" style="display:block;border:1px solid var(--accent);border-radius:10px;padding:15px 20px;background:rgba(var(--accent-rgb),.06);font-size:13px;max-width:900px;margin:0 auto;text-align:left">
+        <strong style="color:var(--accent);font-size:14px">💾 Protect your work</strong>
+
+        <div style="margin-top:9px;line-height:1.6">
+          Your filter lives <strong>inside this browser</strong> — not in a file.
+          Clearing browsing data, a browser reset, or a new PC <strong style="color:#e87820">deletes it.
+          There is no cloud copy and no account to recover from.</strong>
         </div>
-        <div style="margin-top:9px;font-size:11.5px;color:var(--text2);line-height:1.55">
-          <strong>To move to another PC or recover from anything:</strong> take the <code>backup.json</code> and use ③ Restore. The other two are for the game, not for you.
+
+        <div style="margin-top:11px;padding:10px 13px;border-left:3px solid var(--accent);background:rgba(var(--accent-rgb),.09);border-radius:0 5px 5px 0;line-height:1.6">
+          <strong style="color:var(--accent)">Set up a backup folder. Ten seconds, and the most important thing you can do here.</strong><br>
+          Pick one inside <strong>OneDrive, Google Drive or Dropbox</strong> — then it is backed up, versioned, and waiting on every other PC.
         </div>
-      </div></div></div>
+
+        <div style="margin-top:12px;line-height:1.75">
+          <div style="font-weight:700;color:var(--text2);margin-bottom:3px">Your three files</div>
+          <div><code>.filter</code> — what the game reads. Rules only.</div>
+          <div><code>.filter.meta.json</code> — rides beside it. Tiers and sections.</div>
+          <div><code style="color:var(--accent)">backup.json</code> — <strong style="color:var(--accent)">your whole editor. The only one that fully restores you.</strong></div>
+        </div>
+
+        <div style="margin-top:10px;font-size:12.5px"><strong style="color:#e87820">Saving the .filter is not a backup.</strong></div>
+
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border2);line-height:1.8;font-size:12.5px">
+          <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Save</span> — write the <code>.filter</code> for the game.<br>
+          <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Back up</span> — <strong>do this first.</strong> Pick your folder.<br>
+          <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Restore</span> — bring any backup back, or move to another PC.
+        </div>
+      </span></div>
       <div id="edContent" style="display:none"></div>
     </div>
   </div>
@@ -30851,6 +30868,11 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.201',changes:[
+    'Merged \u201CProtect your work\u201D and \u201CThe three files\u201D into a single box. They were saying the same thing twice in different words, which made the panel long enough to need a scrollbar and buried the one instruction that matters.',
+    'Rewrote the copy short. Roughly 60% fewer words: the risk in one sentence, the fix in one sentence, the three files as one line each. The three things worth seeing at a glance are now the only things in colour \u2014 that it DELETES your work with no recovery, that setting up a backup folder is the single most important action, and that backup.json is the only file that fully restores you.',
+    'No scrollbar at 2560px or 1600px now.'
+  ]},
   {v:'5.200',changes:[
     'The no-rule-selected panel no longer scrolls. \u201CProtect your work\u201D and \u201CThe three files\u201D were stacked full-width, which overflowed the panel vertically AND stretched both boxes across the entire 2560px. They now sit side by side as equal-height columns, capped at 1480px and centred \u2014 better use of the width, and everything fits on screen.'
   ]},
