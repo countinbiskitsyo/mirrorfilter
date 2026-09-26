@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.201
+  MirrorFilter Web — VERSION 5.202
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -678,33 +678,45 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
            they overflowed the panel vertically and stretched across 2560px. -->
       <!-- One box, short lines. Everything here is about the same thing: your work
            lives in the browser, so get it onto disk. Two boxes said it twice. -->
-      <span class="save-pulse" style="display:block;border:1px solid var(--accent);border-radius:10px;padding:15px 20px;background:rgba(var(--accent-rgb),.06);font-size:13px;max-width:900px;margin:0 auto;text-align:left">
-        <strong style="color:var(--accent);font-size:14px">💾 Protect your work</strong>
+      <span class="save-pulse" style="display:block;border:1px solid var(--accent);border-radius:10px;background:rgba(var(--accent-rgb),.05);max-width:760px;margin:0 auto;text-align:left;overflow:hidden">
 
-        <div style="margin-top:9px;line-height:1.6">
-          Your filter lives <strong>inside this browser</strong> — not in a file.
-          Clearing browsing data, a browser reset, or a new PC <strong style="color:#e87820">deletes it.
-          There is no cloud copy and no account to recover from.</strong>
-        </div>
+        <div style="padding:11px 18px;background:rgba(var(--accent-rgb),.10);border-bottom:1px solid rgba(var(--accent-rgb),.25);font-weight:800;color:var(--accent);font-size:14px;letter-spacing:.2px">💾 Protect your work</div>
 
-        <div style="margin-top:11px;padding:10px 13px;border-left:3px solid var(--accent);background:rgba(var(--accent-rgb),.09);border-radius:0 5px 5px 0;line-height:1.6">
-          <strong style="color:var(--accent)">Set up a backup folder. Ten seconds, and the most important thing you can do here.</strong><br>
-          Pick one inside <strong>OneDrive, Google Drive or Dropbox</strong> — then it is backed up, versioned, and waiting on every other PC.
-        </div>
+        <div style="padding:16px 18px">
 
-        <div style="margin-top:12px;line-height:1.75">
-          <div style="font-weight:700;color:var(--text2);margin-bottom:3px">Your three files</div>
-          <div><code>.filter</code> — what the game reads. Rules only.</div>
-          <div><code>.filter.meta.json</code> — rides beside it. Tiers and sections.</div>
-          <div><code style="color:var(--accent)">backup.json</code> — <strong style="color:var(--accent)">your whole editor. The only one that fully restores you.</strong></div>
-        </div>
+          <div style="font-size:13px;line-height:1.65;color:var(--text2)">
+            Your filter lives <strong style="color:var(--text)">inside this browser</strong>, not in a file.
+            Clearing browsing data, a browser reset or a new PC
+            <strong style="color:#e87820">deletes it — with no cloud copy and no way to recover.</strong>
+          </div>
 
-        <div style="margin-top:10px;font-size:12.5px"><strong style="color:#e87820">Saving the .filter is not a backup.</strong></div>
+          <div style="margin-top:14px;padding:12px 15px;border-radius:7px;background:rgba(var(--accent-rgb),.12);border:1px solid rgba(var(--accent-rgb),.3)">
+            <div style="font-weight:800;color:var(--accent);font-size:13px;margin-bottom:3px">Set up a backup folder — 10 seconds</div>
+            <div style="font-size:12.5px;line-height:1.6;color:var(--text2)">The most important thing you can do here. Pick a folder inside <strong style="color:var(--text)">OneDrive, Google Drive or Dropbox</strong> and your work is saved, versioned, and on every other PC.</div>
+          </div>
 
-        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border2);line-height:1.8;font-size:12.5px">
-          <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Save</span> — write the <code>.filter</code> for the game.<br>
-          <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Back up</span> — <strong>do this first.</strong> Pick your folder.<br>
-          <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer">Restore</span> — bring any backup back, or move to another PC.
+          <div style="margin-top:16px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--text3);margin-bottom:7px">Your three files</div>
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:12.5px;line-height:1.5;align-items:baseline">
+              <code style="white-space:nowrap;color:var(--text3)">.filter</code>
+              <span style="color:var(--text2)">What the game reads. Rules only.</span>
+              <code style="white-space:nowrap;color:var(--text3)">.filter.meta.json</code>
+              <span style="color:var(--text2)">Rides beside it. Tiers and sections.</span>
+              <code style="white-space:nowrap;color:var(--accent);font-weight:700">backup.json</code>
+              <span style="color:var(--text)"><strong style="color:var(--accent)">Your whole editor — the only file that fully restores you.</strong></span>
+            </div>
+            <div style="margin-top:11px;font-size:12.5px;font-weight:700;color:#e87820">Saving the .filter is not a backup.</div>
+          </div>
+
+          <div style="margin-top:16px;padding-top:13px;border-top:1px solid var(--border2);display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:12.5px;line-height:1.5;align-items:baseline">
+            <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Back up</span>
+            <span style="color:var(--text2)"><strong style="color:var(--text)">Do this first.</strong> Pick your folder.</span>
+            <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Save</span>
+            <span style="color:var(--text2)">Write the <code>.filter</code> for the game.</span>
+            <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Restore</span>
+            <span style="color:var(--text2)">Bring a backup back, or move to another PC.</span>
+          </div>
+
         </div>
       </span></div>
       <div id="edContent" style="display:none"></div>
@@ -30868,6 +30880,12 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.202',changes:[
+    'Rebuilt the Protect your work box with a proper structure instead of a run of loose paragraphs. It now has a titled header bar, and the two lists are real two-column grids so the filenames and the action links line up in their own column rather than sitting inline mid-sentence.',
+    'Reordered the actions to Back up \u2192 Save \u2192 Restore, so the one you should do first is listed first.',
+    'Narrowed to 760px. The text lines were long enough to be tiring to read across.',
+    'Colour now carries meaning consistently: gold for actions and the file that matters, orange for the two warnings, grey for supporting detail.'
+  ]},
   {v:'5.201',changes:[
     'Merged \u201CProtect your work\u201D and \u201CThe three files\u201D into a single box. They were saying the same thing twice in different words, which made the panel long enough to need a scrollbar and buried the one instruction that matters.',
     'Rewrote the copy short. Roughly 60% fewer words: the risk in one sentence, the fix in one sentence, the three files as one line each. The three things worth seeing at a glance are now the only things in colour \u2014 that it DELETES your work with no recovery, that setting up a backup folder is the single most important action, and that backup.json is the only file that fully restores you.',
