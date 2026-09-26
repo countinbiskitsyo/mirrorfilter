@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.202
+  MirrorFilter Web — VERSION 5.203
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -25,7 +25,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 /* justify-content matters only once the bar WRAPS: the flex:1 spacers absorb
    all slack on a single row, but on a wrapped second row there are no
    spacers, so without this the overflow items would hug the left edge. */
-#topbar{flex-shrink:0;min-height:52px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--border)}
+#topbar{flex-shrink:0;min-height:46px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:6px 14px;background:var(--panel);border-bottom:1px solid var(--border)}
 #topbar::-webkit-scrollbar{height:0}
 .logo{font-size:19px;font-weight:800;white-space:nowrap;letter-spacing:-.3px}
 .logo-text-wrap{position:relative;display:inline-block}
@@ -110,7 +110,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .tab-pane.active{display:flex}
 #middleCol{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
 #sidebar{display:flex;flex-direction:column;width:340px;min-width:180px;max-width:540px;background:var(--panel);border-right:1px solid var(--border);overflow:hidden;flex-shrink:0;position:relative}
-#sbHead{flex-shrink:0;padding:7px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+#sbHead{flex-shrink:0;padding:6px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 .sh-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;flex:0 0 auto;margin-right:2px}
 .sh-btn{padding:3px 8px;font-size:11px;border-radius:var(--radius);border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap}
 .sh-btn:hover{background:var(--accent);color:#1a1200}
@@ -121,7 +121,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 #ruleList::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 .hres{position:absolute;right:0;top:0;bottom:0;width:5px;cursor:col-resize;z-index:20;background:transparent}
 .hres:hover,.hres.dragging{background:var(--accent)}
-.sec-hdr{display:flex;align-items:center;gap:5px;padding:3px 5px 3px;margin-top:2px;margin-bottom:1px;border-radius:var(--radius);cursor:pointer;user-select:none;background:linear-gradient(180deg,rgba(0,0,0,.16),rgba(0,0,0,.05));border:1px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,.3);transition:background .1s,outline-color .1s,border-color .1s,box-shadow .1s}
+.sec-hdr{display:flex;align-items:center;gap:5px;padding:2px 5px 2px;margin-top:1px;margin-bottom:1px;border-radius:var(--radius);cursor:pointer;user-select:none;background:linear-gradient(180deg,rgba(0,0,0,.16),rgba(0,0,0,.05));border:1px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,.3);transition:background .1s,outline-color .1s,border-color .1s,box-shadow .1s}
 html.shading-swapped .sec-hdr{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008))}
 .sec-selected>.sec-hdr{background:rgba(var(--accent-rgb),.14);border-left:4px solid var(--accent);border-color:var(--accent);box-shadow:0 0 0 1px var(--accent), 0 0 10px 2px rgba(var(--accent-rgb),.45)}
 .sec-hdr:hover{box-shadow:0 0 0 2px rgba(var(--accent-rgb),.5), 0 0 10px 1px rgba(var(--accent-rgb),.3);border-color:var(--border2)}
@@ -173,7 +173,7 @@ html.shading-swapped .sec-hdr{background:linear-gradient(180deg,rgba(255,255,255
   50%{box-shadow:0 1px 2px rgba(0,0,0,.3),0 0 10px 1px rgba(var(--accent-rgb),.55)}
 }
 .ri-drop-target{background:rgba(var(--accent-rgb),.16)!important;outline:2px dashed var(--accent);outline-offset:-2px}
-.ri{display:flex;align-items:center;gap:4px;padding:3px 5px 3px 14px;border-radius:var(--radius);cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008));border:1px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,.22);margin-bottom:2px;transition:background .12s,border-color .12s,box-shadow .08s,opacity .12s}
+.ri{display:flex;align-items:center;gap:4px;padding:2px 5px 2px 14px;border-radius:var(--radius);cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008));border:1px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,.22);margin-bottom:2px;transition:background .12s,border-color .12s,box-shadow .08s,opacity .12s}
 html.shading-swapped .ri{background:linear-gradient(180deg,rgba(0,0,0,.16),rgba(0,0,0,.05))}
 .ri:hover{border-color:rgba(var(--accent-rgb),.5);box-shadow:0 0 0 1px rgba(var(--accent-rgb),.35), 0 0 8px 1px rgba(var(--accent-rgb),.22)}
 .ri.active{background:rgba(var(--accent-rgb),.20);border:2px solid var(--accent)!important;padding:2px 4px 2px 13px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.6), inset 0 0 0 3px rgba(var(--accent-rgb),.75), 0 0 0 1px var(--accent), 0 0 10px 2px rgba(var(--accent-rgb),.55)!important}
@@ -30880,6 +30880,11 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.203',changes:[
+    'Every section now fits on screen without scrolling \u2014 FALLTHROUGH! was being clipped behind the taskbar. Measured the shortfall first: it was only 5px, so rather than shrink any one thing noticeably, a little came off four places. Section and rule rows lost 1px of vertical padding each (row pitch 29.8px \u2192 26.8px), section rows lost 1px of top margin, the header band lost 2px of padding, and the Rules header row lost 1px.',
+    'Nothing changed size \u2014 no smaller fonts, no shorter rows visually, just tighter whitespace. Net effect is about 114px reclaimed across 38 visible sections, which leaves roughly 94px of clear space below the last row on a 1440px display rather than clipping it.',
+    'The rule list now fits down to a 1160px content area, so it still works if you shrink the window or add a few more sections.'
+  ]},
   {v:'5.202',changes:[
     'Rebuilt the Protect your work box with a proper structure instead of a run of loose paragraphs. It now has a titled header bar, and the two lists are real two-column grids so the filenames and the action links line up in their own column rather than sitting inline mid-sentence.',
     'Reordered the actions to Back up \u2192 Save \u2192 Restore, so the one you should do first is listed first.',
