@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.197
+  MirrorFilter Web — VERSION 5.198
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -19,7 +19,9 @@
 :root{--bg:#0d0d0f;--panel:#141418;--card:#1a1a20;--border:#2a2a35;--border2:#3a3a50;--accent:#c8a45a;--accent-rgb:200,164,90;--accent2:#e8c06a;--red:#c0392b;--green:#27ae60;--text:#d8d0c0;--text2:#888;--text3:#505050;--radius:6px;--shadow:0 4px 24px rgba(0,0,0,.65)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;display:flex;flex-direction:row;height:100vh;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+/* The three panes sit in a row BELOW the full-width header band. */
+#appRow{flex:1;display:flex;flex-direction:row;min-height:0;overflow:hidden}
 #topbar{flex-shrink:0;min-height:52px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--border)}
 #topbar::-webkit-scrollbar{height:0}
 .logo{font-size:19px;font-weight:800;white-space:nowrap;letter-spacing:-.3px}
@@ -594,27 +596,12 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 </style>
 </head>
 <body>
-  <div id="sidebar">
-    <div id="sbHead">
-      <span class="sh-title" data-tip="Filter rules grouped by section. Drag sections or rules to reorder priority.">Rules</span>
-      <button class="sh-btn" onclick="addSection()" data-tip="Add a new empty section to organise rules">+ Section</button>
-      <button class="sh-btn" id="addRuleBtn" onclick="addRule()" data-tip="Add a new filter rule">+ Rule</button>
-    </div>
-    <div id="sbTools">
-      <button class="sh-btn" onclick="expandAllSections()" data-tip="Expand every section">▼ Expand All</button>
-      <button class="sh-btn" onclick="collapseAllSections()" data-tip="Collapse every section">▲ Collapse All</button>
-    </div>
-    <div style="position:relative">
-      <input id="ruleSearch" type="text" placeholder="🔍  Search anywhere in the filter for…" data-tip="Matches rule names, section names, AND anything inside a rule's conditions. Supports standard search operators: &quot;exact phrase&quot; for an exact match only (&quot;Breach Ring&quot; won't also match Refined Breach Ring) — -term to exclude anything containing it — term1 OR term2 to match either — combine freely, e.g. ring -refined OR amulet." oninput="debouncedRenderList();toggleRuleSearchClearBtn()" style="width:100%;padding-right:26px;box-sizing:border-box">
-      <span id="ruleSearchClearBtn" onclick="clearRuleSearch()" data-tip="Clear search" style="display:none;position:absolute;right:7px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--red);font-weight:700;font-size:14px;line-height:1;padding:2px 4px">✕</span>
-    </div>
-    <div id="ruleList"></div>
-    <div class="hres" id="sbRes"></div>
-  </div>
-<div id="middleCol">
+  <!-- Full-width header band. Lives OUTSIDE the three-column row so the
+       toolbar gets the whole window width instead of only the middle column;
+       the sidebars start below it. -->
 <div id="topbar">
   <div id="topbarSpacer" style="display:none;flex-shrink:0"></div>
-  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em id="mfVerLabel">Web</em><em style="margin-left:7px;opacity:.7">by Adamg and Claude</em><em id="mfGameVerLabel" style="margin-left:7px"></em></div>
+  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em id="mfVerLabel">Web</em><em style="margin-left:7px;opacity:.7">by Adamg &amp; Claude</em><em id="mfGameVerLabel" style="margin-left:7px"></em></div>
   <input id="filterName" type="text" value="MyFilter" placeholder="Filter name…" data-tip="Name used when exporting your .filter file" oninput="autoSizeFilterName()">
   <span id="filterNameMeasure" style="position:absolute;visibility:hidden;white-space:pre;font-size:13px"></span>
   <span style="font-size:11px;color:var(--text3);flex-shrink:0;margin-right:-2px" data-tip="Which league's prices Auto-Tier pulls">League:</span>
@@ -641,6 +628,25 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   </span>
   <div class="tb-spacer"></div>
 </div>
+  <div id="appRow">
+  <div id="sidebar">
+    <div id="sbHead">
+      <span class="sh-title" data-tip="Filter rules grouped by section. Drag sections or rules to reorder priority.">Rules</span>
+      <button class="sh-btn" onclick="addSection()" data-tip="Add a new empty section to organise rules">+ Section</button>
+      <button class="sh-btn" id="addRuleBtn" onclick="addRule()" data-tip="Add a new filter rule">+ Rule</button>
+    </div>
+    <div id="sbTools">
+      <button class="sh-btn" onclick="expandAllSections()" data-tip="Expand every section">▼ Expand All</button>
+      <button class="sh-btn" onclick="collapseAllSections()" data-tip="Collapse every section">▲ Collapse All</button>
+    </div>
+    <div style="position:relative">
+      <input id="ruleSearch" type="text" placeholder="🔍  Search anywhere in the filter for…" data-tip="Matches rule names, section names, AND anything inside a rule's conditions. Supports standard search operators: &quot;exact phrase&quot; for an exact match only (&quot;Breach Ring&quot; won't also match Refined Breach Ring) — -term to exclude anything containing it — term1 OR term2 to match either — combine freely, e.g. ring -refined OR amulet." oninput="debouncedRenderList();toggleRuleSearchClearBtn()" style="width:100%;padding-right:26px;box-sizing:border-box">
+      <span id="ruleSearchClearBtn" onclick="clearRuleSearch()" data-tip="Clear search" style="display:none;position:absolute;right:7px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--red);font-weight:700;font-size:14px;line-height:1;padding:2px 4px">✕</span>
+    </div>
+    <div id="ruleList"></div>
+    <div class="hres" id="sbRes"></div>
+  </div>
+<div id="middleCol">
 <div id="tabBar">
   <div id="tabBarSpacer" style="display:none;flex-shrink:0"></div>
   <div id="tabBarBtns">
@@ -1539,6 +1545,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       <div id="rawBox"># Select a rule to see output</div>
     </div>
   </div>
+  </div><!-- /#appRow -->
 
 
 <!-- MODALS -->
@@ -30837,6 +30844,12 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.198',changes:[
+    'The header bar now spans the FULL window width. It used to live inside the middle column, so it was squeezed between the Rules sidebar and the Preview pane and wrapped onto a second row. The Rules and Preview sidebars now start directly beneath it. Single row at 1440px, 1800px and 2560px.',
+    'Removed the spacer that padded the header by the sidebar width. It existed only to stop the header sliding sideways when the sidebar hid itself \u2014 impossible now that the header is a full-width band above the columns \u2014 and it was eating ~340px of toolbar space.',
+    'Byline reads \u201Cby Adamg & Claude\u201D.',
+    'The save indicator now ages: \u201Csaved just now\u201D \u2192 \u201Csaved ~4 min ago\u201D \u2192 \u201Csaved ~1h 35m ago\u201D \u2192 \u201Csaved ~3d ago\u201D, updating every 20 seconds and turning amber past 30 minutes. A plain \u201Csaved \u2713\u201D looks identical whether you saved five seconds or three hours ago, which is exactly when it matters. It never overwrites a transient status such as \u201CExporting\u2026\u201D, and its tooltip gives the exact clock time.'
+  ]},
   {v:'5.197',changes:[
     '\u2461 Back up now names the folder it is writing to, in a highlighted line under the description, alongside the time of the last backup. Previously it said a backup folder was ON without ever saying WHICH folder.',
     '\u2462 Restore now names the same folder, tells you the filename pattern to look for (mirrorfilter-backup-DATE_TIME.json), and points out that the newest date is your latest work \u2014 so you are not hunting blind at the moment you most need the file.',
@@ -32783,24 +32796,13 @@ function switchTab(name){closeAllCtxMenus();
   requestAnimationFrame(centerTabBar);
   const spacer=document.getElementById('tabBarSpacer');
   if(spacer) spacer.style.display='none';
-  // The ENTIRE header bar (logo, filter name, league, all the top buttons)
-  // lives inside #middleCol, a flex sibling of #sidebar — so on Visuals/
-  // Resources, where the sidebar is hidden, the whole header shifts left to
-  // fill that space, landing at a different x-position than on Editor.
-  // Same fix as the tab bar spacer above, applied to the header itself.
+  // The header used to live inside #middleCol, a flex sibling of #sidebar, so
+  // it shifted horizontally whenever the sidebar was hidden — this spacer
+  // existed purely to cancel that out. The header is now a full-width band
+  // above the column row, so its position no longer depends on the sidebar at
+  // all and the spacer would only waste ~340px of the toolbar's width.
   const topbarSpacer=document.getElementById('topbarSpacer');
-  if(topbarSpacer){
-    if(isEditor){
-      topbarSpacer.style.display='none';
-    } else {
-      topbarSpacer.style.display='block';
-      // #topbar has gap:8px between children vs #tabBar's gap:2px — that
-      // extra 6px of gap after this spacer (before the logo) needs to be
-      // subtracted too, on top of the same -2px correction used for the
-      // tab bar, or the header lands 6px too far right on Visuals/Resources.
-      topbarSpacer.style.width=Math.max(0,sidebarWidthNow-2-6)+'px';
-    }
-  }
+  if(topbarSpacer) topbarSpacer.style.display='none';
   if(name==='viz'){renderViz();if(!document.getElementById('lootSimGround').children.length)generateLootSim();}
   if(name==='settings'){buildThemeGrid();renderSettingsLists();}
 }
@@ -40672,9 +40674,44 @@ function setStatus(m){
   // (previously this was split across two redundant header elements).
   if(m==='Ready')display='\uD83D\uDCC4 '+name+'.filter \u2014 ready';
   else if(m==='Ready \u2713')display='\uD83D\uDCC4 '+name+'.filter \u2014 ready \u2713';
-  else if(m==='Saved \u2713')display='\uD83D\uDCC4 '+name+'.filter \u2014 saved \u2713';
+  else if(m==='Saved \u2713'){
+    // Stamp the moment of the save so the ticker below can age it.
+    _lastSaveAt=Date.now();
+    display='\uD83D\uDCC4 '+name+'.filter \u2014 saved just now';
+  }
   document.getElementById('statusBar').textContent=display;
 }
+// ── "saved N min ago" ───────────────────────────────────────────────────────
+// A bare "saved ✓" is true the instant it appears and quietly misleading an
+// hour later — it looks identical whether you saved 5 seconds or 3 hours ago.
+// Ageing the label turns it into information you can act on.
+let _lastSaveAt=null;
+function agoText(ms){
+  const s=Math.round((Date.now()-ms)/1000);
+  if(s<45) return 'just now';
+  const m=Math.round(s/60);
+  if(m<60) return '~'+m+' min ago';
+  const h=Math.floor(m/60);
+  if(h<24) return '~'+h+'h '+(m%60)+'m ago';
+  return '~'+Math.floor(h/24)+'d ago';
+}
+function tickSaveAge(){
+  if(!_lastSaveAt) return;
+  const el=document.getElementById('statusBar');
+  if(!el) return;
+  // Only rewrite while the line is still a "saved" line — never clobber a
+  // transient status like "Exporting…" that is mid-flight.
+  if(!/\u2014 saved /.test(el.textContent)) return;
+  const nameEl=document.getElementById('filterName');
+  const name=(nameEl&&nameEl.value.trim())||'Untitled';
+  const age=agoText(_lastSaveAt);
+  el.textContent='\uD83D\uDCC4 '+name+'.filter \u2014 saved '+age;
+  // Nudge the colour once the save is getting old enough to be worth noticing.
+  const mins=(Date.now()-_lastSaveAt)/60000;
+  el.style.color = mins>30 ? '#e0a030' : '';
+  el.setAttribute('data-tip','Last written to disk '+age+' ('+new Date(_lastSaveAt).toLocaleTimeString()+'). Your work also auto-saves in this browser as you type \u2014 this line is about the .filter and backup files on disk.');
+}
+setInterval(tickSaveAge, 20000);
 function toast(msg,type,action,flourish,durationMs){
   type=type||'inf';
   const a=document.getElementById('toasts');
