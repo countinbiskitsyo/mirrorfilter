@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.198
+  MirrorFilter Web — VERSION 5.199
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -22,7 +22,10 @@ html,body{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;display:flex;flex-direction:column;height:100vh;overflow:hidden}
 /* The three panes sit in a row BELOW the full-width header band. */
 #appRow{flex:1;display:flex;flex-direction:row;min-height:0;overflow:hidden}
-#topbar{flex-shrink:0;min-height:52px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--border)}
+/* justify-content matters only once the bar WRAPS: the flex:1 spacers absorb
+   all slack on a single row, but on a wrapped second row there are no
+   spacers, so without this the overflow items would hug the left edge. */
+#topbar{flex-shrink:0;min-height:52px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--border)}
 #topbar::-webkit-scrollbar{height:0}
 .logo{font-size:19px;font-weight:800;white-space:nowrap;letter-spacing:-.3px}
 .logo-text-wrap{position:relative;display:inline-block}
@@ -107,11 +110,10 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .tab-pane.active{display:flex}
 #middleCol{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
 #sidebar{display:flex;flex-direction:column;width:340px;min-width:180px;max-width:540px;background:var(--panel);border-right:1px solid var(--border);overflow:hidden;flex-shrink:0;position:relative}
-#sbHead{flex-shrink:0;padding:7px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:5px}
-.sh-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;flex:1}
+#sbHead{flex-shrink:0;padding:7px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.sh-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;flex:0 0 auto;margin-right:2px}
 .sh-btn{padding:3px 8px;font-size:11px;border-radius:var(--radius);border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap}
 .sh-btn:hover{background:var(--accent);color:#1a1200}
-#sbTools{flex-shrink:0;padding:5px 8px;border-bottom:1px solid var(--border);display:flex;gap:4px}
 #ruleSearch{flex-shrink:0;padding:6px 10px;background:var(--bg);border:none;border-bottom:1px solid var(--border);color:var(--text);font-size:13px;outline:none;width:100%}
 #ruleSearch::placeholder{color:var(--text3)}
 #ruleList{flex:1;overflow-y:auto;padding:4px;margin-right:5px}
@@ -601,6 +603,9 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
        the sidebars start below it. -->
 <div id="topbar">
   <div id="topbarSpacer" style="display:none;flex-shrink:0"></div>
+  <!-- Pairs with the .tb-spacer at the end of this bar: two flex:1 spacers,
+       one each side, split the leftover width evenly and centre the group. -->
+  <div class="tb-spacer"></div>
   <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em id="mfVerLabel">Web</em><em style="margin-left:7px;opacity:.7">by Adamg &amp; Claude</em><em id="mfGameVerLabel" style="margin-left:7px"></em></div>
   <input id="filterName" type="text" value="MyFilter" placeholder="Filter name…" data-tip="Name used when exporting your .filter file" oninput="autoSizeFilterName()">
   <span id="filterNameMeasure" style="position:absolute;visibility:hidden;white-space:pre;font-size:13px"></span>
@@ -630,14 +635,15 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 </div>
   <div id="appRow">
   <div id="sidebar">
+    <!-- Title, add buttons and expand/collapse all share ONE row: two rows of
+         controls cost vertical space that the rule list needs more. -->
     <div id="sbHead">
       <span class="sh-title" data-tip="Filter rules grouped by section. Drag sections or rules to reorder priority.">Rules</span>
+      <button class="sh-btn" onclick="expandAllSections()" data-tip="Expand every section">▼ All</button>
+      <button class="sh-btn" onclick="collapseAllSections()" data-tip="Collapse every section">▲ All</button>
+      <span style="width:1px;height:15px;background:var(--border2);flex-shrink:0;margin:0 1px"></span>
       <button class="sh-btn" onclick="addSection()" data-tip="Add a new empty section to organise rules">+ Section</button>
       <button class="sh-btn" id="addRuleBtn" onclick="addRule()" data-tip="Add a new filter rule">+ Rule</button>
-    </div>
-    <div id="sbTools">
-      <button class="sh-btn" onclick="expandAllSections()" data-tip="Expand every section">▼ Expand All</button>
-      <button class="sh-btn" onclick="collapseAllSections()" data-tip="Collapse every section">▲ Collapse All</button>
     </div>
     <div style="position:relative">
       <input id="ruleSearch" type="text" placeholder="🔍  Search anywhere in the filter for…" data-tip="Matches rule names, section names, AND anything inside a rule's conditions. Supports standard search operators: &quot;exact phrase&quot; for an exact match only (&quot;Breach Ring&quot; won't also match Refined Breach Ring) — -term to exclude anything containing it — term1 OR term2 to match either — combine freely, e.g. ring -refined OR amulet." oninput="debouncedRenderList();toggleRuleSearchClearBtn()" style="width:100%;padding-right:26px;box-sizing:border-box">
@@ -30844,6 +30850,12 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.199',changes:[
+    'Header bar contents are now centred. A flex spacer at each end splits the leftover width evenly, and justify-content handles the case where the bar wraps on a narrow window so overflow items centre instead of hugging the left edge.',
+    'Rules sidebar header is now ONE row: RULES \u25bc All \u25b2 All | + Section + Rule. Expand/Collapse All had their own row underneath, costing about 30px of vertical space on every screen for two buttons. Shortened to \u25bc All / \u25b2 All to fit, tooltips unchanged, and the row wraps gracefully if you drag the sidebar very narrow.',
+    'The rule list now starts ~30px higher, so more of your filter is visible without scrolling.',
+    'Removed the orphaned #sbTools CSS rule left behind by that merge (checklist item 1k \u2014 dead code).'
+  ]},
   {v:'5.198',changes:[
     'The header bar now spans the FULL window width. It used to live inside the middle column, so it was squeezed between the Rules sidebar and the Preview pane and wrapped onto a second row. The Rules and Preview sidebars now start directly beneath it. Single row at 1440px, 1800px and 2560px.',
     'Removed the spacer that padded the header by the sidebar width. It existed only to stop the header sliding sideways when the sidebar hid itself \u2014 impossible now that the header is a full-width band above the columns \u2014 and it was eating ~340px of toolbar space.',
