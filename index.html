@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.203
+  MirrorFilter Web — VERSION 5.204
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -110,7 +110,12 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .tab-pane.active{display:flex}
 #middleCol{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
 #sidebar{display:flex;flex-direction:column;width:340px;min-width:180px;max-width:540px;background:var(--panel);border-right:1px solid var(--border);overflow:hidden;flex-shrink:0;position:relative}
-#sbHead{flex-shrink:0;padding:6px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+#sbHead{flex-shrink:0;padding:6px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:3px;flex-wrap:wrap}
+/* Four full-text buttons plus the RULES label have to share a 340px sidebar
+   on ONE row. Tightened only inside this header so buttons elsewhere are
+   untouched. */
+#sbHead .sh-btn{padding:2px 6px;font-size:10.5px;letter-spacing:-.1px}
+#sbHead .sh-title{font-size:10px;letter-spacing:.5px}
 .sh-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;flex:0 0 auto;margin-right:2px}
 .sh-btn{padding:3px 8px;font-size:11px;border-radius:var(--radius);border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap}
 .sh-btn:hover{background:var(--accent);color:#1a1200}
@@ -639,8 +644,8 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
          controls cost vertical space that the rule list needs more. -->
     <div id="sbHead">
       <span class="sh-title" data-tip="Filter rules grouped by section. Drag sections or rules to reorder priority.">Rules</span>
-      <button class="sh-btn" onclick="expandAllSections()" data-tip="Expand every section">▼ All</button>
-      <button class="sh-btn" onclick="collapseAllSections()" data-tip="Collapse every section">▲ All</button>
+      <button class="sh-btn" onclick="expandAllSections()" data-tip="Expand every section">▼ Expand All</button>
+      <button class="sh-btn" onclick="collapseAllSections()" data-tip="Collapse every section">▲ Collapse All</button>
       <span style="width:1px;height:15px;background:var(--border2);flex-shrink:0;margin:0 1px"></span>
       <button class="sh-btn" onclick="addSection()" data-tip="Add a new empty section to organise rules">+ Section</button>
       <button class="sh-btn" id="addRuleBtn" onclick="addRule()" data-tip="Add a new filter rule">+ Rule</button>
@@ -30880,6 +30885,13 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.204',changes:[
+    'Restored the full \u25bc Expand All / \u25b2 Collapse All labels. They still share one row with RULES, + Section and + Rule \u2014 the button padding and font inside that header were tightened instead, which actually made the row 4px SHORTER than when the labels were abbreviated.',
+    'New stat panel: \u{1F9F9} Empty Sections (Visuals & Stats). Lists every section with no rules anywhere beneath it. These export as a bare comment header, match nothing, and are almost always leftovers from renaming or reorganising.',
+    'It walks the whole tree, so a parent is only flagged when its ENTIRE subtree is empty, and children of an already-flagged parent are not listed twice. Sections sharing a name with a populated section get a \u26A0 duplicate name warning \u2014 that is the case where one copy is live and one is dead, and the two look identical in the sidebar.',
+    'Clicking a row jumps to that section in the Editor and flashes it for two seconds.',
+    'Run against the real 364-rule filter it correctly found exactly two: Magic Bases \u203a Weapons and Normal Bases \u203a Weapons, both flagged as duplicate names.'
+  ]},
   {v:'5.203',changes:[
     'Every section now fits on screen without scrolling \u2014 FALLTHROUGH! was being clipped behind the taskbar. Measured the shortfall first: it was only 5px, so rather than shrink any one thing noticeably, a little came off four places. Section and rule rows lost 1px of vertical padding each (row pitch 29.8px \u2192 26.8px), section rows lost 1px of top margin, the header band lost 2px of padding, and the Rules header row lost 1px.',
     'Nothing changed size \u2014 no smaller fonts, no shorter rows visually, just tighter whitespace. Net effect is about 114px reclaimed across 38 visible sections, which leaves roughly 94px of clear space below the last row on a 1440px display rather than clipping it.',
@@ -37751,6 +37763,21 @@ function renderViz(){
   renderVizStatsRight();
   renderVizStatsLeft();
 }
+// Jump from an Empty Sections row to that section in the Editor and flash it.
+// Kept as a named function because building this as an inline onclick meant
+// four levels of nested quoting, which broke the attribute and leaked raw JS
+// into the visible card text.
+function jumpToSection(id){
+  switchTab('editor');
+  setTimeout(()=>{
+    const el=document.querySelector('[data-sec="'+id+'"]');
+    if(!el) return;
+    el.scrollIntoView({block:'center'});
+    el.style.outline='2px solid var(--accent)';
+    el.style.outlineOffset='1px';
+    setTimeout(()=>{ el.style.outline=''; el.style.outlineOffset=''; }, 2200);
+  }, 260);
+}
 function renderVizStatsRight(){
   const box=document.getElementById('vizStatsRight');if(!box)return;
   const rules=S.rules||[];
@@ -37773,6 +37800,66 @@ function renderVizStatsRight(){
   });
 
   let html='<div class="vstat-group-title">\ud83d\udccb Rules &amp; Tiers</div>';
+  // ── EMPTY SECTIONS ────────────────────────────────────────────────────────
+  // A section holding no rules AND no sub-section that holds rules is dead
+  // weight: it exports as a bare comment header and does nothing. These are
+  // usually leftovers from renaming or reorganising, and they are easy to miss
+  // because a duplicate name looks identical to the live one in the sidebar.
+  // Walks the whole tree, so a parent counts as empty only if its ENTIRE
+  // subtree is empty.
+  (function(){
+    const rulesBySec={};
+    (S.rules||[]).forEach(r=>{ rulesBySec[r.section]=(rulesBySec[r.section]||0)+1; });
+    const dead=[];
+    const nameById={};
+    (function collect(nodes,path){
+      (nodes||[]).forEach(n=>{
+        const label=(path?path+' \u203a ':'')+(n.name||n.id);
+        nameById[n.id]=label;
+        collect(n.children,label);
+      });
+    })(S.sectionTree||[],'');
+    // subtree rule count, memoised
+    const subtotal={};
+    function count(n){
+      if(subtotal[n.id]!==undefined) return subtotal[n.id];
+      let t=rulesBySec[n.id]||0;
+      (n.children||[]).forEach(c=>{ t+=count(c); });
+      return (subtotal[n.id]=t);
+    }
+    (function scan(nodes){
+      (nodes||[]).forEach(n=>{
+        if(count(n)===0) dead.push({id:n.id,label:nameById[n.id],kids:(n.children||[]).length});
+        else scan(n.children);   // don't list children of an already-dead parent twice
+      });
+    })(S.sectionTree||[]);
+    // Flag same-named siblings too: that is the case where one copy is live and
+    // the other is the empty leftover, which is exactly what looks confusing.
+    const byName={};
+    Object.keys(nameById).forEach(id=>{ const nm=nameById[id]; (byName[nm]=byName[nm]||[]).push(id); });
+    html+='<div class="vstat-card" style="border-left:3px solid #e0435a;background:#e0435a14"><div class="vstat-title" data-tip="Sections that contain no rules anywhere beneath them. They export as an empty comment header and match nothing \u2014 usually leftovers from renaming or reorganising.">\uD83E\uDDF9 Empty Sections</div>';
+    if(!dead.length){
+      html+='<div style="font-size:11px;color:var(--text2);padding:2px 0">Every section contains at least one rule \u2014 nothing dead.</div>';
+    } else {
+      html+='<div style="font-size:11px;color:var(--text2);margin-bottom:5px">'+dead.length+' section'+(dead.length!==1?'s':'')+' contain'+(dead.length===1?'s':'')+' no rules. Safe to delete \u2014 they match nothing.</div>';
+      dead.slice(0,14).forEach(d=>{
+        const dupe=(byName[d.label]||[]).length>1;
+        // Card is only ~210px wide, so the badge goes on its own line rather
+        // than being ellipsised away inline.
+        html+='<div style="cursor:pointer;padding:3px 0;border-top:1px solid var(--border)" data-jump="'+esc(d.id)+'" onclick="jumpToSection(this.getAttribute(\'data-jump\'))" data-tip="Click to jump to this section in the Editor">'
+          +'<div style="display:flex;align-items:baseline;gap:6px">'
+            +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(d.label)+'</span>'
+            +'<b style="color:#e0435a;flex-shrink:0">0</b>'
+          +'</div>'
+          +(d.kids?'<div style="font-size:10px;color:var(--text3)">'+d.kids+' empty sub-section'+(d.kids!==1?'s':'')+'</div>':'')
+          +(dupe?'<div style="font-size:10px;color:#e0a030;line-height:1.35">\u26A0 duplicate name \u2014 another section with this name has rules</div>':'')
+        +'</div>';
+      });
+      if(dead.length>14) html+='<div style="font-size:10.5px;color:var(--text3);margin-top:3px">\u2026and '+(dead.length-14)+' more</div>';
+    }
+    html+='</div>';
+  })();
+
   html+='<div class="vstat-card" style="border-left:3px solid #5a9cf5;background:#5a9cf514"><div class="vstat-title" data-tip="High-level counts across your whole filter, regardless of tab or section.">Overview</div>';
   html+='<div class="vstat-row"><span data-tip="Every rule in your filter, across every section, whether enabled or disabled.">Total rules</span><b>'+total+'</b></div>';
   html+='<div class="vstat-row"><span data-tip="Rules that are individually enabled AND whose section isn\'t disabled — i.e. rules that actually take effect in the exported .filter.">Enabled</span><b>'+enabled+'</b></div>';
