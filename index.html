@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.204
+  MirrorFilter Web — VERSION 5.205
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -683,43 +683,48 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
            they overflowed the panel vertically and stretched across 2560px. -->
       <!-- One box, short lines. Everything here is about the same thing: your work
            lives in the browser, so get it onto disk. Two boxes said it twice. -->
-      <span class="save-pulse" style="display:block;border:1px solid var(--accent);border-radius:10px;background:rgba(var(--accent-rgb),.05);max-width:760px;margin:0 auto;text-align:left;overflow:hidden">
+      <span class="save-pulse" style="display:block;border:1px solid var(--accent);border-radius:10px;background:rgba(var(--accent-rgb),.05);max-width:880px;margin:0 auto;text-align:left;overflow:hidden">
 
         <div style="padding:11px 18px;background:rgba(var(--accent-rgb),.10);border-bottom:1px solid rgba(var(--accent-rgb),.25);font-weight:800;color:var(--accent);font-size:14px;letter-spacing:.2px">💾 Protect your work</div>
 
-        <div style="padding:16px 18px">
+        <!-- Four self-contained cards in a 2x2 grid, each with its own all-caps
+             label. Scan the labels, read only the one card you came for —
+             no need to read the box top-to-bottom like the old prose block. -->
+        <div style="padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
 
-          <div style="font-size:13px;line-height:1.65;color:var(--text2)">
-            Your filter lives <strong style="color:var(--text)">inside this browser</strong>, not in a file.
-            Clearing browsing data, a browser reset or a new PC
-            <strong style="color:#e87820">deletes it — with no cloud copy and no way to recover.</strong>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#e87820;margin-bottom:7px">⚠ The risk</div>
+            <div style="font-size:12.5px;line-height:1.55;color:var(--text2)">Your filter lives <strong style="color:var(--text)">inside this browser</strong>, not in a file. Clearing browsing data, a browser reset or a new PC <strong style="color:#e87820">deletes it — no cloud copy, no recovery.</strong></div>
           </div>
 
-          <div style="margin-top:14px;padding:12px 15px;border-radius:7px;background:rgba(var(--accent-rgb),.12);border:1px solid rgba(var(--accent-rgb),.3)">
-            <div style="font-weight:800;color:var(--accent);font-size:13px;margin-bottom:3px">Set up a backup folder — 10 seconds</div>
-            <div style="font-size:12.5px;line-height:1.6;color:var(--text2)">The most important thing you can do here. Pick a folder inside <strong style="color:var(--text)">OneDrive, Google Drive or Dropbox</strong> and your work is saved, versioned, and on every other PC.</div>
+          <div style="background:rgba(var(--accent-rgb),.12);border:1px solid rgba(var(--accent-rgb),.3);border-radius:8px;padding:12px 14px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);margin-bottom:7px">✅ The fix — 10 seconds</div>
+            <div style="font-size:12.5px;line-height:1.55;color:var(--text2)">Pick a folder inside <strong style="color:var(--text)">OneDrive, Google Drive or Dropbox</strong>. Your work saves there automatically — versioned, and on every other PC.</div>
           </div>
 
-          <div style="margin-top:16px">
-            <div style="font-size:11px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--text3);margin-bottom:7px">Your three files</div>
-            <div style="display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:12.5px;line-height:1.5;align-items:baseline">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">📁 The three files</div>
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:5px 10px;font-size:12px;line-height:1.45;align-items:baseline">
               <code style="white-space:nowrap;color:var(--text3)">.filter</code>
-              <span style="color:var(--text2)">What the game reads. Rules only.</span>
-              <code style="white-space:nowrap;color:var(--text3)">.filter.meta.json</code>
-              <span style="color:var(--text2)">Rides beside it. Tiers and sections.</span>
+              <span style="color:var(--text2)">What the game reads.</span>
+              <code style="white-space:nowrap;color:var(--text3)">.meta.json</code>
+              <span style="color:var(--text2)">Rides beside it — tiers, sections.</span>
               <code style="white-space:nowrap;color:var(--accent);font-weight:700">backup.json</code>
-              <span style="color:var(--text)"><strong style="color:var(--accent)">Your whole editor — the only file that fully restores you.</strong></span>
+              <span style="color:var(--text)">The only file that fully restores you.</span>
             </div>
-            <div style="margin-top:11px;font-size:12.5px;font-weight:700;color:#e87820">Saving the .filter is not a backup.</div>
+            <div style="margin-top:9px;font-size:11.5px;font-weight:700;color:#e87820">Saving the .filter is not a backup.</div>
           </div>
 
-          <div style="margin-top:16px;padding-top:13px;border-top:1px solid var(--border2);display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:12.5px;line-height:1.5;align-items:baseline">
-            <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Back up</span>
-            <span style="color:var(--text2)"><strong style="color:var(--text)">Do this first.</strong> Pick your folder.</span>
-            <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Save</span>
-            <span style="color:var(--text2)">Write the <code>.filter</code> for the game.</span>
-            <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Restore</span>
-            <span style="color:var(--text2)">Bring a backup back, or move to another PC.</span>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">🔗 Jump to</div>
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:12px;line-height:1.45;align-items:baseline">
+              <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Back up</span>
+              <span style="color:var(--text2)"><strong style="color:var(--text)">Do this first.</strong></span>
+              <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Save</span>
+              <span style="color:var(--text2)">Writes the <code>.filter</code> for the game.</span>
+              <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Restore</span>
+              <span style="color:var(--text2)">Bring a backup back, or move PCs.</span>
+            </div>
           </div>
 
         </div>
@@ -30885,6 +30890,9 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.205',changes:[
+    'Rebuilt the no-rule-selected \u{1F4BE} Protect your work box as four labelled cards in a 2\u00d72 grid (The risk / The fix / The three files / Jump to) instead of one long stack of prose. Each card scans on its own \u2014 you can find the one topic you want without reading the rest.'
+  ]},
   {v:'5.204',changes:[
     'Restored the full \u25bc Expand All / \u25b2 Collapse All labels. They still share one row with RULES, + Section and + Rule \u2014 the button padding and font inside that header were tightened instead, which actually made the row 4px SHORTER than when the labels were abbreviated.',
     'New stat panel: \u{1F9F9} Empty Sections (Visuals & Stats). Lists every section with no rules anywhere beneath it. These export as a bare comment header, match nothing, and are almost always leftovers from renaming or reorganising.',
