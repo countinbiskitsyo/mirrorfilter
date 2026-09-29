@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.205
+  MirrorFilter Web — VERSION 5.206
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -30890,6 +30890,10 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.206',changes:[
+    'BaseType database: added 14 names that poe.ninja lists but the database lacked \u2014 11 Omens (Hunt, Sinistral/Dextral Crystallisation, Reinforcements, Sinistral/Dextral Necromancy, Sanctification, Blackblooded, Secret Compartments, Liege, Sovereign), Opiloti\'s Soul Core of Assault, Velour Shoes and Verisium Cuffs. These no longer trip the unknown-BaseType check.',
+    'Export gate unchanged: the check is still a warning. Database completeness can\u2019t be verified offline.'
+  ]},
   {v:'5.205',changes:[
     'Rebuilt the no-rule-selected \u{1F4BE} Protect your work box as four labelled cards in a 2\u00d72 grid (The risk / The fix / The three files / Jump to) instead of one long stack of prose. Each card scans on its own \u2014 you can find the one topic you want without reading the rest.'
   ]},
@@ -34613,8 +34617,12 @@ const CSUGG_CURRENCY_POE2=[
   'Stygian Spire','Abyssal Trove','Surveyor\'s Compass','Orb of Conflict','Sacred Blossom',
   'Verisium','Refined Verisium','Pure Verisium','Liquid Verisium','Expansive Alloy','Transcendent Alloy',
   'Prismatic Alloy','Aldur\'s Legacy','Uhtred\'s Sidereus',
+  // v5.206 gap fill: names seen in poe.ninja economy data but absent here.
+  'Omen of the Hunt','Omen of Sinistral Crystallisation','Omen of Dextral Crystallisation','Omen of Reinforcements','Omen of Sinistral Necromancy','Omen of Dextral Necromancy','Omen of Sanctification','Omen of the Blackblooded','Omen of Secret Compartments','Omen of the Liege','Omen of the Sovereign','Opiloti\'s Soul Core of Assault',
 ];
 const CSUGG_BASETYPES_POE2=[
+  // v5.206 gap fill: bases implied by Runemastered/Runeforged variants.
+  'Velour Shoes','Verisium Cuffs',
   // Spirit Gems (verified via Game8's "List of Spirit Gems", comprehensive list)
   'Iron Ward','Ravenous Swarm','Siphon Elements','Barkskin','Eternal Rage','Feral Invocation',
   'Wolf Pack','Convalescence','Herald of Blood','Rhoa Mount','Trail of Caltrops','Trinity',
