@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.210
+  MirrorFilter Web — VERSION 5.211
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -30927,6 +30927,12 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.211',changes:[
+    'BaseType database: added 499 equipment bases it never carried \u2014 armour, weapons, jewellery, flasks, charms, quivers and foci. Database is now 3,098 entries (was 2,599). These are NOT new items: an audit against the full PoE2 base list found the database held only 572 of 1,748 equipment bases, and most of the gaps (Broadsword, Pearlescent Amulet, Simple Dagger, Golden Greaves\u2026) date to Early Access. They were missing from BaseType autocomplete and were flagged by the unknown-BaseType check despite being real.',
+    'This is EDITOR-ONLY and changes nothing the game sees. Verified: exporting the example filter before and after is byte-identical \u2014 364 rules, 291 Show, 3 Hide, 0 bare BaseType lines, 195,509 characters. The database is the list of names the editor recognises; it is not content added to your filter.',
+    'Names came from a third-party database that renders them as the game does, and could NOT be verified against the game client offline. A wrong name is worse than a missing one \u2014 it stops being flagged AND becomes selectable, and PoE2 refuses to load a filter containing an unrecognised BaseType. Report anything that misbehaves in game.',
+    'Still outstanding: ~497 Runeforged and ~180 Runemastered variants (the 0.5.0 Runeforging system, of which the database carries only 20 and 43). Currency, gems, waystones, omens, essences and fragments were never audited at all.'
+  ]},
   {v:'5.210',changes:[
     'Welcome box: the warning now ends \u201C\u2026unless you \u2461 Back up\u201D in the green stage color, so the risk line points at its own fix. \u2460 Save now reads \u201CWrites the .filter to your game folder\u201D, and the \u201CSaving the .filter is not a backup\u201D footnote is gold to match \u2460 while \u2461 Back up stays green. Box widened to 1000px.',
     'Resources \u2192 Saving Your Work is now fully color-themed per stage: \u2460 Save gold, \u2461 Back up green, \u2462 Restore blue. Stage dividers, panel borders and panel headings all take their stage\u2019s color instead of the generic accent.',
@@ -35232,6 +35238,123 @@ const CSUGG_BASETYPES_POE2=[
   'Uhtred\'s Chalice Transcendent Mana Flask','Undying Hate Timeless Jewel',
   'Unforeseen Consequences Abyss Tablet','Valako\'s Roar Topaz Charm',
   'Visions of Paradise Irradiated Tablet','Voices Sapphire','Wraeclast Besieged Breach Tablet',
+  // ── Equipment base audit, v5.211 ─────────────────────────────────────────
+  // 499 long-standing equipment bases the database never carried (armour,
+  // weapons, jewellery, flasks, charms, quivers, foci). These are NOT new
+  // items: most date to Early Access. They were simply absent, which meant
+  // they were missing from BaseType autocomplete and were flagged by the
+  // unknown-BaseType check even though they are real.
+  //
+  // Sourced from a third-party base-item database that renders names as the
+  // game does; NOT verified against the game client (impossible offline).
+  // An incorrect name here is worse than a missing one: it stops being
+  // flagged AND becomes selectable, and PoE2 refuses to load a filter that
+  // contains an unrecognised BaseType. Report any that misbehave in game.
+  //
+  // Still outstanding: ~497 Runeforged and ~180 Runemastered variants, plus
+  // currency/gems/waystones/omens/essences, which were never audited.
+  'Abyssal Cuirass','Abyssal Flail','Adherent Bow','Adherent Leggings','Adherent\'s Raiment',
+  'Adorned Gloves','Adorned Wraps','Aegis Buckler','Aegis Quarterstaff','Aged Tower Shield',
+  'Akoyan Club','Alloy Crossbow','Ancestor Tower Shield','Ancient Buckler','Ancient Cuffs',
+  'Ancient Greatblade','Ancient Mitts','Anvil Maul','Apostle Leggings','Arcane Dirk',
+  'Arcane Raiment','Arced Claw','Arced Longsword','Arched Greataxe','Archon Crown',
+  'Arcing Quarterstaff','Armoured Claw','Aromatic Sceptre','Arrayed Focus','Ascetic Garb',
+  'Attuned Focus','Aureate Targe','Austere Garb','Avian Mask','Avian Robe','Avian Tiara',
+  'Bandage Wraps','Bandit Hatchet','Bandit Mace','Bandit Mask','Bangled Sandals',
+  'Barbarian Plate','Barbarous Quarterstaff','Barbed Bracers','Baroque Gloves',
+  'Bastion Sabatons','Battle Axe','Battle Pick','Bearded Axe','Bearskin Mantle',
+  'Blacksmith Maul','Bladed Quarterstaff','Bladed Shoes','Bladeguard Buckler','Bleak Crossbow',
+  'Blessed Claymore','Bloodletting Dagger','Boarding Hatchet','Bold Sabatons','Bound Boots',
+  'Bound Bracers','Bound Cuffs','Bound Leggings','Bound Sandals','Braided Cuffs',
+  'Branched Spear','Brigand Mace','Brigand Mask','Broad Greatsword','Broad Spear','Broadsword',
+  'Buckled Wraps','Bulwark Greaves','Cabalist Helm','Calescent Hammer','Cambric Wraps',
+  'Cannonade Crossbow','Captain Gauntlets','Carved Greaves','Carved Targe','Carving Hatchet',
+  'Cavalry Boots','Cavalry Bow','Ceremonial Halberd','Ceremonial Robe','Chain Flail',
+  'Chain Vestments','Champion Helm','Charmed Shoes','Chieftain Cuirass','Chiseled Targe',
+  'Cinderbark Talisman','Cinquedea','Clandestine Jacket','Clasped Sceptre','Cleansing Charm',
+  'Coiled Buckler','Commander Gauntlets','Commander Greathelm','Commander Sword',
+  'Condemned Talisman','Construct Crossbow','Construct Hammer','Corroded Greathelm',
+  'Corroded Longsword','Corsair Vest','Coursing Spear','Crescent Axe','Critical Wand',
+  'Crone Knife','Crossblade Spear','Crown Mace','Crude Claw','Cruel Talisman','Cryptic Helm',
+  'Cultist Bow','Cultist Focus','Cultist Gauntlets','Cultist Tower Shield','Cumbrous Crossbow',
+  'Cursespeaker\'s Robe','Dark Blade','Dark Staff','Death Mantle','Dedalian Crossbow',
+  'Deerstalker Hood','Defiant Tower Shield','Deified Crest Shield','Dekharan Crest Shield',
+  'Descry Crest Shield','Desert Cap','Desert Circlet','Detailed Mitts','Devotional Sceptre',
+  'Devouring Sceptre','Devout Garb','Disintegrating Maul','Divine Crown','Domed Helm',
+  'Double Limb Bow','Dragonscale Boots','Dread Hatchet','Dreaming Quarterstaff',
+  'Druidic Circlet','Druidic Crown','Druidic Focus','Dull Hatchet','Dunerunner Sandals',
+  'Edged Buckler','Edged Claw','Elaborate Sandals','Elegant Crossbow','Elegant Focus',
+  'Elegant Glaive','Elegant Greathelm','Elegant Greaves','Elegant Mitts','Elegant Plate',
+  'Elegant Slippers','Elegant Wraps','Embellished Gloves','Ember Greataxe','Embroidered Boots',
+  'Empyreal Crest Shield','Energy Blade','Engraved Crest Shield','Engraved Crossbow',
+  'Engraved Helm','Engraved Knife','Esoteric Crossbow','Evangelist Garb',
+  'Executioner Greataxe','Extended Cleaver','Faithful Leggings','Fang Talisman','Faridun Mask',
+  'Feathered Mitts','Feathered Raiment','Fists of Stone','Flanged Greatblade','Flared Boots',
+  'Flared Mace','Flax Sandals','Flexed Crossbow','Flexile Sabatons','Forest Crown',
+  'Forked Claw','Forking Belt','Fortified Hammer','Fortress Sabatons','Frayed Shoes',
+  'Frenzied Talisman','Frigid Wand','Fur-lined Targe','Fury Cleaver','Fury Talisman',
+  'Gallant Helm','Gemini Crossbow','Gilt Leggings','Gladiator Armour','Gleaming Cuffs',
+  'Gold Gloves','Golden Blade','Golden Bracers','Golden Caligae','Golden Flame',
+  'Golden Greaves','Golden Hoop','Golden Mail','Golden Mantle','Golden Obi','Golden Shield',
+  'Golden Visage','Golden Wreath','Goldwork Sabatons','Goliath Greathelm',
+  'Graceful Quarterstaff','Grand Bracers','Grand Mitts','Grand Targe','Great Flail','Greatbow',
+  'Greatmace','Grim Gloves','Guarded Flail','Guardian Bow','Guardian Greathelm',
+  'Guardian Quarterstaff','Guardian Spear','Gutspike Buckler','Hallowed Crown',
+  'Hallowed Focus','Hallowed Sceptre','Hardened Bracers','Hardleather Coat','Hatungo Garb',
+  'Hawker\'s Jacket','Heartcarver Mantle','Heavy Greathammer','Heavy Plate',
+  'Hefty Quarterstaff','Heirloom Cuffs','Holy Flail','Homeguard Greathelm','Hook Axe',
+  'Hooked Claw','Howling Talisman','Hunting Bracers','Hunting Coat','Icicle Flail',
+  'Icicle Staff','Imperial Robe','Inquisitor Crown','Invoking Belt','Iron Greatsword',
+  'Ironmail Gauntlets','Ironwood Greathammer','Ironwood Shortbow','Ironwood Targe',
+  'Itinerant Jacket','Jade Club','Jagged Greataxe','Jagged Spear','Jingling Buckler',
+  'Jingling Focus','Juggernaut Plate','Jungle Tiara','Kamasan Tiara','Keen Greatsword',
+  'Knightly Mitts','Kris Knife','Laced Sandals','Laminate Buckler','Lavish Crown',
+  'Layered Vest','Leatherplate Boots','Leyline Focus','Light Halberd','Lionheart Greaves',
+  'Lizardscale Coat','Lumen Mace','Lunar Quarterstaff','Lupine Sceptre','Luxurious Robe',
+  'Luxurious Slippers','Magus Focus','Mail Breaker','Mail Coat','Mailed Crown','Mantled Mail',
+  'Masked Greathelm','Massive Spear','Mercenary Greathelm','Mercenary Targe','Messer',
+  'Metalworked Tower Shield','Militant Bow','Molten Hammer','Monastic Garb',
+  'Monument Greataxe','Monument Greaves','Moon Dagger','Mosaic Targe','Mystic Raiment',
+  'Narrow Hood','Noble Circlet','Noble Greathelm','Noble Sabatons','Oak Mask',
+  'Obsidian Dagger','Obsidian Greatsword','Occultist Mantle','Offering Wand','Oiled Jacket',
+  'Ominous Gloves','Opulent Gloves','Orichalcum Spear','Ornate Cuffs','Ornate Greaves',
+  'Ornate Mitts','Ornate Plate','Padded Leggings','Painted Crest Shield','Painted Crossbow',
+  'Paragon Greathelm','Pariah Mask','Parrying Dagger','Patchwork Vest','Pearl Buckler',
+  'Pearlescent Amulet','Pelt Leggings','Pelt Mantle','Phalanx Tower Shield','Pict Claw',
+  'Piercing Claw','Piercing Crossbow','Pious Leggings','Pious Sceptre','Plated Claw',
+  'Plated Mitts','Plumed Focus','Polished Targe','Precise Greathammer','Primal Talisman',
+  'Primordial Wand','Profane Cleaver','Protector Bow','Quickslip Shoes','Rabid Talisman',
+  'Rambler Jacket','Razorglass Claw','Reaching Quarterstaff','Reaping Staff','Reaver Glaive',
+  'Reefsteel Greaves','Refined Bracers','Regalia Longsword','Rending Halberd','Rending Staff',
+  'Rider Bow','Riding Coat','Righteous Cuffs','Ring Flail','Ring Mail','Ringed Buckler',
+  'Rippled Greatsword','River Raiment','Roaring Staff','Roaring Talisman','Robust Crossbow',
+  'Rotted Hood','Rugged Cuirass','Ruination Maul','Runed Focus','Runefather\'s Grasping Mail',
+  'Runic Shortsword','Runner Vest','Sacramental Robe','Sacred Maul','Sacrificial Axe',
+  'Saintly Crown','Sanctified Staff','Sandsworn Cuirass','Sandsworn Sandals','Sandsworn Tiara',
+  'Savage Greataxe','Scoundrel Armour','Scoundrel Jacket','Seastorm Mantle',
+  'Seer Crest Shield','Sentinel Greathelm','Serpentscale Boots','Serrated Quiver',
+  'Shaded Mask','Shamanistic Leggings','Sharktooth Claw','Shrouded Mail','Signet Cuffs',
+  'Silverbuckled Shoes','Simple Dagger','Sinew Belt','Skulking Mask','Skycrown Tiara',
+  'Slayer Armour','Sleek Boots','Slender Flail','Slicing Quarterstaff','Smooth Quarterstaff',
+  'Snakewood Shortbow','Soaring Mask','Soldier Helm','Soldiering Sabatons','Solemn Maul',
+  'Sorcerous Tiara','Spiked Bracers','Spikeward Buckler','Splintered Flail',
+  'Splitting Greataxe','Spriggan Staff','Staghorn Focus','Stalking Belt','Stalking Bracers',
+  'Stalking Spear','Steelhead Spear','Steelmail Gauntlets','Steelpoint Shoes',
+  'Stoic Crest Shield','Stone Cuirass','Stone Flail','Stone Greatsword','Stout Crossbow',
+  'Stratified Targe','Striking Quarterstaff','Striking Spear','Structured Hammer',
+  'Studded Boots','Studded Sandals','Studded Targe','Sturdy Crossbow','Swathed Cap',
+  'Swift Bracers','Swift Spear','Swiftstalker Coat','Sword Spear','Talon Claw','Taut Crossbow',
+  'Tawhoan Greatclub','Tearing Flail','Templar Vestments','Tethering Bands','Thane Mail',
+  'Torment Jacket','Torture Wand','Totemic Greaves','Tournament Mail','Trailblazer Armour',
+  'Trapper Hood','Treasured Blade','Treerunner Shoes','Tribal Bow','Twilight Tiara','Twin Bow',
+  'Twin Crossbow','Twin Flail','Two-Point Quiver','Ultra Greatsword','Utzaal Cuirass',
+  'Vaal Mitts','Vaal Wraps','Varnished Crossbow','Venerated Mantle','Veteran Sabatons',
+  'Vile Greataxe','Volant Quiver','Voltfang Talisman','Wanderer Armour','Wanderer Shoes',
+  'War Wraps','Warded Helm','Warlock Leggings','Warmonger Greathelm','Waxing Quarterstaff',
+  'Wayfarer Shoes','Wayward Crest Shield','Weaver Leggings','Whorl Focus','Wildwood Talisman',
+  'Wingbeat Talisman','Wolfbone Claw','Wool Cap','Woven Cap','Wrapped Cap','Wrath Sceptre',
+  'Wreath Focus','Wyrmscale Coat','Zealot Crown','Zealot Gauntlets','Zealot Greathammer',
+  'Zenith Vestments',
 ];
 // Build combined lookup
 // Game mode: "poe2" | "poe1" | "both" — filters BaseType and Class pickers
