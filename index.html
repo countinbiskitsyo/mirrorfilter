@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.209
+  MirrorFilter Web — VERSION 5.210
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -130,6 +130,29 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .sh-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;flex:0 0 auto;margin-right:2px}
 .sh-btn{padding:3px 8px;font-size:11px;border-radius:var(--radius);border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap}
 .sh-btn:hover{background:var(--accent);color:#1a1200}
+/* ── Saving Your Work: per-stage color theming ────────────────────────────
+   Each stage wrapper declares its own --stage / --stage-rgb, and everything
+   inside inherits it: panel borders, and every .sh-btn button. The three
+   colors are the SAME ones used by the numbered cards on the welcome screen
+   (1 gold Save, 2 green Back up, 3 blue Restore) — keep them in sync.
+   Buttons rendered later by JS (e.g. the disk-backup controls) pick this up
+   automatically, since it's a descendant rule rather than inline style. */
+#stageSave{--stage:#e0b050;--stage-rgb:224,176,80}
+#stageBackup{--stage:#5ac88a;--stage-rgb:90,200,138}
+#stageRestore{--stage:#5a9cf5;--stage-rgb:90,156,245}
+#stageSave .sh-btn,#stageBackup .sh-btn,#stageRestore .sh-btn{
+  border-color:var(--stage);color:var(--stage);
+  animation:stagePulse 2.8s ease-in-out infinite}
+#stageSave .sh-btn:hover,#stageBackup .sh-btn:hover,#stageRestore .sh-btn:hover{
+  background:var(--stage);color:#0b0b0d;animation:none;
+  box-shadow:0 0 14px rgba(var(--stage-rgb),.6)}
+@keyframes stagePulse{
+  0%,100%{box-shadow:0 0 4px rgba(var(--stage-rgb),.22)}
+  50%{box-shadow:0 0 12px rgba(var(--stage-rgb),.5)}}
+/* Motion is decorative here; honour the OS setting and keep a steady glow. */
+@media (prefers-reduced-motion:reduce){
+  #stageSave .sh-btn,#stageBackup .sh-btn,#stageRestore .sh-btn{
+    animation:none;box-shadow:0 0 8px rgba(var(--stage-rgb),.35)}}
 #ruleSearch{flex-shrink:0;padding:6px 10px;background:var(--bg);border:none;border-bottom:1px solid var(--border);color:var(--text);font-size:13px;outline:none;width:100%}
 #ruleSearch::placeholder{color:var(--text3)}
 #ruleList{flex:1;overflow-y:auto;padding:4px;margin-right:5px}
@@ -694,7 +717,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
            they overflowed the panel vertically and stretched across 2560px. -->
       <!-- One box, short lines. Everything here is about the same thing: your work
            lives in the browser, so get it onto disk. Two boxes said it twice. -->
-      <span class="save-pulse" style="display:block;border:1px solid var(--accent);border-radius:10px;background:rgba(var(--accent-rgb),.05);max-width:880px;margin:0 auto;text-align:left;overflow:hidden">
+      <span class="save-pulse" style="display:block;border:1px solid var(--accent);border-radius:10px;background:rgba(var(--accent-rgb),.05);max-width:1000px;margin:0 auto;text-align:left;overflow:hidden">
 
         <div style="padding:11px 18px;background:rgba(var(--accent-rgb),.10);border-bottom:1px solid rgba(var(--accent-rgb),.25);font-weight:800;color:var(--accent);font-size:14px;letter-spacing:.2px">💾 Protect your work</div>
 
@@ -707,7 +730,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
         <div style="padding:16px 18px">
 
           <div style="font-size:12.5px;line-height:1.55;color:var(--text2);margin-bottom:13px">
-            Your filter lives <strong style="color:var(--text)">inside this browser</strong>, not in a file. Clearing browsing data or moving to a new PC <strong style="color:#e87820">deletes it — no cloud copy, no recovery.</strong>
+            Your filter lives <strong style="color:var(--text)">inside this browser</strong>, not in a file. Clearing browsing data or moving to a new PC <strong style="color:#e87820">deletes it — no cloud copy, no recovery</strong><strong style="color:#5ac88a">…unless you ② Back up.</strong>
           </div>
 
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px">
@@ -717,7 +740,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
                 <span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:13px">1</span>
                 <span style="font-weight:800;font-size:13px;color:#e0b050">Save</span>
               </div>
-              <div style="font-size:12px;line-height:1.5;color:var(--text2)">Writes the <code>.filter</code> the game reads.</div>
+              <div style="font-size:12px;line-height:1.5;color:var(--text2)">Writes the <code>.filter</code> to your game folder.</div>
             </div>
 
             <div role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" data-tip="Go to Saving Your Work → ② Back up" style="background:var(--card);border:1px solid #5ac88a44;border-left:3px solid #5ac88a;border-radius:8px;padding:11px 13px;cursor:pointer">
@@ -739,7 +762,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           </div>
 
           <div style="margin-top:12px;font-size:11.5px;color:var(--text2)">
-            <strong style="color:#e87820">Saving the .filter is not a backup</strong> — it holds rules only, not your tiers or sections. Only ② does that.
+            <strong style="color:#e0b050">Saving the .filter is not a backup</strong> — it holds rules only, not your tiers or sections. Only <strong style="color:#5ac88a">② Back up</strong> does that.
           </div>
 
         </div>
@@ -841,10 +864,10 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
       <!-- ───────────── STAGE ① SAVE ───────────── -->
       <div id="stageSave" style="margin-bottom:22px">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:14px">1</span><span style="font-size:15px;font-weight:700;color:#e0b050">Save — your game-ready .filter</span></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:14px">1</span><span style="font-size:15px;font-weight:700;color:#e0b050">Save — your game-ready .filter</span></div>
         <p style="font-size:12.5px">Your work auto-saves in the browser as you edit. <strong>Export</strong> / <strong>Quick-Save</strong> writes the <code>.filter</code> the game reads into your Path of Exile 2 folder.</p>
-        <div id="multiSaveSetup" style="margin-top:12px;padding:14px;border:1px solid var(--border2);border-radius:10px;background:rgba(var(--accent-rgb),.03)">
-          <div style="font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:8px">📍 Multi-Location Save</div>
+        <div id="multiSaveSetup" style="margin-top:12px;padding:14px;border:1px solid rgba(var(--stage-rgb),.35);border-radius:10px;background:rgba(var(--stage-rgb),.04)">
+          <div style="font-size:13.5px;font-weight:700;color:var(--stage);margin-bottom:8px">📍 Multi-Location Save</div>
           <div class="ibox" style="margin-bottom:8px">Add up to 4 folders and every save writes to all of them. Each folder has a dropdown for <em>what</em> goes there:
             <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:8px;line-height:1.5">
               <strong style="white-space:nowrap">Just the .filter</strong><span>The game folder — it only reads this.</span>
@@ -855,8 +878,8 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           <div id="multiSaveLocList" style="margin:8px 0"></div>
           <button class="sh-btn" onclick="addMultiSaveLocation()" data-tip="Pick a folder to add as an extra save destination">📁 Add save location</button>
         </div>
-        <div style="margin-top:12px;padding:14px;border:1px solid var(--border2);border-radius:10px;background:rgba(var(--accent-rgb),.03)">
-          <div style="font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:8px">🖥 Moving to a new PC?</div>
+        <div style="margin-top:12px;padding:14px;border:1px solid rgba(var(--stage-rgb),.35);border-radius:10px;background:rgba(var(--stage-rgb),.04)">
+          <div style="font-size:13.5px;font-weight:700;color:var(--stage);margin-bottom:8px">🖥 Moving to a new PC?</div>
           <div class="ibox">Your folder choices travel <em>with</em> your filter — in the <code>.meta.json</code> sidecar and in every backup. Import either one on the new PC and you get a checklist naming each folder you had, with a button per item.
             <div style="margin-top:7px;color:var(--text3)">You still click to re-pick each one: browsers never let a site remember a folder. The checklist means you never have to <em>remember</em> what you set up.</div>
           </div>
@@ -868,7 +891,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
       <!-- ───────────── STAGE ② BACK UP ───────────── -->
       <div id="stageBackup" style="margin-bottom:22px">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#5ac88a;color:#08160e;font-weight:800;font-size:14px">2</span><span style="font-size:15px;font-weight:700;color:#5ac88a">Back up — a full copy you can recover from</span></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#5ac88a;color:#08160e;font-weight:800;font-size:14px">2</span><span style="font-size:15px;font-weight:700;color:#5ac88a">Back up — a full copy you can recover from</span></div>
         <p style="font-size:12.5px">A backup captures <em>everything</em> — rules, sections, tiers, sounds, settings — not just the <code>.filter</code>. MirrorFilter backs up automatically before anything risky, and can keep timestamped copies in a folder you control.</p><div class="tip-box"><strong style="color:var(--accent)">The ten-second version:</strong> click the button below and pick a folder inside <strong>OneDrive, Google Drive or Dropbox</strong>. Every save then drops a fresh timestamped copy there — which gets you off-browser safety, version history to roll back through, and your work waiting on any other PC, all at once.</div><div class="warn-box"><strong style="color:#e87820">Why this matters more than anything else here.</strong> Your filter lives in this browser’s storage — not a file on your computer, with no cloud copy or account behind it. Anything that clears browser data takes it with it: clearing history, a &ldquo;cleaner&rdquo; utility, a browser reset or reinstall, a wiped profile, a new PC. It goes without warning and cannot be recovered afterwards. A folder backup is the only thing standing between you and starting over.</div><div class="ibox"><strong>The <code>.filter</code> is not a backup.</strong> It is the <em>output</em> the game reads, and holds no tier setup, auto-tier configuration or section structure — so it cannot rebuild your editor. The backup JSON is your actual work.</div>
         <div id="healthMonitor" style="margin:12px 0"></div>
         <div id="diskBackupCtl"></div>
@@ -880,7 +903,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
       <!-- ───────────── STAGE ③ RESTORE ───────────── -->
       <div id="stageRestore">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:14px">3</span><span style="font-size:15px;font-weight:700;color:#5a9cf5">Restore — load a backup back</span></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:14px">3</span><span style="font-size:15px;font-weight:700;color:#5a9cf5">Restore — load a backup back</span></div>
         <p style="font-size:12.5px">Pick a saved backup and load it. Your current state is backed up first, so it's always reversible.</p>
         <div class="tip-box" style="margin-bottom:8px"><strong style="color:var(--accent)">From your backup folder?</strong> Backups are <code>mirrorfilter-backup-DATE_TIME.json</code> — newest = latest date. (The <code>.filter</code>/<code>.meta.json</code> there are the game files, not full backups — load a <code>.filter</code> via <strong>Import</strong> at the top.)</div>
         <div id="restoreFolderHint" style="margin-bottom:8px"></div>
@@ -30904,6 +30927,11 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.210',changes:[
+    'Welcome box: the warning now ends \u201C\u2026unless you \u2461 Back up\u201D in the green stage color, so the risk line points at its own fix. \u2460 Save now reads \u201CWrites the .filter to your game folder\u201D, and the \u201CSaving the .filter is not a backup\u201D footnote is gold to match \u2460 while \u2461 Back up stays green. Box widened to 1000px.',
+    'Resources \u2192 Saving Your Work is now fully color-themed per stage: \u2460 Save gold, \u2461 Back up green, \u2462 Restore blue. Stage dividers, panel borders and panel headings all take their stage\u2019s color instead of the generic accent.',
+    'Every button inside those stages now carries its stage color with a soft glow that slowly pulses, brightening on hover. Buttons drawn later by script (the disk-backup controls) inherit this automatically. The pulse is disabled, leaving a steady glow, when the OS asks for reduced motion.'
+  ]},
   {v:'5.209',changes:[
     'BaseType database: added \u201CSectarian Crest Shield\u201D, filed with the other Crest Shields. It no longer trips the unknown-BaseType check.',
     'Spelling is unverified from here \u2014 poe.ninja is unreachable from the build sandbox, so this name was taken as given. The check matches exactly, so if the in-game name differs the filter can still be rejected by the game; confirm on an in-game hover.'
@@ -40352,7 +40380,7 @@ function refreshBackupPanel(){
               ? '<div style="color:#e0a030;font-size:10.5px;margin-top:3px">\u26A0 The folder link is not active in this browser session \u2014 click \u201CChoose a folder\u2026\u201D to re-link it.</div>' : '')
           +'</div>'
           +'<button class="sh-btn" onclick="disableDiskAutoBackup()">Turn off disk backup</button> <span style="font-size:11px;color:var(--text2);margin-left:6px">Use \u201C\uD83D\uDCBE Back up now\u201D below to write immediately.</span>'
-        : '<button class="sh-btn" style="background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:800" onclick="enableDiskAutoBackup()">Choose a folder…</button>')
+        : '<button class="sh-btn" style="background:var(--stage);color:var(--bg);border-color:var(--stage);font-weight:800" onclick="enableDiskAutoBackup()">Choose a folder…</button>')
       +'</div>';
   }
   // Tell the user WHERE to look for the file they are about to restore, and
