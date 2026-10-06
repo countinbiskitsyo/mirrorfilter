@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.206
+  MirrorFilter Web — VERSION 5.207
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -93,7 +93,18 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .tb-btn.danger:hover{background:var(--red);color:#fff}
 #leagueSelect{background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:4px 5px;border-radius:var(--radius);font-size:12px;flex-shrink:0;max-width:130px}
 .tb-spacer{flex:1;min-width:0}
-#statusBar{font-size:11px;color:var(--text2);white-space:nowrap;flex-shrink:0}
+/* min-width/text-align reserve a stable slot for #statusBar: its text swings
+   wildly in length ("Ready" vs "Fetching prices from poe.ninja…"), and since
+   #topbar centers its whole content (justify-content:center + the .tb-spacer
+   pair), any change to this element's width shifted EVERY item in the bar
+   left/right as the row re-centered. Overflow is a safety net for the rare
+   per-section Auto-Tier message, which can run longer than the reserved slot. */
+#statusBar{font-size:11px;color:var(--text2);white-space:nowrap;flex-shrink:0;display:inline-block;min-width:230px;max-width:230px;overflow:hidden;text-overflow:ellipsis;text-align:center}
+/* Same shift, smaller cause: .attention-pulse forces a 2px border (was 1px)
+   on #autoTierBtn the moment Auto-Tier starts, widening it by 2px and nudging
+   the centered bar. Trim this button's padding by the same 1px/side while
+   pulsing so its rendered footprint never changes. */
+#topbar .tb-btn.attention-pulse{padding:4px 7px}
 #tabBar{flex-shrink:0;display:flex;background:var(--panel);border-bottom:1px solid var(--border);padding:0 14px;gap:2px;position:relative;align-items:center;min-height:38px}
 #tabBarBtns{display:flex;gap:2px;position:absolute;top:50%;transform:translate(-50%,-50%)}
 /* Left-aligned to match the Expand All / Collapse All controls in the Editor
@@ -629,7 +640,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   <button class="tb-btn sec" onclick="openM('importM')" data-tip="Load an existing .filter file into MirrorFilter" style="border-color:#e0a030;color:#e0a030">📂 Import</button>
   <button class="tb-btn sec" onclick="exportFilter()" data-tip="Export your filter — choose a save folder" style="border-color:#c85ae0;color:#c85ae0">📤 Export</button>
   <button class="tb-btn sec" onclick="openTestItemModal()" data-tip="Paste an item's copied text (Ctrl+C in-game) or fill in attributes manually, and see exactly which rule would match it and why" style="border-color:#b478f5;color:#b478f5">🧪 Test Item</button>
-  <button class="tb-btn sec" id="quickSaveBtn" onclick="quickSave()" data-tip="One-click save to the same location as your last export" style="border-color:var(--green);color:var(--green)">💾 Quick-Save</button>
+  <button class="tb-btn sec" id="quickSaveBtn" onclick="quickSave()" data-tip="One-click save to the same location as your last export" style="border-color:var(--green);color:var(--green);min-width:100px;text-align:center">💾 Quick-Save</button>
   <span id="statusBar" data-tip="Your work auto-saves in your browser as you go. Click Export or Quick-Save to write your .filter to disk." style="white-space:nowrap;flex-shrink:0">Ready</span>
   <span id="filesHint" onclick="switchTab('settings');setTimeout(()=>scrollToSaveStage('stageBackup'),250)"
         data-tip="THE 3 FILES THAT MATTER — .filter: what the game reads (Export/Quick-Save). .filter.meta.json: rides beside it, carries tier config and section structure. mirrorfilter-backup-*.json: your COMPLETE work, the only one that restores everything. Click to open Back up."
@@ -30890,6 +30901,12 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.207',changes:[
+    'Fixed the header bar visibly shifting sideways during Quick-Save, Export and Auto-Tier. Cause: #topbar centers its whole row, and the status text (\u201CReady\u201D \u2194 \u201CFetching prices from poe.ninja\u2026\u201D) and the pulsing Auto-Tier button\u2019s temporarily-thicker border both changed width mid-action, so the centered row re-measured and every button slid sideways. Both now hold a fixed footprint so the row no longer moves.',
+    'Also stopped the \uD83D\uDCBE Quick-Save button permanently losing its icon after a regular Export \u2014 a leftover revert-text bug next to the fix above.',
+    'Found and addressed the real cause of a save location silently going stale: Export/Quick-Save, every Multi-Location Save entry, and disk auto-backup all share ONE linked folder, not one each. Picking a folder for any one of them silently re-points ALL of them \u2014 so, for example, linking a folder for disk auto-backup after already adding the game folder as a save location quietly redirects Quick-Save away from the game folder too, with nothing telling you.',
+    'This does not add true independent per-purpose folders (that needs its own persisted handle per location \u2014 a bigger change); it stops the SILENT part. Picking a new folder now asks first if anything else currently depends on the existing link, naming what it is. The \u201CWhere your work currently goes\u201D summary also now flags a Multi-Location entry \u26A0 instead of a false \u2713 the moment the shared folder has moved on without it, rather than trusting that it was ever configured.'
+  ]},
   {v:'5.206',changes:[
     'BaseType database: added 14 names that poe.ninja lists but the database lacked \u2014 11 Omens (Hunt, Sinistral/Dextral Crystallisation, Reinforcements, Sinistral/Dextral Necromancy, Sanctification, Blackblooded, Secret Compartments, Liege, Sovereign), Opiloti\'s Soul Core of Assault, Velour Shoes and Verisium Cuffs. These no longer trip the unknown-BaseType check.',
     'Export gate unchanged: the check is still a warning. Database completeness can\u2019t be verified offline.'
@@ -39371,7 +39388,43 @@ function exportFilter(){
   }
   openM('exportM');
 }
+// ── Shared-folder overwrite guard ──────────────────────────────────────────
+// Export/Quick-Save, every Multi-Location Save entry, and disk auto-backup
+// all read/write through the SAME single folder handle (_dirHandle, in the
+// block-0 backend shim) — there is only one slot, not one per purpose.
+// Picking a folder for any one of them silently re-points ALL of them, with
+// no warning, which is how an already-configured "save straight to the game
+// folder" location can go stale: adding or relinking a folder for a totally
+// different purpose later quietly redirects it elsewhere. This does not fix
+// the one-slot design (a real fix needs each purpose to persist its own
+// handle) — it just stops the silent part, by asking first whenever picking
+// a new folder would move something ELSE that currently depends on it.
+function folderDependents(){
+  const d=[];
+  if(window.MF_WEB && window.MF_WEB.dirLinked){
+    d.push({key:'export',label:'Export / Quick-Save'});
+    const locs=(S.multiSaveLocations||[]).length;
+    if(locs)d.push({key:'multi',label:locs+' extra save location'+(locs!==1?'s':'')});
+    if(S.__autoBackupDisk)d.push({key:'diskbackup',label:'disk auto-backup'});
+  }
+  return d;
+}
+function confirmFolderOverwrite(purposeKey){
+  const others=folderDependents().filter(d=>d.key!==purposeKey);
+  if(!others.length)return true;      // nothing else currently relies on the link
+  const dirName=(window.MF_WEB&&window.MF_WEB.dirName)||'your linked folder';
+  const labels=others.map(d=>d.label);
+  const last=labels.pop();
+  const list=labels.length?labels.join(', ')+' and '+last:last;
+  return confirm(
+    'MirrorFilter links ONE shared folder for everything on disk — there isn\u2019t a separate slot per feature.\n\n'+
+    '\u201C'+dirName+'\u201D is currently also used by: '+list+'.\n\n'+
+    'Picking a new folder now will replace that link for ALL of them \u2014 '+list+' will start saving to the NEW folder instead, with no further warning.\n\n'+
+    'Continue?'
+  );
+}
 async function relinkExportFolder(btn){
+  if(!confirmFolderOverwrite('export'))return;
   const orig=btn?btn.textContent:null;
   if(btn){btn.textContent='Waiting\u2026';btn.disabled=true;}
   try{
@@ -39399,10 +39452,11 @@ async function doExport(){
     backupNow('quicksave');
     renderList();
     var btn=document.getElementById('quickSaveBtn');
-    if(btn){btn.textContent='Saved!';setTimeout(function(){btn.textContent='Quick-Save';},2000);}
+    if(btn){btn.textContent='Saved!';setTimeout(function(){btn.textContent='\uD83D\uDCBE Quick-Save';},2000);}
   }catch(e){toast('Export failed: '+(e.message||e),'err');setStatus('Error');console.error('Export:',e);}
 }
 async function addMultiSaveLocation(){
+  if(!confirmFolderOverwrite('multi'))return;
   try{
     const d=await API('/api/browse-folder','POST',{});
     if(!d.path)return;  // user cancelled the dialog
@@ -39474,13 +39528,24 @@ function renderLocationsSummary(){
   } else {
     rows.push(['📤 Export (.filter)','Downloads folder — no game/save folder linked yet','warn']);
   }
-  // Multi-save locations (these DO carry a full path from their picker)
+  // Multi-save locations. IMPORTANT: these don't carry their own handle — they
+  // share the SAME _dirHandle as Export and disk auto-backup (see
+  // confirmFolderOverwrite above), so a location picked earlier can go stale
+  // the moment a DIFFERENT folder gets linked for any purpose. Compare the
+  // name recorded when this location was added against the folder that's
+  // actually live right now, so a stale entry shows ⚠ instead of a false ✓.
   const locs=S.multiSaveLocations||[];
   const scopeLabel={filter:'just the .filter','filter_json':'.filter + .meta.json',all:'everything'};
   if(locs.length){
-    locs.forEach(l=>rows.push(['📁 Extra save location',
-      esc(l.path||l.name||'?')+' <span style="color:var(--text3)">('+(scopeLabel[l.scope||'all']||l.scope)+')</span>'
-      +(l.lastSaved?('<div style="color:var(--text3);font-size:11px;margin-top:1px">last saved: '+esc(fmtDate(l.lastSaved))+'</div>'):''),'ok']));
+    locs.forEach(l=>{
+      const stale = dirName && l.path && l.path!==dirName;
+      rows.push(['📁 Extra save location',
+        esc(l.path||l.name||'?')+' <span style="color:var(--text3)">('+(scopeLabel[l.scope||'all']||l.scope)+')</span>'
+        +(stale
+          ? '<div style="color:#e0a030;font-size:11px;margin-top:2px">The shared linked folder is now \u201C'+esc(dirName)+'\u201D \u2014 this won\u2019t actually be written to until you re-add it (pick this same folder again).</div>'
+          : (l.lastSaved?('<div style="color:var(--text3);font-size:11px;margin-top:1px">last saved: '+esc(fmtDate(l.lastSaved))+'</div>'):'')),
+        stale?'warn':'ok']);
+    });
   } else {
     rows.push(['📁 Extra save locations','None set — add one below to save to several folders at once','warn']);
   }
@@ -40189,6 +40254,7 @@ async function runSaveAndBackupSetup(needSave, needBackup){
   }catch(e){ console.warn('save/backup setup:',e); }
 }
 async function enableDiskAutoBackup(){
+  if(!confirmFolderOverwrite('diskbackup'))return;
   // Must run synchronously from the click so the folder picker keeps its user
   // gesture. showDirectoryPicker() already grants readwrite, so we write the
   // first backup with the fresh handle directly instead of re-requesting
