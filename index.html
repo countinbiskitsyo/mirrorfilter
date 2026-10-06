@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.207
+  MirrorFilter Web — VERSION 5.209
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -698,44 +698,48 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
         <div style="padding:11px 18px;background:rgba(var(--accent-rgb),.10);border-bottom:1px solid rgba(var(--accent-rgb),.25);font-weight:800;color:var(--accent);font-size:14px;letter-spacing:.2px">💾 Protect your work</div>
 
-        <!-- Four self-contained cards in a 2x2 grid, each with its own all-caps
-             label. Scan the labels, read only the one card you came for —
-             no need to read the box top-to-bottom like the old prose block. -->
-        <div style="padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <!-- Deliberately mirrors Resources → Saving Your Work: the SAME three
+             stages, the same numbers, and the same three colors (1 gold Save,
+             2 green Back up, 3 blue Restore). Clicking a card jumps to that
+             exact stage, so the thing you read here and the thing you land on
+             look like each other instead of being two different vocabularies.
+             Keep these colors in sync with the stage headers down there. -->
+        <div style="padding:16px 18px">
 
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px">
-            <div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#e87820;margin-bottom:7px">⚠ The risk</div>
-            <div style="font-size:12.5px;line-height:1.55;color:var(--text2)">Your filter lives <strong style="color:var(--text)">inside this browser</strong>, not in a file. Clearing browsing data, a browser reset or a new PC <strong style="color:#e87820">deletes it — no cloud copy, no recovery.</strong></div>
+          <div style="font-size:12.5px;line-height:1.55;color:var(--text2);margin-bottom:13px">
+            Your filter lives <strong style="color:var(--text)">inside this browser</strong>, not in a file. Clearing browsing data or moving to a new PC <strong style="color:#e87820">deletes it — no cloud copy, no recovery.</strong>
           </div>
 
-          <div style="background:rgba(var(--accent-rgb),.12);border:1px solid rgba(var(--accent-rgb),.3);border-radius:8px;padding:12px 14px">
-            <div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);margin-bottom:7px">✅ The fix — 10 seconds</div>
-            <div style="font-size:12.5px;line-height:1.55;color:var(--text2)">Pick a folder inside <strong style="color:var(--text)">OneDrive, Google Drive or Dropbox</strong>. Your work saves there automatically — versioned, and on every other PC.</div>
-          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px">
 
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px">
-            <div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">📁 The three files</div>
-            <div style="display:grid;grid-template-columns:auto 1fr;gap:5px 10px;font-size:12px;line-height:1.45;align-items:baseline">
-              <code style="white-space:nowrap;color:var(--text3)">.filter</code>
-              <span style="color:var(--text2)">What the game reads.</span>
-              <code style="white-space:nowrap;color:var(--text3)">.meta.json</code>
-              <span style="color:var(--text2)">Rides beside it — tiers, sections.</span>
-              <code style="white-space:nowrap;color:var(--accent);font-weight:700">backup.json</code>
-              <span style="color:var(--text)">The only file that fully restores you.</span>
+            <div role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" data-tip="Go to Saving Your Work → ① Save" style="background:var(--card);border:1px solid #e0b05044;border-left:3px solid #e0b050;border-radius:8px;padding:11px 13px;cursor:pointer">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+                <span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:13px">1</span>
+                <span style="font-weight:800;font-size:13px;color:#e0b050">Save</span>
+              </div>
+              <div style="font-size:12px;line-height:1.5;color:var(--text2)">Writes the <code>.filter</code> the game reads.</div>
             </div>
-            <div style="margin-top:9px;font-size:11.5px;font-weight:700;color:#e87820">Saving the .filter is not a backup.</div>
+
+            <div role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" data-tip="Go to Saving Your Work → ② Back up" style="background:var(--card);border:1px solid #5ac88a44;border-left:3px solid #5ac88a;border-radius:8px;padding:11px 13px;cursor:pointer">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+                <span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#5ac88a;color:#08160e;font-weight:800;font-size:13px">2</span>
+                <span style="font-weight:800;font-size:13px;color:#5ac88a">Back up</span>
+              </div>
+              <div style="font-size:12px;line-height:1.5;color:var(--text2)">A full copy of everything. <strong style="color:var(--text)">Do this first.</strong></div>
+            </div>
+
+            <div role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" data-tip="Go to Saving Your Work → ③ Restore" style="background:var(--card);border:1px solid #5a9cf544;border-left:3px solid #5a9cf5;border-radius:8px;padding:11px 13px;cursor:pointer">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+                <span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:13px">3</span>
+                <span style="font-weight:800;font-size:13px;color:#5a9cf5">Restore</span>
+              </div>
+              <div style="font-size:12px;line-height:1.5;color:var(--text2)">Bring your work back, or move PCs.</div>
+            </div>
+
           </div>
 
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px">
-            <div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">🔗 Jump to</div>
-            <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:12px;line-height:1.45;align-items:baseline">
-              <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Back up</span>
-              <span style="color:var(--text2)"><strong style="color:var(--text)">Do this first.</strong></span>
-              <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Save</span>
-              <span style="color:var(--text2)">Writes the <code>.filter</code> for the game.</span>
-              <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);font-weight:800;text-decoration:underline;cursor:pointer;white-space:nowrap">Restore</span>
-              <span style="color:var(--text2)">Bring a backup back, or move PCs.</span>
-            </div>
+          <div style="margin-top:12px;font-size:11.5px;color:var(--text2)">
+            <strong style="color:#e87820">Saving the .filter is not a backup</strong> — it holds rules only, not your tiers or sections. Only ② does that.
           </div>
 
         </div>
@@ -838,16 +842,14 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       <!-- ───────────── STAGE ① SAVE ───────────── -->
       <div id="stageSave" style="margin-bottom:22px">
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:14px">1</span><span style="font-size:15px;font-weight:700;color:#e0b050">Save — your game-ready .filter</span></div>
-        <p style="font-size:12.5px">Your work auto-saves in the browser as you edit. <strong>Export</strong> / <strong>Quick-Save</strong> writes the <code>.filter</code> the game reads into your Path of Exile 2 folder — click it whenever you want the game to see your changes.</p>
+        <p style="font-size:12.5px">Your work auto-saves in the browser as you edit. <strong>Export</strong> / <strong>Quick-Save</strong> writes the <code>.filter</code> the game reads into your Path of Exile 2 folder.</p>
         <div id="multiSaveSetup" style="margin-top:12px;padding:14px;border:1px solid var(--border2);border-radius:10px;background:rgba(var(--accent-rgb),.03)">
           <div style="font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:8px">📍 Multi-Location Save</div>
-          <div class="ibox">Add up to 4 folders (cloud, game folder, external drive…) and every save writes to all of them. Each has a dropdown for <em>what</em> to save there.</div>
-          <div class="tip-box"><strong style='color:var(--accent)'>For the game folder</strong> (<code>...\My Games\Path of Exile 2</code>) choose <strong>"Just the .filter"</strong> — the game only reads that file.</div>
-          <div class="tip-box"><strong style='color:var(--accent)'>The dropdown options:</strong>
-            <div style="margin-top:6px;line-height:1.6">
-              <div><strong>Just the .filter</strong> — the raw file the game reads.</div>
-              <div><strong>.filter + .meta.json</strong> — plus its sidecar (keeps tier config for re-import).</div>
-              <div><strong>Everything (recommended for a cloud folder)</strong> — a full copy of your working session, always current.</div>
+          <div class="ibox" style="margin-bottom:8px">Add up to 4 folders and every save writes to all of them. Each folder has a dropdown for <em>what</em> goes there:
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:8px;line-height:1.5">
+              <strong style="white-space:nowrap">Just the .filter</strong><span>The game folder — it only reads this.</span>
+              <strong style="white-space:nowrap">.filter + .meta.json</strong><span>Plus the sidecar that keeps your tier setup.</span>
+              <strong style="white-space:nowrap">Everything</strong><span>A full working copy — best for a cloud folder.</span>
             </div>
           </div>
           <div id="multiSaveLocList" style="margin:8px 0"></div>
@@ -855,8 +857,9 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
         </div>
         <div style="margin-top:12px;padding:14px;border:1px solid var(--border2);border-radius:10px;background:rgba(var(--accent-rgb),.03)">
           <div style="font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:8px">🖥 Moving to a new PC?</div>
-          <div class="ibox">Your folder choices are saved <em>with</em> your filter — in the <code>.filter.meta.json</code> sidecar and in every backup JSON. Import either one on the new PC and MirrorFilter shows a checklist naming each folder you had, with a button per item.</div>
-          <div class="tip-box"><strong style='color:var(--accent)'>Why you still have to click:</strong> browsers never let a site remember a folder — the permission is tied to that one browser on that one PC, and the folder's full path is hidden for security. The checklist can't do the picking for you, but it means you never have to remember what you set up.</div>
+          <div class="ibox">Your folder choices travel <em>with</em> your filter — in the <code>.meta.json</code> sidecar and in every backup. Import either one on the new PC and you get a checklist naming each folder you had, with a button per item.
+            <div style="margin-top:7px;color:var(--text3)">You still click to re-pick each one: browsers never let a site remember a folder. The checklist means you never have to <em>remember</em> what you set up.</div>
+          </div>
           <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
             <button class="sh-btn" onclick="openSetupChecklist()" data-tip="Show the recorded save/backup destinations and re-link them one by one">📋 Show setup checklist</button>
           </div>
@@ -866,7 +869,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       <!-- ───────────── STAGE ② BACK UP ───────────── -->
       <div id="stageBackup" style="margin-bottom:22px">
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border2)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#5ac88a;color:#08160e;font-weight:800;font-size:14px">2</span><span style="font-size:15px;font-weight:700;color:#5ac88a">Back up — a full copy you can recover from</span></div>
-        <p style="font-size:12.5px">A backup captures <em>everything</em> — rules, sections, tiers, sounds, settings — not just the <code>.filter</code>. MirrorFilter backs up automatically before anything risky, and can keep timestamped copies in a folder you control.</p><div class="warn-box"><strong style="color:#e87820">Why this is the most important panel in the tool.</strong> Your filter lives inside this browser’s storage. It is not a file on your computer and there is no cloud copy or account behind it. Anything that clears browser data takes it with it — clearing browsing history, a &ldquo;cleaner&rdquo; utility, a browser reset or reinstall, a wiped profile, a new PC. It goes without warning and it is not recoverable afterwards. A folder backup is the only thing standing between you and starting over.</div><div class="tip-box"><strong style="color:var(--accent)">The ten-second version:</strong> click the button below, pick a folder inside <strong>OneDrive, Google Drive or Dropbox</strong>, and you are done. From then on every save drops a fresh timestamped copy there. That gets you three things at once — off-browser safety, version history you can roll back through, and your work already waiting on any other PC you sign into.</div><div class="ibox"><strong>Two different things, both worth having.</strong> The <code>.filter</code> is the <em>output</em> the game reads — it does not contain your tier setup, your auto-tier configuration or your section structure, so it cannot rebuild your editor. The backup JSON is your <em>actual work</em>. Saving the .filter is not backing up.</div>
+        <p style="font-size:12.5px">A backup captures <em>everything</em> — rules, sections, tiers, sounds, settings — not just the <code>.filter</code>. MirrorFilter backs up automatically before anything risky, and can keep timestamped copies in a folder you control.</p><div class="tip-box"><strong style="color:var(--accent)">The ten-second version:</strong> click the button below and pick a folder inside <strong>OneDrive, Google Drive or Dropbox</strong>. Every save then drops a fresh timestamped copy there — which gets you off-browser safety, version history to roll back through, and your work waiting on any other PC, all at once.</div><div class="warn-box"><strong style="color:#e87820">Why this matters more than anything else here.</strong> Your filter lives in this browser’s storage — not a file on your computer, with no cloud copy or account behind it. Anything that clears browser data takes it with it: clearing history, a &ldquo;cleaner&rdquo; utility, a browser reset or reinstall, a wiped profile, a new PC. It goes without warning and cannot be recovered afterwards. A folder backup is the only thing standing between you and starting over.</div><div class="ibox"><strong>The <code>.filter</code> is not a backup.</strong> It is the <em>output</em> the game reads, and holds no tier setup, auto-tier configuration or section structure — so it cannot rebuild your editor. The backup JSON is your actual work.</div>
         <div id="healthMonitor" style="margin:12px 0"></div>
         <div id="diskBackupCtl"></div>
         <div class="ibox"><strong>Back up now</strong> saves both at once: an in-browser restore point (last <span id="bkMax">8</span> kept) and, if disk backup is on, a timestamped file in your folder. Also happens on every Quick-Save and every 5 minutes.</div>
@@ -30901,6 +30904,16 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.209',changes:[
+    'BaseType database: added \u201CSectarian Crest Shield\u201D, filed with the other Crest Shields. It no longer trips the unknown-BaseType check.',
+    'Spelling is unverified from here \u2014 poe.ninja is unreachable from the build sandbox, so this name was taken as given. The check matches exactly, so if the in-game name differs the filter can still be rejected by the game; confirm on an in-game hover.'
+  ]},
+  {v:'5.208',changes:[
+    'The welcome screen\u2019s \uD83D\uDCBE Protect your work box now uses the SAME three numbered stages as Resources \u2192 Saving Your Work \u2014 \u2460 Save (gold), \u2461 Back up (green), \u2462 Restore (blue) \u2014 with matching colors and numbers. It previously had its own unrelated four-card scheme (\u201CThe risk / The fix / The three files / Jump to\u201D), so the two places that explain the same system didn\u2019t look or read like each other. Each card is now clickable and lands on its matching stage.',
+    'Trimmed that box to one plain risk line, the three cards, and a single footnote. The \u201Cthree files\u201D table is gone from the welcome screen \u2014 the point it was making (the .filter is not a backup) survives as that footnote, and the full detail still lives in \u2461 Back up.',
+    'Simplified Saving Your Work \u2192 \u2460 Save, which was the wordiest part of the tab. Multi-Location Save\u2019s two tip-boxes and intro collapse into one compact three-line table of what each dropdown option saves; \u201CMoving to a new PC?\u201D merges its two boxes into one.',
+    'Tightened \u2461 Back up: the ten-second instructions now come FIRST, before the explanation of why it matters, and the repetition between the three boxes is gone. All three points are kept \u2014 the warning, the quick setup, and why the .filter isn\u2019t a backup.'
+  ]},
   {v:'5.207',changes:[
     'Fixed the header bar visibly shifting sideways during Quick-Save, Export and Auto-Tier. Cause: #topbar centers its whole row, and the status text (\u201CReady\u201D \u2194 \u201CFetching prices from poe.ninja\u2026\u201D) and the pulsing Auto-Tier button\u2019s temporarily-thicker border both changed width mid-action, so the centered row re-measured and every button slid sideways. Both now hold a fixed footprint so the row no longer moves.',
     'Also stopped the \uD83D\uDCBE Quick-Save button permanently losing its icon after a regular Export \u2014 a leftover revert-text bug next to the fix above.',
@@ -35054,7 +35067,7 @@ const CSUGG_BASETYPES_POE2=[
   'Goldworked Tower Shield','Heraldric Tower Shield','Noble Tower Shield','Rampart Tower Shield',
   'Royal Tower Shield','Stone Tower Shield','Vaal Tower Shield','Blazon Crest Shield',
   'Emblem Crest Shield','Glowering Crest Shield','Intricate Crest Shield','Jingling Crest Shield',
-  'Quartered Crest Shield','Sekheman Crest Shield','Sigil Crest Shield','Vaal Crest Shield',
+  'Quartered Crest Shield','Sectarian Crest Shield','Sekheman Crest Shield','Sigil Crest Shield','Vaal Crest Shield',
   'Avian Targe','Baroque Targe','Crescent Targe','Feathered Targe','Hardwood Targe','Mammoth Targe',
   'Pelage Targe','Soaring Targe','Stone Targe','Cast on Block','Cast on Minion Death',
   'Ancestral Warrior Totem','Cast on Critical','Cast on Elemental Ailment','Cast on Shock',
