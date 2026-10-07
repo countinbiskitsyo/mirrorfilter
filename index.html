@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.224
+  MirrorFilter Web — VERSION 5.225
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -29808,6 +29808,12 @@ window.__MF_BASEDATA__ = {
 
 window.__MF_DEFAULT_TODO__ = [
   {
+    "seedId": "basedata-refresh-in-tool",
+    "seedIntoExisting": true,
+    "text": "Move the base-data refresh INTO the tool: a \u201CRefresh base data\u201D button in Resources that fetches poe2db THROUGH THE CLOUDFLARE WORKER (a browser page cannot fetch poe2db directly \u2014 CORS), parses it with the same logic as extract_basedata.js, and stores the table in IndexedDB. Tooltips would read the stored table first and fall back to the embedded one, so no script, no file, no pasting. Needs: a new Worker route, the parser ported into index.html, a stored \u201Clast refreshed\u201D date with a nudge after a patch, and a visible count + spot-check prompt so a bad fetch cannot silently replace good data. NOTE: none of this is testable from the build sandbox (no network to poe2db or the Worker), so it has to be built in small steps with the user verifying each one \u2014 the offline parser took six attempts for exactly this reason.",
+    "done": false
+  },
+  {
     "seedId": "tooltips-phase-2",
     "seedIntoExisting": true,
     "text": "Tooltips phase 2 \u2014 put base stats everywhere a base name appears, not just on rule chips and the Economy Prices list: the \u201C+ BaseType\u201D autocomplete/suggestion dropdown (so you can check a base BEFORE adding it), the Paste list preview, Test Item results, and Bulk Visual Assign. Also consider hover stats on CLASS tags (what the class is, which defences it uses). All of it reads the existing __MF_BASEDATA__ table \u2014 no new data needed.",
@@ -33032,6 +33038,9 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.225',changes:[
+    'Added a to-do for moving the base-data refresh into the tool: a Resources button that fetches poe2db through the Cloudflare Worker (a page cannot fetch it directly — CORS), parses it in-browser and stores the table in IndexedDB, with the embedded table as fallback. That removes the script, the file and the pasting entirely. Flagged as untestable from the build sandbox, so it must be built in small verified steps.'
+  ]},
   {v:'5.224',changes:[
     'Two items added to Planned Features & To-Do. (1) Tooltips phase 2: show base stats everywhere a base name appears — the “+ BaseType” autocomplete, Paste list preview, Test Item results, Bulk Visual Assign — all reading the existing table, no new data needed. (2) A standing after-every-patch step: re-run extract_basedata.js and diff it, since that diff is the list of what GGG changed to item bases.'
   ]},
