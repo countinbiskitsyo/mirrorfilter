@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.213
+  MirrorFilter Web — VERSION 5.214
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -28009,10 +28009,14 @@ window.__MF_EXAMPLE__ = {
 };
 window.__MF_DEFAULT_TODO__ = [
   {
+    "seedId": "mirror-rare-to-magic-normal",
+    "seedIntoExisting": true,
     "text": "Mirror Rare \u2192 Magic/Normal: copy BaseType + Class from a Rare section into its Magic and Normal twins (all child/grandchild rules), matching by section path and rule name. Must PRESERVE each twin's own Rarity, AreaLevel/ItemLevel and visuals \u2014 only conditions listed as mirrored are touched. Run from Resources on request; show a full preview diff (per rule: names added/removed) and require confirmation before writing. Backup first. Reason: twins drift silently \u2014 e.g. Sectarian Crest Shield was added to Rare Off-hands \u2192 Hybrid Arm/ES but not to the Magic or Normal copies, so it showed as a rare but fell through as magic/normal.",
     "done": false
   },
   {
+    "seedId": "shield-stat-conditions",
+    "seedIntoExisting": true,
     "text": "Consider replacing the three Rare/Magic/Normal Off-hands shield BaseType lists with BaseArmour / BaseEnergyShield / BaseEvasion conditions, the way the Armour subsections already work. Shields are the ONLY subsections in the filter that enumerate BaseTypes by hand; every other category splits by Class or by defence stat and needs no maintenance when GGG adds a base. Would make shields self-maintaining and make the mirror feature above unnecessary for them.",
     "done": false
   },
@@ -28692,7 +28696,7 @@ async function kvSet(k,v){ const db=await _idb(); return new Promise((res,rej)=>
 
 const K_STATE="filter_data", K_DEFAULT="default_filter", K_TODO="todo_list",
       K_LINKS="helpful_links", K_MISSING="missing_values", K_CUSTOM="customizations",
-      K_DIRHANDLE="dirHandle", K_METAPREFIX="meta:";
+      K_DIRHANDLE="dirHandle", K_METAPREFIX="meta:", K_TODOSEED="todo_seeded";
 
 /* ---------- File System Access ---------- */
 const FS_SUPPORTED = ("showDirectoryPicker" in window);
@@ -28803,7 +28807,40 @@ async function webAPI(path, method="GET", body=null){
     return {ok:true};
   }
   if(path==="/api/todo"){
-    if(method==="GET") return {items:(await kvGet(K_TODO))|| (window.__MF_DEFAULT_TODO__||[]) };
+    if(method==="GET"){
+      const saved=await kvGet(K_TODO);
+      const defaults=window.__MF_DEFAULT_TODO__||[];
+      // No saved list yet -> this user gets the defaults wholesale, and every
+      // seed id is recorded so none of them is ever offered a second time.
+      if(!saved){
+        await kvSet(K_TODOSEED,{ids:defaults.map(d=>d.seedId).filter(Boolean)});
+        return {items:defaults};
+      }
+      // The user HAS their own list, which is theirs and is never rewritten.
+      // Only defaults explicitly flagged seedIntoExisting are offered, and
+      // only once: the moment an id is recorded here it can never come back,
+      // so deleting one of these makes it stay deleted. Items without the
+      // flag are for fresh installs only and are not pushed into an existing
+      // list. The text check stops a duplicate if the user already added it
+      // by hand. Without this, editing __MF_DEFAULT_TODO__ reached nobody
+      // who had ever saved a list -- i.e. every real user.
+      let seeded=[];
+      try{ seeded=((await kvGet(K_TODOSEED))||{}).ids||[]; }catch(_){ }
+      const have=new Set(saved.map(it=>String(it&&it.text||'').trim()));
+      const fresh=defaults.filter(d=>d.seedId&&d.seedIntoExisting
+                                   &&!seeded.includes(d.seedId)
+                                   &&!have.has(String(d.text||'').trim()));
+      const allIds=defaults.map(d=>d.seedId).filter(Boolean);
+      const nextSeeded=Array.from(new Set(seeded.concat(allIds)));
+      if(!fresh.length){
+        if(nextSeeded.length!==seeded.length) await kvSet(K_TODOSEED,{ids:nextSeeded});
+        return {items:saved};
+      }
+      const merged=saved.concat(fresh.map(d=>({text:d.text,done:false})));
+      await kvSet(K_TODO, merged);
+      await kvSet(K_TODOSEED,{ids:nextSeeded});
+      return {items:merged};
+    }
     await kvSet(K_TODO, body.items||[]); return {ok:true};
   }
   if(path==="/api/links"){
@@ -30935,6 +30972,11 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.214',changes:[
+    'The two to-do items added in 5.212 now actually reach your list in Resources. They did not before: the built-in list was only ever used when you had NO saved to-do list, so anyone who had ever touched theirs \u2014 i.e. every real user \u2014 silently never saw them.',
+    'New items flagged for delivery are merged into an existing list once. Your own items, their order and their done ticks are untouched; an item you already added by hand is not duplicated; and once an item has been delivered it is recorded, so DELETING IT MAKES IT STAY DELETED. Nothing is ever re-pushed on later loads.',
+    'Now in your list: the Rare \u2192 Magic/Normal mirror feature, and the note about replacing the shield BaseType lists with BaseArmour/BaseEnergyShield/BaseEvasion conditions.'
+  ]},
   {v:'5.213',changes:[
     'Test Item can now evaluate BaseArmour, BaseEnergyShield and BaseEvasion. Previously the pasted-item parser never read the Armour / Energy Shield / Evasion lines at all, so any rule using those conditions came back \u201Cmaybe \u2014 unverifiable\u201D. That mattered because the Armour subsections are built entirely on those three conditions, so Test Item could never confirm them.',
     'It only claims a base value it can actually know. A missing defence line means the base genuinely has none, so it reads as 0 \u2014 that is what lets an \u201C<= 0\u201D condition be confirmed rather than guessed. A printed value with no \u201C(augmented)\u201D is the base value. A value marked \u201C(augmented)\u201D is left UNKNOWN and reported unverifiable, because a flat \u201C+N to maximum Energy Shield\u201D can put a figure on a base whose own ES is zero, and guessing there would silently mis-sort the item.',
