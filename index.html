@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.218
+  MirrorFilter Web — VERSION 5.220
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -525,6 +525,22 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 .minput:focus{outline:none;border-color:var(--accent)}
 [data-tip]{position:relative}
 #tt{position:fixed;background:#1a1a24;border:1px solid var(--border2);color:var(--text);font-size:11px;padding:5px 10px;border-radius:4px;pointer-events:none;z-index:9999;max-width:280px;word-wrap:break-word;white-space:normal;line-height:1.5;box-shadow:0 2px 10px rgba(0,0,0,.7);display:none}
+/* ── In-game item tooltip look ────────────────────────────────────────────
+   When a BaseType has real base data we render the game's own tooltip
+   layout instead of a sentence: centred name banner, separator rules, the
+   defence block, then requirements. Normal-rarity colouring (tan name on
+   near-black) because a BASE type is what a white item looks like. */
+#tt.tt-game{background:#000;border:1px solid #4a4440;border-radius:2px;padding:0;max-width:330px;font-size:12px;line-height:1.45;box-shadow:0 3px 16px rgba(0,0,0,.85)}
+#tt.tt-game .gt-name{background:linear-gradient(to bottom,#2b2722,#191613);color:#c8c8c8;font-weight:700;text-align:center;padding:6px 26px 7px;letter-spacing:.3px;border-bottom:1px solid #4a4440}
+#tt.tt-game .gt-sec{padding:6px 12px;border-bottom:1px solid #2a2724}
+#tt.tt-game .gt-sec:last-child{border-bottom:none}
+#tt.tt-game .gt-row{display:flex;justify-content:space-between;gap:18px;color:#7f7f7f}
+#tt.tt-game .gt-row b{color:#fff;font-weight:600}
+#tt.tt-game .gt-req{color:#7f7f7f}
+#tt.tt-game .gt-req b{color:#fff;font-weight:600}
+#tt.tt-game .gt-ward b{color:#d4a95a}
+#tt.tt-game .gt-warn{padding:6px 12px;color:#e87820;border-top:1px solid #2a2724;font-size:11px}
+#tt.tt-game .gt-foot{padding:5px 12px;color:#5a5a5a;font-size:10.5px;border-top:1px solid #2a2724}
 .pchip[data-tip]{position:relative}
 #toasts{position:fixed;bottom:16px;right:16px;z-index:300;display:flex;flex-direction:column;gap:6px;pointer-events:none}
 .toast{padding:12px 18px;border-radius:var(--radius);font-size:15px;background:var(--card);border:1px solid var(--border2);box-shadow:var(--shadow);animation:tslide .18s ease;max-width:520px;pointer-events:auto;display:flex;align-items:center;gap:10px;line-height:1.4}
@@ -30342,26 +30358,31 @@ function buildBaseTip(name){
   const a=_baseDataFor(name);
   if(!a)return '';
   const [blk,arm,eva,es,ward,lvl,str,dex,int]=a;
-  const L=[];
-  L.push(name);
-  if(blk)L.push('Block chance: '+blk+'%');
-  if(arm)L.push('Armour: '+arm);
-  if(eva)L.push('Evasion Rating: '+eva);
-  if(es)L.push('Energy Shield: '+es);
-  if(ward)L.push('Runic Ward: '+ward);
-  // A base with none of the four is worth saying out loud rather than
-  // leaving the reader to notice the absence -- it's the reason a
-  // Runeforged high-tier shield matches no BaseArmour/ES/Evasion rule.
-  if(!arm&&!eva&&!es&&!ward)L.push('No base defences');
+  const row=(lbl,v,cls)=>'<div class="gt-row'+(cls?' '+cls:'')+'"><span>'+lbl+'</span><b>'+v+'</b></div>';
+  let h='<div class="gt-name">'+esc(name)+'</div>';
+
+  // Defence block, in the game's own order.
+  let d='';
+  if(blk)d+=row('Block chance','<b>'+blk+'%</b>');
+  if(arm)d+=row('Armour',arm);
+  if(eva)d+=row('Evasion Rating',eva);
+  if(es)d+=row('Energy Shield',es);
+  if(ward)d+=row('Runic Ward',ward,'gt-ward');
+  if(!arm&&!eva&&!es&&!ward)d+='<div class="gt-row"><span>No base defences</span><b>\u2014</b></div>';
+  if(d)h+='<div class="gt-sec">'+d+'</div>';
+
   const req=[];
-  if(lvl)req.push('Level '+lvl);
-  if(str)req.push(str+' Str');
-  if(dex)req.push(dex+' Dex');
-  if(int)req.push(int+' Int');
-  L.push(req.length?('Requires: '+req.join(', ')):'Requires: nothing');
+  if(lvl)req.push('Level <b>'+lvl+'</b>');
+  if(str)req.push('<b>'+str+'</b> Str');
+  if(dex)req.push('<b>'+dex+'</b> Dex');
+  if(int)req.push('<b>'+int+'</b> Int');
+  h+='<div class="gt-sec"><div class="gt-req">'+(req.length?('Requires: '+req.join(', ')):'No requirements')+'</div></div>';
+
+  // Only shown for the bases where it changes how the filter behaves.
   if(!arm&&!eva&&!es&&ward)
-    L.push('\u26a0 All defence converted to Runic Ward \u2014 BaseArmour, BaseEnergyShield and BaseEvasion are all 0, so defence-based rules will NOT match this.');
-  return L.join(' \u00b7 ');
+    h+='<div class="gt-warn">\u26a0 All defence converted to Runic Ward. BaseArmour, BaseEnergyShield and BaseEvasion are all <b>0</b>, so defence-based rules will NOT match this base.</div>';
+  h+='<div class="gt-foot">base values \u00b7 poe2db</div>';
+  return h;
 }
 
 // ── Mirror Rare → Magic / Normal ───────────────────────────────────────────
@@ -31359,6 +31380,14 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.220',changes:[
+    'Base stats now also show when hovering a name in the ECONOMY PRICES panel, not just on BaseType chips in a rule. That matters because converting Off-hands to BaseArmour/BaseEnergyShield/BaseEvasion removed the shield BaseType chips entirely \u2014 the only class with data had nowhere left to hover. The prices panel still lists every BaseType in the selected rule or section, so the stats stay reachable.',
+    'Tooltips now also trigger on elements carrying base stats alone, with no ordinary tip of their own.'
+  ]},
+  {v:'5.219',changes:[
+    'The BaseType tooltip now uses the game\u2019s own item-tooltip layout instead of a sentence: centred name banner on near-black, right-aligned stat values, separator rules between the defence block and requirements, Runic Ward in gold, and the price/drag note demoted to a footer so it no longer competes with the stats.',
+    'COVERAGE REMINDER \u2014 stats are SHIELDS ONLY so far (143 bases). Hovering a glove, weapon or jewellery base shows the ordinary tip with no stats, which is correct rather than broken: a base with no data never shows invented numbers. Try Sectarian Crest Shield or Venerable Defender to see it.'
+  ]},
   {v:'5.218',changes:[
     'NEW \u2014 hovering a BaseType now shows that base\u2019s real stats, game-tooltip style: block chance, Armour / Evasion / Energy Shield / Runic Ward, and level and attribute requirements, with the usual price and drag note underneath. SHIELDS ONLY for now (143 bases); every other base shows its ordinary tip. A base with no data shows NO stats rather than a guess.',
     'Data source solved: poe2db.tw, data-mined from the game client \u2014 the same source poe2filter.com uses for exact names. VERIFIED against a real in-game item: Sectarian Crest Shield reads 61 Armour / 19 Energy Shield / Level 33 / 27 Str / 27 Int in both. These are BASE values, so they are exactly what BaseArmour/BaseEnergyShield/BaseEvasion test.',
@@ -41431,7 +41460,13 @@ function renderEconBox(data){
     const borderColor=isInferred?priceColor.replace('rgb(','rgba(').replace(')',',.5)'):'';
     const inferredStyle=isInferred?'border:1px solid '+borderColor+';padding:2px 6px;border-radius:4px;':'';
     const animClass=v===null?'':priceGradientClass();
-    return '<div class="erow"><span class="ename">'+esc(n)+'</span><span class="eval '+animClass+'" style="color:'+priceColor+';font-weight:600;'+inferredStyle+'" data-tip="'+(isInferred?'Estimated — highest-priced specific unique known to use this base type':'')+'">'+priceText+'</span></div>';
+    // Base stats on hover here as well as on rule chips. This panel lists
+    // every BaseType in the selected rule/section, so it stays useful even
+    // for a rule that matches on defence stats and carries no BaseType chips
+    // at all -- which is exactly what the Off-hands rules became.
+    const bt=(typeof buildBaseTip==='function')?buildBaseTip(n):'';
+    const nameAttr=bt?(' data-basetip="'+esc(bt).replace(/"/g,'&quot;')+'"'):'';
+    return '<div class="erow"><span class="ename"'+nameAttr+'>'+esc(n)+'</span><span class="eval '+animClass+'" style="color:'+priceColor+';font-weight:600;'+inferredStyle+'" data-tip="'+(isInferred?'Estimated — highest-priced specific unique known to use this base type':'')+'">'+priceText+'</span></div>';
   }).join('');
 }
 function openM(id){document.getElementById(id).classList.add('open');}
@@ -41660,7 +41695,9 @@ function toast(msg,type,action,flourish,durationMs){
   const tt=document.getElementById('tt');
   let cur=null;
   document.addEventListener('mouseover',e=>{
-    const el=e.target.closest('[data-tip]');
+    // Also match elements that carry ONLY base stats (no ordinary tip) --
+    // e.g. the Economy Prices name column.
+    const el=e.target.closest('[data-tip],[data-basetip]');
     if(!el||el===cur)return;
     cur=el;
     // A BaseType chip carrying real base stats shows those first, then its
@@ -41669,8 +41706,15 @@ function toast(msg,type,action,flourish,durationMs){
     const baseTip=el.getAttribute('data-basetip');
     const tip=el.getAttribute('data-tip');
     if(!tip&&!baseTip)return;
-    tt.textContent=baseTip?(baseTip+(tip?('\n\n'+tip):'')):tip;
-    tt.style.whiteSpace=baseTip?'pre-line':'';
+    if(baseTip){
+      // Game-styled markup. The ordinary tip (price, drag hint) goes in the
+      // footer so it is still reachable without competing with the stats.
+      tt.classList.add('tt-game');
+      tt.innerHTML=baseTip+(tip?'<div class="gt-foot">'+esc(tip)+'</div>':'');
+    }else{
+      tt.classList.remove('tt-game');
+      tt.textContent=tip;
+    }
     tt.style.display='block';
     positionTT(e);
   });
@@ -41679,7 +41723,7 @@ function toast(msg,type,action,flourish,durationMs){
     positionTT(e);
   });
   document.addEventListener('mouseout',e=>{
-    if(cur&&!cur.contains(e.relatedTarget)){cur=null;tt.style.display='none';}
+    if(cur&&!cur.contains(e.relatedTarget)){cur=null;tt.style.display='none';tt.classList.remove('tt-game');}
   });
   // Defensive: if the hovered element gets replaced by a DOM rebuild (several
   // Settings tab actions do this on click — e.g. opening Tier System calls
@@ -41687,7 +41731,7 @@ function toast(msg,type,action,flourish,durationMs){
   // never fire a clean mouseout on the now-removed element, leaving this
   // tooltip box stuck floating on screen looking like a stray input. A click
   // anywhere always clears it, regardless of why the element disappeared.
-  document.addEventListener('click',()=>{cur=null;tt.style.display='none';});
+  document.addEventListener('click',()=>{cur=null;tt.style.display='none';tt.classList.remove('tt-game');});
   function positionTT(e){
     tt.style.display='block';
     const tw=tt.offsetWidth,th=tt.offsetHeight;
