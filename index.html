@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.211
+  MirrorFilter Web — VERSION 5.213
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -28009,6 +28009,14 @@ window.__MF_EXAMPLE__ = {
 };
 window.__MF_DEFAULT_TODO__ = [
   {
+    "text": "Mirror Rare \u2192 Magic/Normal: copy BaseType + Class from a Rare section into its Magic and Normal twins (all child/grandchild rules), matching by section path and rule name. Must PRESERVE each twin's own Rarity, AreaLevel/ItemLevel and visuals \u2014 only conditions listed as mirrored are touched. Run from Resources on request; show a full preview diff (per rule: names added/removed) and require confirmation before writing. Backup first. Reason: twins drift silently \u2014 e.g. Sectarian Crest Shield was added to Rare Off-hands \u2192 Hybrid Arm/ES but not to the Magic or Normal copies, so it showed as a rare but fell through as magic/normal.",
+    "done": false
+  },
+  {
+    "text": "Consider replacing the three Rare/Magic/Normal Off-hands shield BaseType lists with BaseArmour / BaseEnergyShield / BaseEvasion conditions, the way the Armour subsections already work. Shields are the ONLY subsections in the filter that enumerate BaseTypes by hand; every other category splits by Class or by defence stat and needs no maintenance when GGG adds a base. Would make shields self-maintaining and make the mirror feature above unnecessary for them.",
+    "done": false
+  },
+  {
     "text": "Build starter filter templates: Leveling, Early Maps, Endgame, SSF",
     "done": false
   },
@@ -30927,6 +30935,15 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.213',changes:[
+    'Test Item can now evaluate BaseArmour, BaseEnergyShield and BaseEvasion. Previously the pasted-item parser never read the Armour / Energy Shield / Evasion lines at all, so any rule using those conditions came back \u201Cmaybe \u2014 unverifiable\u201D. That mattered because the Armour subsections are built entirely on those three conditions, so Test Item could never confirm them.',
+    'It only claims a base value it can actually know. A missing defence line means the base genuinely has none, so it reads as 0 \u2014 that is what lets an \u201C<= 0\u201D condition be confirmed rather than guessed. A printed value with no \u201C(augmented)\u201D is the base value. A value marked \u201C(augmented)\u201D is left UNKNOWN and reported unverifiable, because a flat \u201C+N to maximum Energy Shield\u201D can put a figure on a base whose own ES is zero, and guessing there would silently mis-sort the item.',
+    '\u201CAbsent means zero\u201D is only applied to items that print at least one defence line, so pasting a currency item or gem still infers nothing.'
+  ]},
+  {v:'5.212',changes:[
+    'Added two items to Planned Features & To-Do. (1) Mirror Rare \u2192 Magic/Normal: copy BaseType and Class from a Rare section into its Magic and Normal twins including all child and grandchild rules, preserving each twin\u2019s own Rarity/AreaLevel and visuals, with a full preview diff and confirmation before writing. (2) Consider replacing the shield BaseType lists with BaseArmour/BaseEnergyShield/BaseEvasion conditions.',
+    'NOTE: the to-do list is YOUR saved list, so these two entries only appear automatically if you have never saved one. If your list already exists, add them by hand \u2014 they are seeded in the default list for the record.'
+  ]},
   {v:'5.211',changes:[
     'BaseType database: added 499 equipment bases it never carried \u2014 armour, weapons, jewellery, flasks, charms, quivers and foci. Database is now 3,098 entries (was 2,599). These are NOT new items: an audit against the full PoE2 base list found the database held only 572 of 1,748 equipment bases, and most of the gaps (Broadsword, Pearlescent Amulet, Simple Dagger, Golden Greaves\u2026) date to Early Access. They were missing from BaseType autocomplete and were flagged by the unknown-BaseType check despite being real.',
     'This is EDITOR-ONLY and changes nothing the game sees. Verified: exporting the example filter before and after is byte-identical \u2014 364 rules, 291 Show, 3 Hide, 0 bare BaseType lines, 195,509 characters. The database is the list of names the editor recognises; it is not content added to your filter.',
@@ -37456,6 +37473,43 @@ function parseItemText(text){
   item.corrupted=/^Corrupted$/m.test(fullText);
   item.mirrored=/^Mirrored$/m.test(fullText);
   item.identified=!/^Unidentified$/m.test(fullText);
+
+  // ── Base defences (BaseArmour / BaseEnergyShield / BaseEvasion) ──────────
+  // The game's BaseX conditions test the BASE TYPE's inherent value, not the
+  // value printed on this particular item. The clipboard text only prints the
+  // final value, so we can only report a base value when we KNOW mods haven't
+  // moved it. Three cases, and the distinction is the whole point:
+  //   line absent entirely          -> base is 0. Reliable: a stat the base
+  //                                    doesn't have is simply not printed.
+  //   line present, no "(augmented)"-> printed value IS the base value.
+  //   line present + "(augmented)"  -> UNKNOWN. A flat "+N to maximum Energy
+  //                                    Shield" can put a nonzero figure on a
+  //                                    base whose own ES is 0, so we must not
+  //                                    guess; it is left undefined and the
+  //                                    matcher reports it unverifiable.
+  // "Absent means zero" is only safe on an item that prints at least one
+  // defence line. On a currency item or a gem, nothing is printed and nothing
+  // may be inferred, so all three stay undefined.
+  (function(){
+    const pats={
+      baseArmour:/^Armour:\s*([\d,]+)([^\n]*)$/mi,
+      baseEnergyShield:/^Energy Shield:\s*([\d,]+)([^\n]*)$/mi,
+      baseEvasion:/^Evasion(?:\s+Rating)?:\s*([\d,]+)([^\n]*)$/mi
+    };
+    const found={}; let anyLine=false;
+    for(const k in pats){
+      const m=fullText.match(pats[k]);
+      if(!m)continue;
+      anyLine=true;
+      if(/\(augmented\)/i.test(m[2]||'')) found[k]=null;        // present but unknowable
+      else found[k]=parseInt(m[1].replace(/,/g,''),10);
+    }
+    if(!anyLine)return;                                          // not a defensive item
+    for(const k in pats){
+      if(!(k in found)) item[k]=0;                               // absent line => base 0
+      else if(found[k]!==null) item[k]=found[k];                 // else leave undefined
+    }
+  })();
   return item;
 }
 function evaluateRuleAgainstTestItem(rule,item){
@@ -37502,6 +37556,14 @@ function evaluateRuleAgainstTestItem(rule,item){
     } else if(key==='Sockets'&&item.sockets!==undefined){
       const[min,max]=scalarRangeBoundsForDeadRule(val);
       if(item.sockets<min||item.sockets>max)return{result:'no-match',unverifiable};
+    } else if(key==='BaseArmour'||key==='BaseEnergyShield'||key==='BaseEvasion'){
+      // Only decidable when parseItemText could establish the base value --
+      // an "(augmented)" figure is deliberately left undefined there, so it
+      // lands in unverifiable rather than being guessed at.
+      const got=item[key.charAt(0).toLowerCase()+key.slice(1)];
+      if(got===undefined){unverifiable.push(key);continue;}
+      const[min,max]=scalarRangeBoundsForDeadRule(val);
+      if(got<min||got>max)return{result:'no-match',unverifiable};
     } else if(key==='Corrupted'){
       if((String(val)==='True')!==item.corrupted)return{result:'no-match',unverifiable};
     } else if(key==='Mirrored'){
