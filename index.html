@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.225
+  MirrorFilter Web — VERSION 5.226
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -1395,6 +1395,34 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     </div>
   </div>
   <div style="margin:10px 0 4px 0;padding:3px 2px;border-bottom:2px solid #e0435a"><span style="font-size:16px;font-weight:800;letter-spacing:.6px;color:#e0435a;text-transform:uppercase">🧹 Maintenance & Data</span></div>
+
+  <div class="ss" style="border-left:4px solid #5a9cf5">
+    <div class="ss-head coll-head" onclick="toggleSS('ss-basedata')" style="cursor:pointer;display:flex;align-items:center">
+      🧩 Base Item Data <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">&mdash; the stats shown when you hover a BaseType</span>
+      <span id="bdStaleBadge"></span>
+      <span class="coll-caret" id="ss-basedata-caret" style="margin-left:auto;font-size:11px;color:var(--text3);transition:.15s">&#9654;</span>
+    </div>
+    <div class="ss-body" id="ss-basedata-body" style="display:none">
+      <div id="bdStatus"></div>
+      <div class="ibox" style="margin-top:8px"><strong style="color:var(--text)">What this is.</strong> Hovering a BaseType anywhere in the editor shows that base's real armour, evasion, energy shield, damage, requirements and implicit. Those numbers come from a table built into this file.
+        <div style="margin-top:6px">The table does not update itself. <strong>After a PoE2 patch changes item stats, it has to be rebuilt</strong> &mdash; otherwise tooltips quietly show last patch's numbers.</div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#5a9cf5">How to rebuild it</div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:8px 12px;margin-top:7px;font-size:12.5px;line-height:1.55;align-items:baseline">
+        <span style="font-weight:800;color:#5a9cf5;white-space:nowrap">1.</span>
+        <span>Get the script &mdash; click below. You need <strong>Node.js 18+</strong> (<code>node --version</code> to check; nodejs.org for the LTS installer).</span>
+        <span style="font-weight:800;color:#5a9cf5;white-space:nowrap">2.</span>
+        <span>Open PowerShell in the folder you saved it to (Shift+right-click &rarr; <em>Open PowerShell window here</em>) and run:<br><code style="display:inline-block;margin-top:3px;background:var(--bg);padding:3px 7px;border-radius:3px">node extract_basedata.js</code><br><span style="color:var(--text3);font-size:11.5px">About a minute. Watch for any class reporting <strong>0 bases</strong> &mdash; that means it needs fixing, not shipping.</span></span>
+        <span style="font-weight:800;color:#5a9cf5;white-space:nowrap">3.</span>
+        <span>It writes <code>basedata.js</code> beside itself. Give that file to Claude and ask it to update MirrorFilter's base data.</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:11px">
+        <button class="sh-btn" onclick="downloadExtractor()" data-tip="Saves extract_basedata.js — the script is stored inside MirrorFilter, so it cannot be lost">⬇ Download extract_basedata.js</button>
+        <button class="sh-btn" onclick="copyBasedataPrompt()" data-tip="Copies a ready-made message to send to Claude along with basedata.js">📋 Copy the message for Claude</button>
+      </div>
+      <div class="tip-box" style="margin-top:10px"><strong style="color:var(--accent)">You don't need to remember any of this.</strong> The script lives inside MirrorFilter, so downloading <code>index.html</code> from your backup always gets you the script too. This panel tells you whether the data is stale and what to do about it.</div>
+    </div>
+  </div>
 
   <div class="ss" style="border-left:4px solid #e0435a">
     <div class="ss-head coll-head" onclick="toggleSS('ss-league')" style="cursor:pointer;display:flex;align-items:center;gap:8px">
@@ -29806,6 +29834,12 @@ window.__MF_BASEDATA__ = {
 "Zenith Vestments":{"a":273,"s":76,"lv":73,"st":67,"it":67}
 };
 
+// The extractor script, embedded so it can never be lost. Resources ->
+// Maintenance & Data -> Base Item Data offers it as a download. Keeping
+// it here means the ONE file that is backed up and version-controlled
+// also carries the tool needed to refresh its own data.
+const MF_EXTRACTOR_SRC = "#!/usr/bin/env node\n/*\n * MirrorFilter \u2014 base-item data extractor  (v2)\n * =======================================\n * Turns poe2db.tw class pages into the table MirrorFilter's BaseType\n * tooltips read, so the data can be refreshed in one command each patch\n * instead of being hand-copied class by class.\n *\n * WHY THIS EXISTS\n * ---------------\n * The tooltip needs block chance, Armour / Evasion / Energy Shield /\n * Runic Ward and requirements for ~3,100 bases. Transcribing that by hand\n * is slow, goes stale every patch, and \u2014 worst of all \u2014 a typo produces a\n * confidently wrong number with nothing to catch it. This script makes the\n * data reproducible: same input, same output, and a diff shows exactly what\n * a patch changed.\n *\n * v2 FIXES (v1 returned Shields only, with corrupted names)\n *   1. Names were glued to their first stat (\"Aged Tower ShieldBlock chance:\n *      26%\") because only block-level tags were turned into line breaks.\n *      poe2db wraps the name in <a>/<span>. Inline tags now break too, AND a\n *      newline is forced before every stat label as a belt-and-braces measure.\n *   2. Because of (1), a record was only detected when a line began with a\n *      stat label -- true for Shields by luck, false for every other class,\n *      hence \"only found shields\". Detection now keys on a NAME line followed\n *      immediately by a stat line.\n *   3. Values could attach to the wrong item: the name was searched backwards\n *      up to 5 lines and could run past the previous record (Blazon Crest\n *      Shield inherited Sigil's numbers). Records are now consumed forwards\n *      and never re-scanned.\n *   4. Entries with no defence at all (weapons, flasks, currency) are now\n *      skipped rather than written empty -- an empty entry would stop the\n *      tooltip correctly saying \"no data\".\n *\n * USAGE\n *   node extract_basedata.js                 # all classes\n *   node extract_basedata.js Gloves Boots    # just those\n *   node extract_basedata.js --debug Shields # also dump what the parser saw\n *\n * Writes basedata.js. Paste its contents over the\n * window.__MF_BASEDATA__ block in index.html.\n *\n * VERIFY BEFORE YOU TRUST IT\n *   Pick an item you own, Ctrl+C it in game, and compare. The Shields set\n *   was checked this way: Sectarian Crest Shield reads 61 Armour / 19\n *   Energy Shield / Level 33 / 27 Str / 27 Int in both. Do the same for\n *   each new class \u2014 one spot-check catches a parser that silently\n *   mis-reads a column.\n *\n * REQUIREMENTS\n *   Node 18+ (built-in fetch). No npm install needed.\n */\n\nconst fs = require('fs');\n\nconst CLASSES = [\n  'Shields', 'Bucklers', 'Foci', 'Quivers',\n  'Gloves', 'Boots', 'Body_Armours', 'Helmets',\n  'Amulets', 'Rings', 'Belts',\n  'Claws', 'Daggers', 'Wands', 'One_Hand_Swords', 'One_Hand_Axes',\n  'One_Hand_Maces', 'Sceptres', 'Spears', 'Flails',\n  'Bows', 'Staves', 'Two_Hand_Swords', 'Two_Hand_Axes', 'Two_Hand_Maces',\n  'Quarterstaves', 'Crossbows', 'Talismans',\n  'Life_Flasks', 'Mana_Flasks', 'Charms', 'Jewels'\n];\n\nconst argv = process.argv.slice(2);\n// --debug always writes debug_<Class>.txt even when parsing succeeded, so the\n// page's real structure can be inspected rather than guessed at.\nconst DEBUG = argv.includes('--debug');\n// --raw writes the WHOLE page HTML, so the parser can be finished without\n// another round trip.\nconst RAW = argv.includes('--raw');\nconst want = argv.filter(a => a !== '--debug' && a !== '--raw');\nconst targets = want.length ? want : CLASSES;\n\n// poe2db renders each base as a block of plain lines. We read the block,\n// not the HTML structure, so a cosmetic site redesign is less likely to\n// break this than a selector-based scrape would be.\n// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n// v7 \u2014 parses the HTML STRUCTURE, not flattened text.\n//\n// Earlier versions flattened the page to lines and hunted for \"Armour: 61\".\n// That can never work here, because poe2db makes the LABEL a hyperlink:\n//     <div class=\"property\"><a ...>Armour</a>: <span>61</span></div>\n//     <div class=\"property\"><a ...>Block</a> chance: <span>25%</span></div>\n// Any tag-based line break separates the label from its value, and splits\n// \"Block chance\" down the middle. So we read each item's card as a block of\n// HTML and strip tags only WITHIN a single property div, where the result is\n// reliably \"Label: value\".\n//\n// Base items carry class=\"whiteitem\"; uniques carry class=\"UniqueItem\".\n// That attribute is what keeps the 150 bases apart from the 20 uniques.\n// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\nfunction textOf(html) {\n  return html\n    .replace(/<[^>]+>/g, '')\n    .replace(/&nbsp;/g, ' ')\n    .replace(/&amp;/g, '&')\n    .replace(/&#39;|&apos;/g, \"'\")\n    .replace(/&quot;/g, '\"')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nconst num = s => (s ? parseInt(String(s).replace(/,/g, ''), 10) : 0);\n\nfunction parseClass(html) {\n  const out = {};\n  const cards = html.split(/<div class=\"d-flex border-top[^\"]*\">/);\n\n  for (const card of cards) {\n    if (!/class=\"whiteitem/i.test(card)) continue;      // bases only, not uniques\n\n    let name = null;\n    const anchors = card.match(/<a class=\"whiteitem[^\"]*\"[^>]*>([\\s\\S]*?)<\\/a>/gi) || [];\n    for (const a of anchors) {\n      const t = textOf(a);\n      if (t && t.length <= 60) { name = t; break; }\n    }\n    if (!name || out[name]) continue;\n\n    const o = {};\n    const extra = [];\n\n    for (const p of card.match(/<div class=\"property\">([\\s\\S]*?)<\\/div>/gi) || []) {\n      const t = textOf(p);\n      let m;\n      if ((m = t.match(/^Block chance:\\s*([\\d.]+)/i)))            o.b = Math.round(parseFloat(m[1]));\n      else if ((m = t.match(/^Armour:\\s*([\\d,]+)/i)))             o.a = num(m[1]);\n      else if ((m = t.match(/^Evasion(?:\\s+Rating)?:\\s*([\\d,]+)/i))) o.e = num(m[1]);\n      else if ((m = t.match(/^Energy Shield:\\s*([\\d,]+)/i)))      o.s = num(m[1]);\n      else if ((m = t.match(/^Runic Ward:\\s*([\\d,]+)/i)))         o.w = num(m[1]);\n      else if ((m = t.match(/^Physical Damage:\\s*([\\d,]+\\s*-\\s*[\\d,]+)/i))) o.pd = m[1].replace(/\\s/g, '');\n      else if ((m = t.match(/^Critical Hit Chance:\\s*([\\d.]+)/i))) o.c = parseFloat(m[1]);\n      else if ((m = t.match(/^Attacks per Second:\\s*([\\d.]+)/i)))  o.aps = parseFloat(m[1]);\n      else if ((m = t.match(/^Weapon Range:\\s*([\\d.]+)/i)))        o.rg = parseFloat(m[1]);\n      else if (/^Base Movement Speed:/i.test(t)) { /* not shown in tooltips */ }\n      else if (/^(Currently has|Consumes)/i.test(t)) { /* charge bookkeeping */ }\n      // Flasks and charms carry their behaviour here, e.g.\n      // \"Recovers 50 Life over 3 Second\" / \"Lasts 3 Second\".\n      else if (t && extra.length < 2) extra.push(t);\n    }\n    if (extra.length) o.p = extra;\n\n    const rq = card.match(/<div class=\"requirements\">([\\s\\S]*?)<\\/div>/i);\n    if (rq) {\n      const t = textOf(rq[0]);\n      let m;\n      if ((m = t.match(/Level\\s+(\\d+)/i)))   o.lv = num(m[1]);\n      if ((m = t.match(/(\\d+)\\s*Str/i)))     o.st = num(m[1]);\n      if ((m = t.match(/(\\d+)\\s*Dex/i)))     o.dx = num(m[1]);\n      if ((m = t.match(/(\\d+)\\s*Int/i)))     o.it = num(m[1]);\n    }\n\n    // The implicit is the whole point for rings, amulets, quivers and charms,\n    // which have no stat block at all.\n    const im = card.match(/<div class=\"implicitMod\">([\\s\\S]*?)<\\/div>/i);\n    if (im) {\n      const t = textOf(im[0]).replace(/\\s+/g, ' ').trim();\n      if (t && t.length <= 120 && !/^local /i.test(t)) o.im = t;\n    }\n\n    // Keep anything we learned something about. Previously only defences\n    // counted, which is why 25 classes produced nothing at all.\n    if (Object.keys(o).length) out[name] = o;\n  }\n  return out;\n}\n\n// Kept so --debug can still show a readable flattening of the page.\nfunction normaliseLines(html) {\n  return textOf(html.replace(/<\\/div>/gi, '\\n').replace(/<br\\s*\\/?>/gi, '\\n'))\n    .split('\\n').map(l => l.trim()).filter(Boolean);\n}\n\n(async () => {\n  const all = {};\n  const debugged = [];\n  for (const cls of targets) {\n    const url = 'https://poe2db.tw/' + cls;\n    process.stdout.write('fetching ' + cls.padEnd(18));\n    try {\n      const res = await fetch(url, { headers: { 'User-Agent': 'MirrorFilter-basedata/1.0' } });\n      if (!res.ok) { console.log('HTTP ' + res.status + ' \u2014 skipped'); continue; }\n      const html = await res.text();\n      if (RAW) fs.writeFileSync('debug_' + cls + '_full.html', html);\n\n      const parsed = parseClass(html);\n      Object.assign(all, parsed);\n      const n = Object.keys(parsed).length;\n      console.log(String(n).padStart(4) + ' bases' + (n ? (DEBUG ? '   (debug written)' : '') : '   <-- wrote debug file'));\n      // A class returning nothing means the page is shaped differently than\n      // expected. Dump what the parser actually saw so it can be fixed from\n      // evidence instead of guesswork.\n      if (!n || DEBUG) {\n        // Full normalised text (not a 160-line slice: the first 160 lines are\n        // site navigation and the UNIQUES table, never the base items).\n        const norm = normaliseLines(html).join('\\n');\n        fs.writeFileSync('debug_' + cls + '.txt', norm);\n        // And the RAW markup around a base stat, which is what the parser\n        // actually needs to be written against.\n        const hit = html.search(/class=\"whiteitem/i);\n        if (hit > -1) {\n          fs.writeFileSync('debug_' + cls + '_raw.html',\n            html.slice(Math.max(0, hit - 3000), hit + 5000));\n        }\n        if (!debugged.includes('debug_' + cls + '.txt')) debugged.push('debug_' + cls + '.txt');\n      }\n    } catch (e) {\n      console.log('FAILED: ' + e.message);\n    }\n    await new Promise(r => setTimeout(r, 1200)); // be polite to the site\n  }\n\n  const names = Object.keys(all).sort();\n  const body = names.map(n =>\n    JSON.stringify(n) + ':' + JSON.stringify(all[n])\n  ).join(',\\n');\n\n  fs.writeFileSync('basedata.js',\n    '// keys: b=block% a=armour e=evasion s=energyShield w=runicWard\\n' +\n    '//       pd=physDamage c=crit% aps=attacksPerSec rg=range p=[other props]\\n' +\n    '//       lv=level st=str dx=dex it=int im=implicit\\n' +\n    '// A key is absent when the base does not have that stat.\\n' +\n    '// Generated by extract_basedata.js from poe2db.tw on ' + new Date().toISOString().slice(0, 10) + '\\n' +\n    '// ' + names.length + ' bases.\\n' +\n    '// SPOT-CHECK one item per class against the game before shipping.\\n' +\n    'window.__MF_BASEDATA__ = {\\n' + body + '\\n};\\n');\n\n  console.log('\\nwrote basedata.js \u2014 ' + names.length + ' bases');\n  if (debugged.length) {\n    console.log('\\n' + debugged.length + ' class(es) returned nothing. Send these files:');\n    debugged.forEach(f => console.log('   ' + f));\n  }\n  console.log('Spot-check a few against the game, then paste into index.html.');\n})();\n";
+
 window.__MF_DEFAULT_TODO__ = [
   {
     "seedId": "basedata-refresh-in-tool",
@@ -31969,6 +32003,60 @@ function reportDuplicateRules(){
   });
   box.innerHTML=html;
 }
+// ── Base Item Data panel ──────────────────────────────────────────────────
+// The weak point of the tooltip feature is not the data, it's REMEMBERING to
+// rebuild it after a patch. Nobody recalls where a script went six months
+// later, or what to do with its output. So: the script is embedded here and
+// downloadable, the instructions sit next to the button, and the tool
+// compares the patch the data was built for against the patch it is running
+// as, and says so without being asked.
+function basedataIsStale(){
+  try{ return String(BASEDATA_PATCH)!==String(GAME_PATCH_BASELINE); }catch(_){ return false; }
+}
+function basedataCount(){
+  try{ return Object.keys(window.__MF_BASEDATA__||{}).length; }catch(_){ return 0; }
+}
+function renderBasedataStatus(){
+  const badge=document.getElementById('bdStaleBadge');
+  const box=document.getElementById('bdStatus');
+  const stale=basedataIsStale(), n=basedataCount();
+  if(badge) badge.innerHTML = stale
+    ? '<span style="margin-left:8px;font-size:10px;font-weight:800;color:#e87820;border:1px solid rgba(232,120,32,.5);border-radius:3px;padding:1px 5px;text-transform:none;letter-spacing:0">needs rebuilding</span>'
+    : '';
+  if(!box)return;
+  const rows=
+    '<div style="display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:12.5px;align-items:baseline;margin-top:6px">'
+    +'<span style="color:var(--text2)">Bases covered</span><strong>'+n.toLocaleString()+'</strong>'
+    +'<span style="color:var(--text2)">Built from</span><strong>poe2db.tw \u00b7 '+esc(String(typeof BASEDATA_GENERATED!=='undefined'?BASEDATA_GENERATED:'?'))+'</strong>'
+    +'<span style="color:var(--text2)">Built for patch</span><strong>'+esc(String(BASEDATA_PATCH))+'</strong>'
+    +'<span style="color:var(--text2)">Game patch now</span><strong>'+esc(String(GAME_PATCH_BASELINE))+'</strong>'
+    +'</div>';
+  box.innerHTML = stale
+    ? '<div class="warn-box" style="margin-top:0"><strong style="color:#e87820">This data is from an older patch.</strong> Tooltips may be showing last patch\u2019s numbers. Rebuild using the steps below.'+rows+'</div>'
+    : '<div class="ibox" style="margin-top:0;border-color:rgba(80,200,120,.45)"><strong style="color:var(--green)">\u2713 Up to date</strong> for the patch this tool is set to.'+rows+'</div>';
+}
+function downloadExtractor(){
+  try{
+    const blob=new Blob([MF_EXTRACTOR_SRC],{type:'text/javascript'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='extract_basedata.js';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+    toast('extract_basedata.js downloaded','ok');
+  }catch(e){ toast('Could not download the script','err'); }
+}
+function copyBasedataPrompt(){
+  const msg='Here is a fresh basedata.js from extract_basedata.js (PoE2 patch '
+    +GAME_PATCH_BASELINE+'). Please update MirrorFilter\u2019s base item data with it: '
+    +'replace the window.__MF_BASEDATA__ block in index.html, set BASEDATA_PATCH and '
+    +'BASEDATA_GENERATED to match, check the counts look sane against the previous '
+    +String(basedataCount())+' bases, and tell me what changed.';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(msg).then(()=>toast('Message copied \u2014 send it with basedata.js','ok'))
+      .catch(()=>toast('Could not copy','err'));
+  } else toast('Clipboard unavailable','err');
+}
+
 // ── BaseType hover tooltip ────────────────────────────────────────────────
 // Formats a base's real stats the way the game's item tooltip orders them.
 // Returns '' when the base isn't in the reference data -- the caller then
@@ -33035,9 +33123,21 @@ function partitionTodoItems(){
 // Alignment means "the items audited for this patch are in" — see Resources
 // -> League Content for the known gaps.
 const GAME_PATCH_BASELINE='0.5.5';
+// The patch the embedded __MF_BASEDATA__ table was generated under. When
+// GAME_PATCH_BASELINE moves past this, the base data is stale and the
+// Base Item Data panel says so. Update BOTH when pasting a new table.
+const BASEDATA_PATCH='0.5.5';
+const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.226',changes:[
+    'NEW \u2014 Resources \u2192 Maintenance & Data \u2192 Base Item Data. The weak point of the tooltip feature was never the data, it was REMEMBERING to rebuild it after a patch: where the script went, and what to do with its output. This panel removes all three problems.',
+    'The extractor script is now EMBEDDED IN index.html and downloadable from that panel. It cannot be lost \u2014 restoring index.html from any backup restores the script with it.',
+    'The panel compares the patch the data was built for against the patch the tool is set to, and puts a \u201Cneeds rebuilding\u201D badge on the section header when they differ, so stale data announces itself instead of quietly showing last patch\u2019s numbers.',
+    'It also carries the three rebuild steps inline, plus a button that copies a ready-made message to send to Claude with the new basedata.js \u2014 so nothing has to be remembered a year from now.',
+    'Maintainers: when pasting a new table, update BASEDATA_PATCH and BASEDATA_GENERATED to match, or the panel keeps reporting the old build date.'
+  ]},
   {v:'5.225',changes:[
     'Added a to-do for moving the base-data refresh into the tool: a Resources button that fetches poe2db through the Cloudflare Worker (a page cannot fetch it directly — CORS), parses it in-browser and stores the table in IndexedDB, with the embedded table as fallback. That removes the script, the file and the pasting entirely. Flagged as untestable from the build sandbox, so it must be built in small verified steps.'
   ]},
@@ -34784,6 +34884,7 @@ async function init(){
   if(S.priceGradientPreset)priceGradientPreset=S.priceGradientPreset;
     syncLeagueUI();
     if(typeof renderLeagueContent==='function')renderLeagueContent();
+    if(typeof renderBasedataStatus==='function')renderBasedataStatus();
     applyTheme(S.theme);
     syncSecOrder();
     // Always start collapsed — session state only, not persisted
