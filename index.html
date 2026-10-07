@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.217
+  MirrorFilter Web — VERSION 5.218
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -28027,6 +28027,162 @@ window.__MF_EXAMPLE__ = {
   "sidebarColorMode": "colorful",
   "vizDupeBTScope": "across"
 };
+// ── Base-item reference data (for BaseType hover tooltips) ───────────────
+// Source: poe2db.tw, which is data-mined from the game client. VERIFIED
+// against a real in-game item: Sectarian Crest Shield reads 61 Armour /
+// 19 Energy Shield / Level 33 / 27 Str / 27 Int here and in the client.
+// Currently SHIELDS ONLY -- a deliberate first slice. Any base not in
+// here shows "no data" rather than a guess. Numbers are BASE values, so
+// they are what BaseArmour/BaseEnergyShield/BaseEvasion actually test.
+// Re-extract from https://poe2db.tw/Shields when a patch changes bases.
+// name: [block%, armour, evasion, energyShield, runicWard, level, str, dex, int]
+// 0 means the base genuinely has none of that stat. null level = no requirement.
+window.__MF_BASEDATA_SHIELDS__ = {
+"Golden Flame":[25,0,0,0,0,15,0,0,0],
+"Splintered Tower Shield":[26,18,0,0,0,null,0,0,0],
+"Painted Tower Shield":[26,33,0,0,0,6,11,0,0],
+"Braced Tower Shield":[26,50,0,0,0,12,19,0,0],
+"Barricade Tower Shield":[26,62,0,0,0,16,25,0,0],
+"Effigial Tower Shield":[26,76,0,0,0,21,32,0,0],
+"Rampart Tower Shield":[26,96,0,0,0,28,42,0,0],
+"Heraldric Tower Shield":[26,111,0,0,0,33,48,0,0],
+"Stone Tower Shield":[26,119,0,0,0,36,52,0,0],
+"Crucible Tower Shield":[26,145,0,0,0,45,64,0,0],
+"Ancestor Tower Shield":[26,160,0,0,0,50,71,0,0],
+"Phalanx Tower Shield":[26,166,0,0,0,52,74,0,0],
+"Defiant Tower Shield":[26,183,0,0,0,58,82,0,0],
+"Blacksteel Tower Shield":[26,203,0,0,0,65,91,0,0],
+"Aged Tower Shield":[26,145,0,0,0,45,64,0,0],
+"Metalworked Tower Shield":[26,154,0,0,0,48,69,0,0],
+"Cultist Tower Shield":[26,163,0,0,0,51,73,0,0],
+"Bulwark Tower Shield":[26,171,0,0,0,54,77,0,0],
+"Noble Tower Shield":[26,186,0,0,0,59,83,0,0],
+"Goldworked Tower Shield":[26,192,0,0,0,61,86,0,0],
+"Royal Tower Shield":[26,203,0,0,0,65,91,0,0],
+"Fortress Tower Shield":[26,223,0,0,0,70,99,0,0],
+"Vaal Tower Shield":[26,244,0,0,0,75,107,0,0],
+"Tawhoan Tower Shield":[26,264,0,0,0,80,115,0,0],
+"Glacial Fortress":[26,223,0,0,0,70,99,0,0],
+"Golden Shield":[25,0,0,0,0,null,0,0,0],
+"Hardwood Targe":[25,10,7,0,0,null,0,0,0],
+"Pelage Targe":[25,21,17,0,0,8,9,9,0],
+"Studded Targe":[25,34,29,0,0,16,15,15,0],
+"Crescent Targe":[25,50,44,0,0,26,22,22,0],
+"Chiseled Targe":[25,61,54,0,0,33,27,27,0],
+"Feathered Targe":[25,67,60,0,0,37,30,30,0],
+"Stratified Targe":[25,82,74,0,0,46,37,37,0],
+"Carved Targe":[25,89,81,0,0,51,40,40,0],
+"Mosaic Targe":[25,91,82,0,0,52,41,41,0],
+"Aureate Targe":[25,99,90,0,0,57,45,45,0],
+"Grand Targe":[25,112,102,0,0,65,50,50,0],
+"Ironwood Targe":[25,80,72,0,0,45,36,36,0],
+"Fur-lined Targe":[25,85,76,0,0,48,38,38,0],
+"Mercenary Targe":[25,89,81,0,0,51,40,40,0],
+"Polished Targe":[25,94,85,0,0,54,42,42,0],
+"Stone Targe":[25,102,93,0,0,59,46,46,0],
+"Avian Targe":[25,107,97,0,0,62,48,48,0],
+"Mammoth Targe":[25,112,102,0,0,65,50,50,0],
+"Baroque Targe":[25,123,112,0,0,70,54,54,0],
+"Soaring Targe":[25,134,122,0,0,75,59,59,0],
+"Golden Targe":[25,145,132,0,0,80,63,63,0],
+"Venerable Defender":[28,107,97,0,0,62,64,64,0],
+"Blazon Crest Shield":[25,10,0,6,0,null,0,0,0],
+"Sigil Crest Shield":[25,20,0,9,0,7,8,0,8],
+"Emblem Crest Shield":[25,34,0,12,0,16,15,0,15],
+"Jingling Crest Shield":[25,53,0,17,0,28,23,0,23],
+"Sectarian Crest Shield":[25,61,0,19,0,33,27,0,27],
+"Omen Crest Shield":[25,66,0,20,0,36,30,0,30],
+"Wayward Crest Shield":[25,80,0,23,0,45,36,0,36],
+"Seer Crest Shield":[25,88,0,25,0,50,39,0,39],
+"Stoic Crest Shield":[25,91,0,26,0,52,41,0,41],
+"Empyreal Crest Shield":[25,99,0,28,0,57,45,0,45],
+"Deified Crest Shield":[25,112,0,31,0,65,50,0,50],
+"Painted Crest Shield":[25,80,0,23,0,45,36,0,36],
+"Engraved Crest Shield":[25,85,0,24,0,48,38,0,38],
+"Descry Crest Shield":[25,89,0,26,0,51,40,0,40],
+"Dekharan Crest Shield":[25,94,0,27,0,54,42,0,42],
+"Quartered Crest Shield":[25,102,0,29,0,59,46,0,46],
+"Glowering Crest Shield":[25,107,0,30,0,62,48,0,48],
+"Intricate Crest Shield":[25,112,0,31,0,65,50,0,50],
+"Sekheman Crest Shield":[25,123,0,34,0,70,54,0,54],
+"Vaal Crest Shield":[25,134,0,37,0,75,59,0,59],
+"Blacksteel Crest Shield":[25,145,0,40,0,80,63,0,63],
+"Runeforged Splintered Tower Shield":[26,18,0,0,12,null,0,0,0],
+"Runeforged Painted Tower Shield":[26,33,0,0,15,6,11,0,0],
+"Runeforged Braced Tower Shield":[26,50,0,0,18,12,19,0,0],
+"Runeforged Barricade Tower Shield":[26,62,0,0,22,16,25,0,0],
+"Runeforged Effigial Tower Shield":[26,76,0,0,25,21,32,0,0],
+"Runeforged Rampart Tower Shield":[26,96,0,0,27,28,42,0,0],
+"Runeforged Heraldric Tower Shield":[26,111,0,0,30,33,48,0,0],
+"Runeforged Stone Tower Shield":[26,119,0,0,33,36,52,0,0],
+"Runeforged Crucible Tower Shield":[26,145,0,0,36,45,64,0,0],
+"Runeforged Ancestor Tower Shield":[26,0,0,0,148,50,71,0,0],
+"Runeforged Phalanx Tower Shield":[26,0,0,0,146,52,74,0,0],
+"Runeforged Defiant Tower Shield":[26,0,0,0,160,58,82,0,0],
+"Runeforged Blacksteel Tower Shield":[26,0,0,0,176,65,91,0,0],
+"Runeforged Bulwark Tower Shield":[26,144,0,0,53,54,77,0,0],
+"Runeforged Noble Tower Shield":[26,171,0,0,41,59,83,0,0],
+"Runeforged Goldworked Tower Shield":[26,153,0,0,58,61,86,0,0],
+"Runeforged Royal Tower Shield":[26,193,0,0,44,65,91,0,0],
+"Runeforged Fortress Tower Shield":[26,156,0,0,106,70,99,0,0],
+"Runeforged Vaal Tower Shield":[26,221,0,0,35,75,107,0,0],
+"Runeforged Tawhoan Tower Shield":[26,112,0,0,176,80,115,0,0],
+"Runeforged Hardwood Targe":[25,10,7,0,12,null,0,0,0],
+"Runeforged Pelage Targe":[25,21,17,0,17,8,9,9,0],
+"Runeforged Studded Targe":[25,34,29,0,22,16,15,15,0],
+"Runeforged Crescent Targe":[25,50,44,0,30,26,22,22,0],
+"Runeforged Chiseled Targe":[25,61,54,0,33,33,27,27,0],
+"Runeforged Feathered Targe":[25,67,60,0,34,37,30,30,0],
+"Runeforged Stratified Targe":[25,82,74,0,38,46,37,37,0],
+"Runeforged Carved Targe":[25,89,81,0,40,51,40,40,0],
+"Runeforged Mosaic Targe":[25,0,0,0,146,52,41,41,0],
+"Runeforged Aureate Targe":[25,0,0,0,157,57,45,45,0],
+"Runeforged Grand Targe":[25,0,0,0,176,65,50,50,0],
+"Runeforged Polished Targe":[25,79,72,0,53,54,42,42,0],
+"Runeforged Stone Targe":[25,94,85,0,41,59,46,46,0],
+"Runeforged Avian Targe":[25,86,78,0,59,62,48,48,0],
+"Runeforged Mammoth Targe":[25,106,97,0,44,65,50,50,0],
+"Runeforged Baroque Targe":[25,86,78,0,106,70,54,54,0],
+"Runeforged Soaring Targe":[25,113,103,0,53,75,59,59,0],
+"Runeforged Golden Targe":[25,57,52,0,185,80,63,63,0],
+"Runeforged Blazon Crest Shield":[25,10,0,6,12,null,0,0,0],
+"Runeforged Sigil Crest Shield":[25,20,0,9,16,7,8,0,8],
+"Runeforged Emblem Crest Shield":[25,34,0,12,22,16,15,0,15],
+"Runeforged Jingling Crest Shield":[25,53,0,17,31,28,23,0,23],
+"Runeforged Sectarian Crest Shield":[25,61,0,19,33,33,27,0,27],
+"Runeforged Omen Crest Shield":[25,66,0,20,34,36,30,0,30],
+"Runeforged Wayward Crest Shield":[25,80,0,23,38,45,36,0,36],
+"Runeforged Seer Crest Shield":[25,88,0,25,40,50,39,0,39],
+"Runeforged Stoic Crest Shield":[25,0,0,0,146,52,41,0,41],
+"Runeforged Empyreal Crest Shield":[25,0,0,0,157,57,45,0,45],
+"Runeforged Deified Crest Shield":[25,0,0,0,176,65,50,0,50],
+"Runeforged Dekharan Crest Shield":[25,79,0,22,53,54,42,0,42],
+"Runeforged Quartered Crest Shield":[25,94,0,26,41,59,46,0,46],
+"Runeforged Glowering Crest Shield":[25,86,0,24,59,62,48,0,48],
+"Runeforged Intricate Crest Shield":[25,106,0,29,44,65,50,0,50],
+"Runeforged Sekheman Crest Shield":[25,86,0,24,106,70,54,0,54],
+"Runeforged Vaal Crest Shield":[25,126,0,35,26,75,59,0,59],
+"Runeforged Blacksteel Crest Shield":[25,52,0,15,194,80,63,0,63],
+"Runemastered Splintered Tower Shield":[26,100,0,0,23,38,54,0,0],
+"Runemastered Painted Tower Shield":[26,63,0,0,57,38,54,0,0],
+"Runemastered Braced Tower Shield":[26,88,0,0,34,38,54,0,0],
+"Runemastered Barricade Tower Shield":[26,94,0,0,28,38,54,0,0],
+"Runemastered Effigial Tower Shield":[26,0,0,0,113,38,54,0,0],
+"Runemastered Rampart Tower Shield":[26,98,0,0,29,40,58,0,0],
+"Runemastered Heraldric Tower Shield":[26,96,0,0,42,50,71,0,0],
+"Runemastered Blacksteel Tower Shield":[26,102,0,0,88,65,91,0,0],
+"Runemastered Vaal Tower Shield":[26,203,0,0,70,75,107,0,0],
+"Runemastered Glacial Fortress":[26,203,0,0,53,70,99,0,0],
+"Runemastered Hardwood Targe":[25,55,49,0,23,38,31,31,0],
+"Runemastered Crescent Targe":[25,52,46,0,28,38,31,31,0],
+"Runemastered Blazon Crest Shield":[25,43,0,13,47,40,32,0,32],
+"Runemastered Sigil Crest Shield":[25,65,0,19,12,40,32,0,32],
+"Runemastered Emblem Crest Shield":[25,48,0,14,34,38,31,0,31],
+"Runemastered Jingling Crest Shield":[25,41,0,12,45,38,31,0,31],
+"Runemastered Omen Crest Shield":[25,42,0,12,82,48,38,0,38],
+"Runemastered Intricate Crest Shield":[25,78,0,22,62,65,50,0,50]
+};
+
 window.__MF_DEFAULT_TODO__ = [
   {
     "seedId": "ingame-basetype-tooltips",
@@ -30172,6 +30328,42 @@ function reportDuplicateRules(){
   });
   box.innerHTML=html;
 }
+// ── BaseType hover tooltip ────────────────────────────────────────────────
+// Formats a base's real stats the way the game's item tooltip orders them.
+// Returns '' when the base isn't in the reference data -- the caller then
+// falls back to the ordinary tip. Never invents a value: a base we don't
+// have is silently absent rather than shown with blanks or zeroes, because
+// a confidently-wrong stat here is worse than no stat at all.
+function _baseDataFor(name){
+  const d=window.__MF_BASEDATA_SHIELDS__;
+  return (d&&Object.prototype.hasOwnProperty.call(d,name))?d[name]:null;
+}
+function buildBaseTip(name){
+  const a=_baseDataFor(name);
+  if(!a)return '';
+  const [blk,arm,eva,es,ward,lvl,str,dex,int]=a;
+  const L=[];
+  L.push(name);
+  if(blk)L.push('Block chance: '+blk+'%');
+  if(arm)L.push('Armour: '+arm);
+  if(eva)L.push('Evasion Rating: '+eva);
+  if(es)L.push('Energy Shield: '+es);
+  if(ward)L.push('Runic Ward: '+ward);
+  // A base with none of the four is worth saying out loud rather than
+  // leaving the reader to notice the absence -- it's the reason a
+  // Runeforged high-tier shield matches no BaseArmour/ES/Evasion rule.
+  if(!arm&&!eva&&!es&&!ward)L.push('No base defences');
+  const req=[];
+  if(lvl)req.push('Level '+lvl);
+  if(str)req.push(str+' Str');
+  if(dex)req.push(dex+' Dex');
+  if(int)req.push(int+' Int');
+  L.push(req.length?('Requires: '+req.join(', ')):'Requires: nothing');
+  if(!arm&&!eva&&!es&&ward)
+    L.push('\u26a0 All defence converted to Runic Ward \u2014 BaseArmour, BaseEnergyShield and BaseEvasion are all 0, so defence-based rules will NOT match this.');
+  return L.join(' \u00b7 ');
+}
+
 // ── Mirror Rare → Magic / Normal ───────────────────────────────────────────
 // Rare, Magic and Normal trees are hand-maintained copies of one structure, so
 // they drift: a BaseType added to a Rare rule is silently absent from its two
@@ -31167,6 +31359,12 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.218',changes:[
+    'NEW \u2014 hovering a BaseType now shows that base\u2019s real stats, game-tooltip style: block chance, Armour / Evasion / Energy Shield / Runic Ward, and level and attribute requirements, with the usual price and drag note underneath. SHIELDS ONLY for now (143 bases); every other base shows its ordinary tip. A base with no data shows NO stats rather than a guess.',
+    'Data source solved: poe2db.tw, data-mined from the game client \u2014 the same source poe2filter.com uses for exact names. VERIFIED against a real in-game item: Sectarian Crest Shield reads 61 Armour / 19 Energy Shield / Level 33 / 27 Str / 27 Int in both. These are BASE values, so they are exactly what BaseArmour/BaseEnergyShield/BaseEvasion test.',
+    'IMPORTANT FINDING from that data: 13 high-tier Runeforged/Runemastered shields have their defences converted ENTIRELY to Runic Ward and have ZERO Armour, Evasion and Energy Shield \u2014 e.g. Runeforged Stoic Crest Shield (Ward 146), Runeforged Grand Targe (Ward 176), Runemastered Crucible Tower Shield (Ward 250). They therefore match NONE of the three defence-based Off-hands rules and will hit Fallthrough. Their tooltip says so explicitly.',
+    'To extend to other classes, re-extract from the matching poe2db class page and add to the same table; the tooltip picks them up with no code change.'
+  ]},
   {v:'5.217',changes:[
     'Mirror preview now has a legend: + green = added, ~ gold = value changed, \u2212 orange = removed because the Rare rule no longer has it. The diff was colour-coded with nothing saying what the colours meant, and \u201Cremoved\u201D is exactly the line you need to understand before clicking Apply.'
   ]},
@@ -37048,6 +37246,13 @@ function renderCondListED(rule){
         }
         t.innerHTML=label+'<span class="tag-x" onclick="rmCond(\''+esc(key)+'\','+i+')" data-tip="Remove">\u00d7</span>';
         if(key==='BaseType'){
+          // In-game-style base stats, when we actually have them. buildBaseTip
+          // returns '' for anything not in the reference data, so an unknown
+          // base simply shows the normal price/drag tip instead of a guess.
+          const statTip=(typeof buildBaseTip==='function')?buildBaseTip(v2):'';
+          if(statTip) t.setAttribute('data-basetip',statTip);
+        }
+        if(key==='BaseType'){
           const isInferred=econData&&_inferredPriceKeys.has(v2)&&S.inferredBorderSections&&S.inferredBorderSections[rule.section];
           const priceTip=(econData&&econData[v2]!==undefined)?(v2+': '+econData[v2].toFixed(2)+' chaos'+(isInferred?' \u2014 estimated (dashed border): this is the highest-priced specific unique currently known to use this base type, not a direct price for the base type itself':' (from last Auto-Tier fetch)')+'. '):'';
           t.setAttribute('data-tip',priceTip+'Drag onto another rule in the sidebar to move it there');
@@ -41458,9 +41663,14 @@ function toast(msg,type,action,flourish,durationMs){
     const el=e.target.closest('[data-tip]');
     if(!el||el===cur)return;
     cur=el;
+    // A BaseType chip carrying real base stats shows those first, then its
+    // ordinary tip underneath -- the stats are what you hovered for, the
+    // price/drag note is secondary.
+    const baseTip=el.getAttribute('data-basetip');
     const tip=el.getAttribute('data-tip');
-    if(!tip)return;
-    tt.textContent=tip;
+    if(!tip&&!baseTip)return;
+    tt.textContent=baseTip?(baseTip+(tip?('\n\n'+tip):'')):tip;
+    tt.style.whiteSpace=baseTip?'pre-line':'';
     tt.style.display='block';
     positionTT(e);
   });
