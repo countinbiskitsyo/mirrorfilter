@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.220
+  MirrorFilter Web — VERSION 5.221
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -30351,8 +30351,14 @@ function reportDuplicateRules(){
 // have is silently absent rather than shown with blanks or zeroes, because
 // a confidently-wrong stat here is worse than no stat at all.
 function _baseDataFor(name){
-  const d=window.__MF_BASEDATA_SHIELDS__;
-  return (d&&Object.prototype.hasOwnProperty.call(d,name))?d[name]:null;
+  // __MF_BASEDATA__ is what extract_basedata.js generates (all classes).
+  // __MF_BASEDATA_SHIELDS__ is the original hand-made shields-only table,
+  // kept as a fallback so the tooltip still works before the generated
+  // table is pasted in. The generated one wins where both have an entry.
+  const gen=window.__MF_BASEDATA__, old=window.__MF_BASEDATA_SHIELDS__;
+  if(gen&&Object.prototype.hasOwnProperty.call(gen,name))return gen[name];
+  if(old&&Object.prototype.hasOwnProperty.call(old,name))return old[name];
+  return null;
 }
 function buildBaseTip(name){
   const a=_baseDataFor(name);
@@ -31380,6 +31386,11 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.221',changes:[
+    'Tooltip data now reads window.__MF_BASEDATA__ (what extract_basedata.js generates, all classes) and falls back to the original hand-made shields-only table, so pasting the generated table in just works and nothing breaks before you do.',
+    'The extractor is fixed and verified against the real page. Root cause of the earlier empty/zero output: poe2db makes the stat LABEL a hyperlink \u2014 <div class="property"><a>Armour</a>: <span>61</span></div> \u2014 so flattening the page to text always separated a label from its value, and split \u201CBlock chance\u201D across a link and plain text. Flattening could never work; it now parses the HTML structure per item card, and tells base items (class="whiteitem") from uniques (class="UniqueItem").',
+    'Checked against the full 539KB Shields page: 143 bases, matching the hand-made table exactly, with 135 identical rows and the rest differing only in 0 vs null for \u201Cno level requirement\u201D. The script also beat the hand pass \u2014 it caught Runemastered Crucible Tower Shield and Runemastered Venerable Defender, which were missed, and correctly drops Golden Flame and Golden Shield, which have no defences at all.'
+  ]},
   {v:'5.220',changes:[
     'Base stats now also show when hovering a name in the ECONOMY PRICES panel, not just on BaseType chips in a rule. That matters because converting Off-hands to BaseArmour/BaseEnergyShield/BaseEvasion removed the shield BaseType chips entirely \u2014 the only class with data had nowhere left to hover. The prices panel still lists every BaseType in the selected rule or section, so the stats stay reachable.',
     'Tooltips now also trigger on elements carrying base stats alone, with no ordinary tip of their own.'
