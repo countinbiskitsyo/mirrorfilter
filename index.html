@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.216
+  MirrorFilter Web — VERSION 5.217
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -30282,6 +30282,15 @@ function previewMirrorRarity(){
     if(plan.ambiguous.length) html+=plan.ambiguous.length+' had more than one same-named match and were left alone. ';
     html+='These are left untouched \u2014 fix them by hand if they should mirror.</div>';
   }
+  // Legend: the diff is colour-coded AND symbol-coded, but neither is
+  // self-explanatory on first read, and "removed" is the line that most needs
+  // to be understood before clicking Apply.
+  html+='<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:9px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--card);font-size:11px">'
+    +'<span style="color:var(--text3);font-weight:700;letter-spacing:.4px;text-transform:uppercase;font-size:10px">What the colours mean</span>'
+    +'<span><span style="color:var(--green);font-weight:800">+ green</span> <span style="color:var(--text2)">added to the target</span></span>'
+    +'<span><span style="color:#e0b050;font-weight:800">~ gold</span> <span style="color:var(--text2)">value changed</span></span>'
+    +'<span><span style="color:#e87820;font-weight:800">\u2212 orange</span> <span style="color:var(--text2)">removed from the target \u2014 the Rare rule no longer has it</span></span>'
+    +'</div>';
   html+='<div style="max-height:360px;overflow:auto;margin-top:8px;border:1px solid var(--border2);border-radius:var(--radius);padding:8px">';
   plan.changes.forEach(c=>{
     const col=c.label==='Magic'?'#5a9cf5':'#9a9a9a';
@@ -31158,6 +31167,9 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.217',changes:[
+    'Mirror preview now has a legend: + green = added, ~ gold = value changed, \u2212 orange = removed because the Rare rule no longer has it. The diff was colour-coded with nothing saying what the colours meant, and \u201Cremoved\u201D is exactly the line you need to understand before clicking Apply.'
+  ]},
   {v:'5.216',changes:[
     'Added to Planned Features & To-Do: in-game-style tooltips when hovering a BaseType or Class tag. Scoped honestly \u2014 the hard part is the DATA (stats for ~3,100 bases, embedded in one file, stale every patch, unverifiable from the build sandbox), not the popup. The entry names the three decisions to make first and requires that an unknown base says \u201Cno data\u201D rather than guessing.',
     'It also carves out a Phase 1 that is worth doing on its own and needs no new data: a tooltip showing only what MirrorFilter already knows for certain \u2014 whether the name is in the BaseType database, which rules and sections use it, and its last Auto-Tier economy price.'
