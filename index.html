@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.214
+  MirrorFilter Web — VERSION 5.216
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -155,7 +155,10 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
     animation:none;box-shadow:0 0 8px rgba(var(--stage-rgb),.35)}}
 #ruleSearch{flex-shrink:0;padding:6px 10px;background:var(--bg);border:none;border-bottom:1px solid var(--border);color:var(--text);font-size:13px;outline:none;width:100%}
 #ruleSearch::placeholder{color:var(--text3)}
-#ruleList{flex:1;overflow-y:auto;padding:4px;margin-right:5px}
+/* padding-bottom gives the LAST row (Fallthrough!) clearance so it isn't
+   flush against the window edge and half-clipped by the scroll container --
+   it now sits fully visible with a little breathing room under it. */
+#ruleList{flex:1;overflow-y:auto;padding:4px;padding-bottom:12px;margin-right:5px}
 #ruleList::-webkit-scrollbar{width:5px}
 #ruleList::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 .hres{position:absolute;right:0;top:0;bottom:0;width:5px;cursor:col-resize;z-index:20;background:transparent}
@@ -1437,6 +1440,23 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           <button class="sh-btn" onclick="previewFindRemove()" data-tip="Shows exactly what would change before anything is touched">🔍 Preview</button>
         </div>
       </div>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:#e0b050;text-transform:uppercase;letter-spacing:.6px;margin:16px 0 6px">Mirror — changes conditions, always previews first</div>
+      <div style="background:rgba(224,176,80,.06);border-left:3px solid rgba(224,176,80,.5);border-radius:var(--radius);padding:10px">
+        <div class="ibox" style="margin-bottom:8px"><strong style="color:var(--text)">Mirror Rare → Magic / Normal.</strong> Copies conditions from every rule under your <strong>Rare</strong> root into the same-named rule under <strong>Magic</strong> and <strong>Normal</strong>, matched by section path and rule name, at any depth.
+          <div style="margin-top:6px">Each target keeps its own <code>Rarity</code>, <code>AreaLevel</code> and <code>ItemLevel</code> — those are what make it the magic or normal copy. Every other condition is made to match the Rare rule exactly, which means conditions are <strong>removed</strong> as well as added when the Rare rule no longer has them. <strong style="color:var(--text)">Visuals, sounds and tiers are never touched.</strong></div>
+          <div style="margin-top:6px;color:var(--text3)">Nothing is written until you read the preview and confirm. A backup is taken first.</div>
+        </div>
+        <div class="sir" style="margin-bottom:8px">
+          <span style="font-size:11px;color:var(--text2);font-weight:600">Keep in target (never overwritten):</span>
+          <input type="text" id="mirrorPreserveKeys" value="Rarity, AreaLevel, ItemLevel" style="flex:1" data-tip="Comma-separated condition names the target keeps as its own. Everything else is copied from the Rare rule.">
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <button class="sh-btn" onclick="previewMirrorRarity()" data-tip="Shows every rule that would change, condition by condition. Writes nothing.">🔍 Preview Mirror</button>
+          <span style="font-size:11px;color:var(--text3)">read the preview, then confirm at the bottom of it</span>
+        </div>
+        <div id="mirrorPreviewOut" style="margin-top:10px"></div>
       </div>
 
       <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 6px">Report only — shows findings, you decide what to do</div>
@@ -28009,6 +28029,12 @@ window.__MF_EXAMPLE__ = {
 };
 window.__MF_DEFAULT_TODO__ = [
   {
+    "seedId": "ingame-basetype-tooltips",
+    "seedIntoExisting": true,
+    "text": "In-game-style tooltip on hover over a BaseType/Class tag (e.g. hover \"Stone Targe\" \u2192 PoE2-styled popup with armour/evasion/ES, level and attribute requirements, implicit, drop level). THE HARD PART IS DATA, NOT UI: this needs those stats for ~3,100 bases embedded in the single index.html, it goes stale every patch, and the build sandbox cannot reach poe.ninja or the wiki to verify any of it \u2014 so a wrong value would be stated confidently to the user. Treat as a data-sourcing project with a maintenance tail. Decide first: (a) where the data comes from and how it is refreshed each patch, (b) whether it ships embedded or is fetched via the Worker, (c) what the tooltip shows when a base is missing from the dataset (must say \u201Cno data\u201D, never guess). PHASE 1 worth doing on its own: a tooltip showing only what MirrorFilter already knows for certain \u2014 whether the name is in the BaseType database, which rules/sections use it, and its last Auto-Tier economy price \u2014 which needs no new data and no maintenance.",
+    "done": false
+  },
+  {
     "seedId": "mirror-rare-to-magic-normal",
     "seedIntoExisting": true,
     "text": "Mirror Rare \u2192 Magic/Normal: copy BaseType + Class from a Rare section into its Magic and Normal twins (all child/grandchild rules), matching by section path and rule name. Must PRESERVE each twin's own Rarity, AreaLevel/ItemLevel and visuals \u2014 only conditions listed as mirrored are touched. Run from Resources on request; show a full preview diff (per rule: names added/removed) and require confirmation before writing. Backup first. Reason: twins drift silently \u2014 e.g. Sectarian Crest Shield was added to Rare Off-hands \u2192 Hybrid Arm/ES but not to the Magic or Normal copies, so it showed as a rare but fell through as magic/normal.",
@@ -30146,6 +30172,166 @@ function reportDuplicateRules(){
   });
   box.innerHTML=html;
 }
+// ── Mirror Rare → Magic / Normal ───────────────────────────────────────────
+// Rare, Magic and Normal trees are hand-maintained copies of one structure, so
+// they drift: a BaseType added to a Rare rule is silently absent from its two
+// twins, and the item then shows correctly as a rare but falls through as
+// magic/normal. This makes the twins match the Rare rule on every condition
+// EXCEPT the few that define what the twin is (Rarity, AreaLevel, ItemLevel).
+//
+// Matching is by DISPLAY path, not section id: imported Magic/Normal sections
+// often carry auto-generated `sec_xxx` ids while the Rare ones carry readable
+// path ids, so ids cannot be compared. secPath() gives the breadcrumb, and we
+// swap only its first segment (the root) to find the twin.
+//
+// It REMOVES conditions as well as adding them. That is deliberate and is the
+// whole point when a Rare rule has been reworked -- e.g. Off-hands moving from
+// BaseType lists to BaseArmour/BaseEnergyShield/BaseEvasion leaves a stale
+// BaseType list on the twins that would keep them on the old behaviour.
+function _mirrorRoots(){
+  const tops=(S.sectionTree||[]);
+  const find=re=>{ const n=tops.find(t=>re.test(secName(t.id)||'')); return n?n.id:null; };
+  return { rare:find(/^rare\b/i), magic:find(/^magic\b/i), normal:find(/^normal\b/i) };
+}
+function _mirrorRelPath(secId){
+  // breadcrumb minus its root segment, e.g. "Off-hands" or "Weapons › 1-Handed"
+  const parts=secPath(secId).split(' \u203a ');
+  return parts.slice(1).join(' \u203a ');
+}
+function _mirrorPreserveKeys(){
+  const raw=(document.getElementById('mirrorPreserveKeys')||{}).value||'Rarity, AreaLevel, ItemLevel';
+  const base=raw.split(',').map(s=>s.trim()).filter(Boolean);
+  // an operator key (e.g. AreaLevelOp) belongs with its condition
+  const out=new Set();
+  base.forEach(k=>{ out.add(k); out.add(k+'Op'); });
+  return out;
+}
+function _condDisplay(v){
+  if(Array.isArray(v)) return v.join(', ');
+  return String(v);
+}
+function buildMirrorPlan(){
+  const roots=_mirrorRoots();
+  if(!roots.rare) return {error:'No top-level section whose name starts with "Rare" was found.'};
+  const targets=[['Magic',roots.magic],['Normal',roots.normal]].filter(t=>t[1]);
+  if(!targets.length) return {error:'No top-level "Magic" or "Normal" section was found to mirror into.'};
+  const preserve=_mirrorPreserveKeys();
+
+  // index every rule by "<rootId>|<relative path>|<rule name>"
+  const index={};
+  (S.rules||[]).forEach(r=>{
+    let curId=r.section, rootId=null, guard=0;
+    while(curId&&guard++<50){ rootId=curId; const p=findParent(S.sectionTree||[],curId); curId=p?p.id:null; }
+    const key=rootId+'|'+_mirrorRelPath(r.section)+'|'+r.name;
+    (index[key]=index[key]||[]).push(r);
+  });
+
+  const changes=[], unmatched=[], ambiguous=[];
+  (S.rules||[]).forEach(src=>{
+    let curId=src.section, rootId=null, guard=0;
+    while(curId&&guard++<50){ rootId=curId; const p=findParent(S.sectionTree||[],curId); curId=p?p.id:null; }
+    if(rootId!==roots.rare) return;
+    const rel=_mirrorRelPath(src.section);
+    targets.forEach(([label,troot])=>{
+      const hits=index[troot+'|'+rel+'|'+src.name]||[];
+      if(!hits.length){ unmatched.push({label,rel,name:src.name}); return; }
+      if(hits.length>1){ ambiguous.push({label,rel,name:src.name,n:hits.length}); return; }
+      const tgt=hits[0];
+      const sc=src.conditions||{}, tc=tgt.conditions||{};
+      const added=[],changed=[],removed=[];
+      Object.keys(sc).forEach(k=>{
+        if(preserve.has(k))return;
+        const a=JSON.stringify(sc[k]), b=JSON.stringify(tc[k]);
+        if(!(k in tc)) added.push({k,to:_condDisplay(sc[k])});
+        else if(a!==b) changed.push({k,from:_condDisplay(tc[k]),to:_condDisplay(sc[k])});
+      });
+      Object.keys(tc).forEach(k=>{
+        if(preserve.has(k))return;
+        if(!(k in sc)) removed.push({k,from:_condDisplay(tc[k])});
+      });
+      if(added.length||changed.length||removed.length)
+        changes.push({label,rel,name:src.name,srcId:src.id,tgtId:tgt.id,added,changed,removed});
+    });
+  });
+  return {changes,unmatched,ambiguous,
+          rootNames:{rare:secName(roots.rare),magic:roots.magic?secName(roots.magic):null,normal:roots.normal?secName(roots.normal):null},
+          preserve:[...preserve].filter(k=>!/Op$/.test(k))};
+}
+function previewMirrorRarity(){
+  const out=document.getElementById('mirrorPreviewOut'); if(!out)return;
+  const plan=buildMirrorPlan();
+  window.__MF_MIRROR_PLAN__=plan;
+  if(plan.error){ out.innerHTML='<div class="warn-box">'+esc(plan.error)+'</div>'; return; }
+  if(!plan.changes.length){
+    out.innerHTML='<div class="ibox" style="border-color:rgba(80,200,120,.5)"><strong style="color:var(--green)">Nothing to mirror.</strong> Every Magic and Normal rule already matches its Rare counterpart on all non-preserved conditions.'
+      + (plan.unmatched.length?'<div style="margin-top:6px;color:var(--text3)">'+plan.unmatched.length+' Rare rule'+(plan.unmatched.length!==1?'s have':' has')+' no counterpart and would be skipped.</div>':'')
+      + '</div>';
+    return;
+  }
+  let nAdd=0,nChg=0,nRem=0;
+  plan.changes.forEach(c=>{nAdd+=c.added.length;nChg+=c.changed.length;nRem+=c.removed.length;});
+  let html='<div class="ibox" style="border-color:rgba(224,176,80,.6)">'
+    +'<strong style="color:#e0b050">About to change '+plan.changes.length+' rule'+(plan.changes.length!==1?'s':'')+'.</strong>'
+    +'<div style="margin-top:4px">'+nAdd+' condition'+(nAdd!==1?'s':'')+' added, '+nChg+' changed, <strong style="color:#e87820">'+nRem+' removed</strong>.</div>'
+    +'<div style="margin-top:4px;color:var(--text3)">Kept as-is in each target: '+esc(plan.preserve.join(', '))+'. Visuals, sounds and tiers are not touched.</div>'
+    +'</div>';
+  if(plan.unmatched.length||plan.ambiguous.length){
+    html+='<div class="warn-box" style="margin-top:8px"><strong style="color:#e87820">Skipped.</strong> ';
+    if(plan.unmatched.length) html+=plan.unmatched.length+' Rare rule'+(plan.unmatched.length!==1?'s have':' has')+' no same-named counterpart: '
+      +esc(plan.unmatched.slice(0,6).map(u=>u.label+' \u00b7 '+(u.rel||'(root)')+' \u2192 '+u.name).join('; '))+(plan.unmatched.length>6?' \u2026':'')+'. ';
+    if(plan.ambiguous.length) html+=plan.ambiguous.length+' had more than one same-named match and were left alone. ';
+    html+='These are left untouched \u2014 fix them by hand if they should mirror.</div>';
+  }
+  html+='<div style="max-height:360px;overflow:auto;margin-top:8px;border:1px solid var(--border2);border-radius:var(--radius);padding:8px">';
+  plan.changes.forEach(c=>{
+    const col=c.label==='Magic'?'#5a9cf5':'#9a9a9a';
+    html+='<div style="margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--border)">'
+      +'<div style="font-size:11.5px;font-weight:700"><span style="color:'+col+'">'+esc(c.label)+'</span> <span style="color:var(--text3)">'+esc(c.rel||'(root)')+' \u2192</span> '+esc(c.name)+'</div>';
+    c.added.forEach(a=>html+='<div style="font-size:11px;color:var(--green);margin-left:8px">+ '+esc(a.k)+' = '+esc(a.to.slice(0,120))+'</div>');
+    c.changed.forEach(a=>html+='<div style="font-size:11px;color:#e0b050;margin-left:8px">~ '+esc(a.k)+': '+esc(a.from.slice(0,70))+' \u2192 '+esc(a.to.slice(0,70))+'</div>');
+    c.removed.forEach(a=>html+='<div style="font-size:11px;color:#e87820;margin-left:8px">\u2212 '+esc(a.k)+' (was '+esc(a.from.slice(0,110))+')</div>');
+    html+='</div>';
+  });
+  html+='</div>';
+  html+='<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap">'
+    +'<button class="sh-btn" style="background:#e0b050;color:var(--bg);border-color:#e0b050;font-weight:800" onclick="applyMirrorRarity()">\u2713 Apply these '+plan.changes.length+' change'+(plan.changes.length!==1?'s':'')+'</button>'
+    +'<button class="sh-btn" onclick="document.getElementById(\'mirrorPreviewOut\').innerHTML=\'\'">Cancel</button>'
+    +'<span style="font-size:11px;color:var(--text3)">a backup is taken before anything is written</span></div>';
+  out.innerHTML=html;
+}
+async function applyMirrorRarity(){
+  const plan=window.__MF_MIRROR_PLAN__;
+  const out=document.getElementById('mirrorPreviewOut');
+  if(!plan||!plan.changes||!plan.changes.length){ toast('Nothing to apply \u2014 run Preview again','err'); return; }
+  // Re-derive the plan now: the preview may be stale if the filter was edited
+  // in another tab/panel since it was rendered. Applying a stale diff could
+  // clobber an edit the user made in between.
+  const fresh=buildMirrorPlan();
+  if(fresh.error||JSON.stringify(fresh.changes)!==JSON.stringify(plan.changes)){
+    toast('The filter changed since the preview \u2014 showing a fresh preview instead','err');
+    previewMirrorRarity(); return;
+  }
+  if(!await customConfirm('Mirror '+plan.changes.length+' rule'+(plan.changes.length!==1?'s':'')+' from Rare into Magic/Normal?\n\nConditions will be added, changed AND removed so each target matches its Rare rule, except '+plan.preserve.join(', ')+'.\n\nVisuals, sounds and tiers are not touched. A backup is taken first.'))return;
+  try{ if(typeof backupNow==='function') await backupNow('before mirror Rare \u2192 Magic/Normal'); }catch(_){ }
+  const preserve=_mirrorPreserveKeys();
+  const byId={}; (S.rules||[]).forEach(r=>byId[r.id]=r);
+  let n=0;
+  plan.changes.forEach(c=>{
+    const src=byId[c.srcId], tgt=byId[c.tgtId];
+    if(!src||!tgt)return;
+    const sc=src.conditions||{}, tc=tgt.conditions||{};
+    const next={};
+    Object.keys(tc).forEach(k=>{ if(preserve.has(k)) next[k]=tc[k]; });      // target keeps its identity
+    Object.keys(sc).forEach(k=>{ if(!preserve.has(k)) next[k]=JSON.parse(JSON.stringify(sc[k])); });
+    tgt.conditions=next; n++;
+  });
+  saveState();
+  renderList();
+  const ar=(typeof byId==='function'&&typeof activeId!=='undefined')?byId(activeId):null;
+  if(ar&&typeof renderEditor==='function')renderEditor(ar);   // refresh the open rule if it was mirrored
+  if(out)out.innerHTML='<div class="ibox" style="border-color:rgba(80,200,120,.6)"><strong style="color:var(--green)">Mirrored '+n+' rule'+(n!==1?'s':'')+'.</strong> Re-run Preview to confirm nothing is left.</div>';
+  toast('Mirrored '+n+' rule'+(n!==1?'s':'')+' from Rare','ok');
+}
 function previewFindReplace(){
   const find=document.getElementById('cleanupFindText').value;
   const replace=document.getElementById('cleanupReplaceText').value;
@@ -30972,6 +31158,17 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.216',changes:[
+    'Added to Planned Features & To-Do: in-game-style tooltips when hovering a BaseType or Class tag. Scoped honestly \u2014 the hard part is the DATA (stats for ~3,100 bases, embedded in one file, stale every patch, unverifiable from the build sandbox), not the popup. The entry names the three decisions to make first and requires that an unknown base says \u201Cno data\u201D rather than guessing.',
+    'It also carves out a Phase 1 that is worth doing on its own and needs no new data: a tooltip showing only what MirrorFilter already knows for certain \u2014 whether the name is in the BaseType database, which rules and sections use it, and its last Auto-Tier economy price.'
+  ]},
+  {v:'5.215',changes:[
+    'NEW \u2014 Mirror Rare \u2192 Magic/Normal, in Resources \u2192 Filter Cleanup Tools. Copies conditions from every rule under your Rare root into the same-named rule under Magic and Normal, matched by section path and rule name at any depth. Each target keeps its own Rarity, AreaLevel and ItemLevel (editable list); everything else is made to match the Rare rule. Visuals, sounds and tiers are never touched.',
+    'It REMOVES conditions as well as adding them, which is the point: after reworking Rare Off-hands onto BaseArmour/BaseEnergyShield/BaseEvasion, the twins still carried stale BaseType lists that would have kept them on the old behaviour. The preview labels removals in orange so they are never a surprise.',
+    'Preview first, always. Nothing is written until you read a per-rule, per-condition diff and confirm, and a backup is taken before it writes. Rare-only rules with no counterpart (e.g. \u201CRare (Corrupted)\u201D) are listed as skipped rather than guessed at, and a rule with more than one same-named match is left alone. If the filter changed since the preview was drawn, Apply refuses and re-previews instead of writing a stale diff.',
+    'Matching uses the section\u2019s DISPLAY path, not its id \u2014 imported Magic/Normal sections often carry auto-generated sec_xxx ids while Rare ones carry readable paths, so ids cannot be compared.',
+    'Rule list: small bottom pad so the last row (Fallthrough!) sits fully visible instead of flush against the window edge.'
+  ]},
   {v:'5.214',changes:[
     'The two to-do items added in 5.212 now actually reach your list in Resources. They did not before: the built-in list was only ever used when you had NO saved to-do list, so anyone who had ever touched theirs \u2014 i.e. every real user \u2014 silently never saw them.',
     'New items flagged for delivery are merged into an existing list once. Your own items, their order and their done ticks are untouched; an item you already added by hand is not duplicated; and once an item has been delivered it is recorded, so DELETING IT MAKES IT STAY DELETED. Nothing is ever re-pushed on later loads.',
