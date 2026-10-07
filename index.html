@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.221
+  MirrorFilter Web — VERSION 5.222
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -539,6 +539,7 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 #tt.tt-game .gt-req{color:#7f7f7f}
 #tt.tt-game .gt-req b{color:#fff;font-weight:600}
 #tt.tt-game .gt-ward b{color:#d4a95a}
+#tt.tt-game .gt-imp{color:#8888ff}
 #tt.tt-game .gt-warn{padding:6px 12px;color:#e87820;border-top:1px solid #2a2724;font-size:11px}
 #tt.tt-game .gt-foot{padding:5px 12px;color:#5a5a5a;font-size:10.5px;border-top:1px solid #2a2724}
 .pchip[data-tip]{position:relative}
@@ -30361,20 +30362,44 @@ function _baseDataFor(name){
   return null;
 }
 function buildBaseTip(name){
-  const a=_baseDataFor(name);
+  let a=_baseDataFor(name);
   if(!a)return '';
-  const [blk,arm,eva,es,ward,lvl,str,dex,int]=a;
+  // Two shapes are supported. The generated table is an object with keys
+  // omitted when the base lacks that stat; the original hand-made shields
+  // table is a fixed 9-slot array. Normalise the array into the object so
+  // the renderer below only deals with one shape.
+  if(Array.isArray(a)){
+    const [b,ar,ev,sh,wd,lv,st,dx,it]=a;
+    a={b:b||0,a:ar||0,e:ev||0,s:sh||0,w:wd||0,lv:lv||0,st:st||0,dx:dx||0,it:it||0};
+  }
+  const blk=a.b||0, arm=a.a||0, eva=a.e||0, es=a.s||0, ward=a.w||0;
+  const lvl=a.lv||0, str=a.st||0, dex=a.dx||0, int=a.it||0;
+  const isWeapon=!!(a.pd||a.aps);
   const row=(lbl,v,cls)=>'<div class="gt-row'+(cls?' '+cls:'')+'"><span>'+lbl+'</span><b>'+v+'</b></div>';
   let h='<div class="gt-name">'+esc(name)+'</div>';
 
-  // Defence block, in the game's own order.
+  // Stat block, in the game's own order: weapon damage first for weapons,
+  // then defences, then anything class-specific (flask recovery, charm
+  // duration, sceptre spirit).
   let d='';
-  if(blk)d+=row('Block chance','<b>'+blk+'%</b>');
+  if(a.pd)d+=row('Physical Damage',esc(a.pd));
+  if(a.c)d+=row('Critical Hit Chance',a.c+'%');
+  if(a.aps)d+=row('Attacks per Second',a.aps);
+  if(a.rg)d+=row('Weapon Range',a.rg);
+  if(blk)d+=row('Block chance',blk+'%');
   if(arm)d+=row('Armour',arm);
   if(eva)d+=row('Evasion Rating',eva);
   if(es)d+=row('Energy Shield',es);
   if(ward)d+=row('Runic Ward',ward,'gt-ward');
-  if(!arm&&!eva&&!es&&!ward)d+='<div class="gt-row"><span>No base defences</span><b>\u2014</b></div>';
+  (a.p||[]).forEach(t=>{
+    const m=String(t).match(/^([^:]{1,24}):\s*(.+)$/);
+    d+=m?row(esc(m[1]),esc(m[2])):'<div class="gt-row"><span>'+esc(t)+'</span></div>';
+  });
+  // Only say this where it's meaningful: a ring having no armour is normal
+  // and not worth a line, but a SHIELD having none is the thing that stops
+  // defence-based rules matching.
+  if(!arm&&!eva&&!es&&!ward&&!isWeapon&&!(a.p||[]).length&&blk)
+    d+='<div class="gt-row"><span>No base defences</span><b>\u2014</b></div>';
   if(d)h+='<div class="gt-sec">'+d+'</div>';
 
   const req=[];
@@ -30383,6 +30408,9 @@ function buildBaseTip(name){
   if(dex)req.push('<b>'+dex+'</b> Dex');
   if(int)req.push('<b>'+int+'</b> Int');
   h+='<div class="gt-sec"><div class="gt-req">'+(req.length?('Requires: '+req.join(', ')):'No requirements')+'</div></div>';
+
+  // For rings, amulets, quivers and charms the implicit IS the item.
+  if(a.im)h+='<div class="gt-sec"><div class="gt-imp">'+esc(a.im)+'</div></div>';
 
   // Only shown for the bases where it changes how the filter behaves.
   if(!arm&&!eva&&!es&&ward)
@@ -31386,6 +31414,11 @@ const GAME_PATCH_BASELINE='0.5.5';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.222',changes:[
+    'Tooltips now cover EVERY item class, not just ones with defences. The extractor returned nothing for 25 classes because the data shape only held Armour/Evasion/ES/Ward — so weapons, jewellery, flasks, charms and quivers were all discarded as “no data”.',
+    'Added: weapon Physical Damage, Critical Hit Chance, Attacks per Second and Weapon Range; flask recovery and charm duration; sceptre Spirit; and the implicit modifier, which for rings, amulets and quivers is the only thing the base has. Implicits render in the game’s blue.',
+    'A base now keeps whatever it genuinely has instead of needing a defence to qualify, and “No base defences” only appears where it means something — a shield with none, not a ring that was never meant to have any.'
+  ]},
   {v:'5.221',changes:[
     'Tooltip data now reads window.__MF_BASEDATA__ (what extract_basedata.js generates, all classes) and falls back to the original hand-made shields-only table, so pasting the generated table in just works and nothing breaks before you do.',
     'The extractor is fixed and verified against the real page. Root cause of the earlier empty/zero output: poe2db makes the stat LABEL a hyperlink \u2014 <div class="property"><a>Armour</a>: <span>61</span></div> \u2014 so flattening the page to text always separated a label from its value, and split \u201CBlock chance\u201D across a link and plain text. Flattening could never work; it now parses the HTML structure per item card, and tells base items (class="whiteitem") from uniques (class="UniqueItem").',
