@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.226
+  MirrorFilter Web — VERSION 5.227
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -1497,6 +1497,11 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           <span style="font-size:11px;color:var(--text2);font-weight:600">Keep in target (never overwritten):</span>
           <input type="text" id="mirrorPreserveKeys" value="Rarity, AreaLevel, ItemLevel" style="flex:1" data-tip="Comma-separated condition names the target keeps as its own. Everything else is copied from the Rare rule.">
         </div>
+        <label class="sir" style="margin-bottom:8px;cursor:pointer;align-items:flex-start">
+          <input type="checkbox" id="mirrorCreateMissing" style="margin-top:3px">
+          <span style="font-size:12px;line-height:1.5"><strong style="color:var(--text)">Also create missing rules and sections</strong>
+            <span style="color:var(--text2)">— mirror the Rare tree's <em>structure</em>, not just its conditions. A new rule copies the Rare rule's conditions but takes its <strong>Rarity, AreaLevel and visuals from an existing rule in that same tree</strong>, so it doesn't arrive looking like a rare. Nothing is ever deleted.</span></span>
+        </label>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <button class="sh-btn" onclick="previewMirrorRarity()" data-tip="Shows every rule that would change, condition by condition. Writes nothing.">🔍 Preview Mirror</button>
           <span style="font-size:11px;color:var(--text3)">read the preview, then confirm at the bottom of it</span>
@@ -31410,6 +31415,29 @@ function getSidebarColorMode(){
 }
 function updateSidebarColorMode(mode){
   S.sidebarColorMode=mode;
+  // Creations: sections first, then rules, each taking its identity and
+  // visuals from the donor so it looks and behaves like the tree it joins.
+  const createdSecs=[]; let made=0;
+  (plan.creates||[]).forEach(c=>{
+    const src=byId[c.srcId]; if(!src)return;
+    const secId=_mirrorEnsureSection(c.troot,c.rel,createdSecs);
+    const donor=(S.rules||[]).find(r=>r.name===c.donorName&&_mirrorRootOf(r.section)===c.troot);
+    const id='r_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*100000);
+    const rule={
+      id, name:src.name, section:secId, enabled:true,
+      action:src.action||'Show',
+      conditions:JSON.parse(JSON.stringify(c.conds||{})),
+      // visuals come from the donor, NOT the Rare rule -- otherwise a new
+      // magic rule would look like a rare one on the ground.
+      visuals:JSON.parse(JSON.stringify((donor&&donor.visuals)||src.visuals||{})),
+      tier:null, chaosValue:0, showTier:false,
+      tierSortTarget:false, tierSortUnpriced:false
+    };
+    const lastInSec=S.rules.map((r,i)=>r.section===secId?i:-1).filter(i=>i>=0).pop();
+    if(lastInSec!==undefined)S.rules.splice(lastInSec+1,0,rule); else S.rules.push(rule);
+    made++;
+  });
+
   saveState();
   renderList();
 }
@@ -32169,6 +32197,56 @@ function _condDisplay(v){
   if(Array.isArray(v)) return v.join(', ');
   return String(v);
 }
+// Structural mirroring helpers ---------------------------------------------
+// Copying CONDITIONS into an existing twin is safe: the twin already carries
+// its own Rarity/AreaLevel, which is what makes it the magic or normal copy.
+// CREATING a twin is not, because a brand-new rule has no identity of its own
+// and blindly copying the Rare rule's conditions would hand it Rarity Rare.
+// So a new rule borrows its preserved conditions -- and its visuals -- from a
+// DONOR: an existing rule already living in that target tree. No donor means
+// we cannot know what "Magic" looks like here, and the rule is reported as
+// blocked rather than guessed at.
+function _mirrorCreateOn(){
+  const el=document.getElementById('mirrorCreateMissing');
+  return !!(el&&el.checked);
+}
+function _mirrorRootOf(secId){
+  let cur=secId, root=null, guard=0;
+  while(cur&&guard++<50){ root=cur; const p=findParent(S.sectionTree||[],cur); cur=p?p.id:null; }
+  return root;
+}
+function _mirrorFindDonor(rootId, relPath){
+  const inRoot=(S.rules||[]).filter(r=>_mirrorRootOf(r.section)===rootId);
+  if(!inRoot.length)return null;
+  const same=inRoot.filter(r=>_mirrorRelPath(r.section)===relPath);
+  if(same.length)return same[0];
+  // next best: a rule under the same top-level branch of that tree
+  const head=String(relPath||'').split(' \u203a ')[0];
+  const near=inRoot.filter(r=>_mirrorRelPath(r.section).split(' \u203a ')[0]===head);
+  return near.length?near[0]:inRoot[0];
+}
+function _mirrorEnsureSection(rootId, relPath, created){
+  // Walk the relative path from the target root, creating any missing node.
+  if(!relPath)return rootId;
+  const parts=relPath.split(' \u203a ');
+  let parentId=rootId;
+  for(const name of parts){
+    const parent=findNode(S.sectionTree||[],parentId);
+    if(!parent)return parentId;
+    parent.children=parent.children||[];
+    let hit=parent.children.find(c=>secName(c.id)===name);
+    if(!hit){
+      const id='sec_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+      hit={id,name,children:[]};
+      parent.children.push(hit);
+      if(S.sectionOrder&&!S.sectionOrder.includes(id))S.sectionOrder.push(id);
+      created.push(secName(rootId)+' \u203a '+relPath);
+    }
+    parentId=hit.id;
+  }
+  return parentId;
+}
+
 function buildMirrorPlan(){
   const roots=_mirrorRoots();
   if(!roots.rare) return {error:'No top-level section whose name starts with "Rare" was found.'};
@@ -32185,18 +32263,38 @@ function buildMirrorPlan(){
     (index[key]=index[key]||[]).push(r);
   });
 
-  const changes=[], unmatched=[], ambiguous=[];
+  const changes=[], unmatched=[], ambiguous=[], creates=[], blocked=[];
   (S.rules||[]).forEach(src=>{
     let curId=src.section, rootId=null, guard=0;
     while(curId&&guard++<50){ rootId=curId; const p=findParent(S.sectionTree||[],curId); curId=p?p.id:null; }
     if(rootId!==roots.rare) return;
     const rel=_mirrorRelPath(src.section);
+    // hoisted: the creation branch below needs the source conditions too, and
+    // they used to be declared only inside the "twin exists" path.
+    const sc=src.conditions||{};
     targets.forEach(([label,troot])=>{
       const hits=index[troot+'|'+rel+'|'+src.name]||[];
-      if(!hits.length){ unmatched.push({label,rel,name:src.name}); return; }
+      if(!hits.length){
+        // No twin exists. Either plan to CREATE it (when structural mirroring
+        // is on and a donor can supply this tree's identity), or report it.
+        if(!_mirrorCreateOn()){ unmatched.push({label,rel,name:src.name}); return; }
+        const donor=_mirrorFindDonor(troot,rel);
+        if(!donor){ blocked.push({label,rel,name:src.name,
+          why:'nothing in the '+label+' tree to copy Rarity/AreaLevel from'}); return; }
+        const conds={};
+        Object.keys(donor.conditions||{}).forEach(k=>{ if(preserve.has(k)) conds[k]=donor.conditions[k]; });
+        Object.keys(sc).forEach(k=>{ if(!preserve.has(k)) conds[k]=sc[k]; });
+        creates.push({label,rel,name:src.name,srcId:src.id,troot,
+          donorName:donor.name,
+          donorRel:_mirrorRelPath(donor.section),
+          identity:[...preserve].filter(k=>!/Op$/.test(k)&&k in (donor.conditions||{}))
+                    .map(k=>k+'='+_condDisplay(donor.conditions[k])),
+          conds});
+        return;
+      }
       if(hits.length>1){ ambiguous.push({label,rel,name:src.name,n:hits.length}); return; }
       const tgt=hits[0];
-      const sc=src.conditions||{}, tc=tgt.conditions||{};
+      const tc=tgt.conditions||{};
       const added=[],changed=[],removed=[];
       Object.keys(sc).forEach(k=>{
         if(preserve.has(k))return;
@@ -32212,7 +32310,7 @@ function buildMirrorPlan(){
         changes.push({label,rel,name:src.name,srcId:src.id,tgtId:tgt.id,added,changed,removed});
     });
   });
-  return {changes,unmatched,ambiguous,
+  return {changes,unmatched,ambiguous,creates,blocked,
           rootNames:{rare:secName(roots.rare),magic:roots.magic?secName(roots.magic):null,normal:roots.normal?secName(roots.normal):null},
           preserve:[...preserve].filter(k=>!/Op$/.test(k))};
 }
@@ -32221,7 +32319,7 @@ function previewMirrorRarity(){
   const plan=buildMirrorPlan();
   window.__MF_MIRROR_PLAN__=plan;
   if(plan.error){ out.innerHTML='<div class="warn-box">'+esc(plan.error)+'</div>'; return; }
-  if(!plan.changes.length){
+  if(!plan.changes.length&&!(plan.creates||[]).length){
     out.innerHTML='<div class="ibox" style="border-color:rgba(80,200,120,.5)"><strong style="color:var(--green)">Nothing to mirror.</strong> Every Magic and Normal rule already matches its Rare counterpart on all non-preserved conditions.'
       + (plan.unmatched.length?'<div style="margin-top:6px;color:var(--text3)">'+plan.unmatched.length+' Rare rule'+(plan.unmatched.length!==1?'s have':' has')+' no counterpart and would be skipped.</div>':'')
       + '</div>';
@@ -32229,8 +32327,10 @@ function previewMirrorRarity(){
   }
   let nAdd=0,nChg=0,nRem=0;
   plan.changes.forEach(c=>{nAdd+=c.added.length;nChg+=c.changed.length;nRem+=c.removed.length;});
+  const cre=plan.creates||[], blk=plan.blocked||[];
   let html='<div class="ibox" style="border-color:rgba(224,176,80,.6)">'
-    +'<strong style="color:#e0b050">About to change '+plan.changes.length+' rule'+(plan.changes.length!==1?'s':'')+'.</strong>'
+    +'<strong style="color:#e0b050">About to change '+plan.changes.length+' rule'+(plan.changes.length!==1?'s':'')
+    +(cre.length?' and CREATE '+cre.length+' new rule'+(cre.length!==1?'s':''):'')+'.</strong>'
     +'<div style="margin-top:4px">'+nAdd+' condition'+(nAdd!==1?'s':'')+' added, '+nChg+' changed, <strong style="color:#e87820">'+nRem+' removed</strong>.</div>'
     +'<div style="margin-top:4px;color:var(--text3)">Kept as-is in each target: '+esc(plan.preserve.join(', '))+'. Visuals, sounds and tiers are not touched.</div>'
     +'</div>';
@@ -32250,6 +32350,23 @@ function previewMirrorRarity(){
     +'<span><span style="color:#e0b050;font-weight:800">~ gold</span> <span style="color:var(--text2)">value changed</span></span>'
     +'<span><span style="color:#e87820;font-weight:800">\u2212 orange</span> <span style="color:var(--text2)">removed from the target \u2014 the Rare rule no longer has it</span></span>'
     +'</div>';
+  if(blk.length){
+    html+='<div class="warn-box" style="margin-top:8px"><strong style="color:#e87820">'+blk.length+' rule'+(blk.length!==1?'s':'')+' could NOT be created.</strong> '
+      +esc(blk.slice(0,4).map(b=>b.label+' \u00b7 '+(b.rel||'(root)')+' \u2192 '+b.name+' ('+b.why+')').join('; '))
+      +(blk.length>4?' \u2026':'')+'. Create one rule there by hand first, then re-run \u2014 it only needs something to copy the tree\u2019s Rarity/AreaLevel from.</div>';
+  }
+  if(cre.length){
+    html+='<div style="margin-top:9px;padding:8px 10px;border:1px solid rgba(90,200,138,.4);border-radius:var(--radius);background:rgba(90,200,138,.06)">'
+      +'<div style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#5ac88a;margin-bottom:5px">New rules to create ('+cre.length+')</div>'
+      +'<div style="font-size:11px;color:var(--text2);margin-bottom:6px">Each one copies the Rare rule\u2019s conditions, and takes its <strong>Rarity/AreaLevel and its visuals</strong> from an existing rule in that same tree \u2014 shown as \u201Cidentity from\u201D. Missing sections are created too.</div>';
+    cre.slice(0,40).forEach(c=>{
+      const col=c.label==='Magic'?'#5a9cf5':'#9a9a9a';
+      html+='<div style="font-size:11.5px;margin-bottom:4px"><span style="color:'+col+';font-weight:700">'+esc(c.label)+'</span> <span style="color:var(--text3)">'+esc(c.rel||'(root)')+' \u2192</span> <strong>'+esc(c.name)+'</strong>'
+        +'<div style="font-size:10.5px;color:var(--text3);margin-left:8px">identity from \u201C'+esc(c.donorName)+'\u201D'+(c.identity.length?' \u2014 '+esc(c.identity.join(', ')):'')+'</div></div>';
+    });
+    if(cre.length>40)html+='<div style="font-size:11px;color:var(--text3)">\u2026 and '+(cre.length-40)+' more</div>';
+    html+='</div>';
+  }
   html+='<div style="max-height:360px;overflow:auto;margin-top:8px;border:1px solid var(--border2);border-radius:var(--radius);padding:8px">';
   plan.changes.forEach(c=>{
     const col=c.label==='Magic'?'#5a9cf5':'#9a9a9a';
@@ -32262,7 +32379,7 @@ function previewMirrorRarity(){
   });
   html+='</div>';
   html+='<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap">'
-    +'<button class="sh-btn" style="background:#e0b050;color:var(--bg);border-color:#e0b050;font-weight:800" onclick="applyMirrorRarity()">\u2713 Apply these '+plan.changes.length+' change'+(plan.changes.length!==1?'s':'')+'</button>'
+    +'<button class="sh-btn" style="background:#e0b050;color:var(--bg);border-color:#e0b050;font-weight:800" onclick="applyMirrorRarity()">\u2713 Apply ('+plan.changes.length+' changed'+(cre.length?', '+cre.length+' new':'')+')</button>'
     +'<button class="sh-btn" onclick="document.getElementById(\'mirrorPreviewOut\').innerHTML=\'\'">Cancel</button>'
     +'<span style="font-size:11px;color:var(--text3)">a backup is taken before anything is written</span></div>';
   out.innerHTML=html;
@@ -32270,16 +32387,19 @@ function previewMirrorRarity(){
 async function applyMirrorRarity(){
   const plan=window.__MF_MIRROR_PLAN__;
   const out=document.getElementById('mirrorPreviewOut');
-  if(!plan||!plan.changes||!plan.changes.length){ toast('Nothing to apply \u2014 run Preview again','err'); return; }
+  if(!plan||(!(plan.changes||[]).length&&!(plan.creates||[]).length)){ toast('Nothing to apply \u2014 run Preview again','err'); return; }
   // Re-derive the plan now: the preview may be stale if the filter was edited
   // in another tab/panel since it was rendered. Applying a stale diff could
   // clobber an edit the user made in between.
   const fresh=buildMirrorPlan();
-  if(fresh.error||JSON.stringify(fresh.changes)!==JSON.stringify(plan.changes)){
+  if(fresh.error||JSON.stringify(fresh.changes)!==JSON.stringify(plan.changes)
+     ||JSON.stringify(fresh.creates||[])!==JSON.stringify(plan.creates||[])){
     toast('The filter changed since the preview \u2014 showing a fresh preview instead','err');
     previewMirrorRarity(); return;
   }
-  if(!await customConfirm('Mirror '+plan.changes.length+' rule'+(plan.changes.length!==1?'s':'')+' from Rare into Magic/Normal?\n\nConditions will be added, changed AND removed so each target matches its Rare rule, except '+plan.preserve.join(', ')+'.\n\nVisuals, sounds and tiers are not touched. A backup is taken first.'))return;
+  if(!await customConfirm('Mirror '+plan.changes.length+' rule'+(plan.changes.length!==1?'s':'')
+    +((plan.creates||[]).length?' and CREATE '+plan.creates.length+' new rule'+(plan.creates.length!==1?'s':'')+' (plus any missing sections)':'')
+    +' from Rare into Magic/Normal?\n\nConditions will be added, changed AND removed so each target matches its Rare rule, except '+plan.preserve.join(', ')+'.\n\nVisuals, sounds and tiers are not touched. A backup is taken first.'))return;
   try{ if(typeof backupNow==='function') await backupNow('before mirror Rare \u2192 Magic/Normal'); }catch(_){ }
   const preserve=_mirrorPreserveKeys();
   const byId={}; (S.rules||[]).forEach(r=>byId[r.id]=r);
@@ -32297,8 +32417,10 @@ async function applyMirrorRarity(){
   renderList();
   const ar=(typeof byId==='function'&&typeof activeId!=='undefined')?byId(activeId):null;
   if(ar&&typeof renderEditor==='function')renderEditor(ar);   // refresh the open rule if it was mirrored
-  if(out)out.innerHTML='<div class="ibox" style="border-color:rgba(80,200,120,.6)"><strong style="color:var(--green)">Mirrored '+n+' rule'+(n!==1?'s':'')+'.</strong> Re-run Preview to confirm nothing is left.</div>';
-  toast('Mirrored '+n+' rule'+(n!==1?'s':'')+' from Rare','ok');
+  const extra=(made?' Created '+made+' new rule'+(made!==1?'s':'')
+      +(createdSecs.length?' and '+createdSecs.length+' section'+(createdSecs.length!==1?'s':''):'')+'.':'');
+  if(out)out.innerHTML='<div class="ibox" style="border-color:rgba(80,200,120,.6)"><strong style="color:var(--green)">Mirrored '+n+' rule'+(n!==1?'s':'')+'.</strong>'+esc(extra)+' Re-run Preview to confirm nothing is left.</div>';
+  toast('Mirrored '+n+(made?' + '+made+' new':'')+' rule'+((n+made)!==1?'s':''),'ok');
 }
 function previewFindReplace(){
   const find=document.getElementById('cleanupFindText').value;
@@ -33131,6 +33253,12 @@ const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.227',changes:[
+    'Mirror can now copy STRUCTURE, not just conditions. New checkbox \u201CAlso create missing rules and sections\u201D makes the Magic and Normal trees match the Rare tree\u2019s shape \u2014 any Rare rule with no counterpart gets one created, and any missing section is created to hold it. Off by default; nothing is ever deleted.',
+    'The hazard this had to solve: a brand-new rule has no identity of its own, so blindly copying the Rare rule would hand it Rarity Rare and rare-coloured visuals. Instead each new rule takes its Rarity, AreaLevel and VISUALS from a DONOR \u2014 an existing rule already in that tree \u2014 and only its matching conditions from the Rare rule. The preview names the donor for every creation.',
+    'If a tree has no rule at all to copy an identity from, the creation is BLOCKED and reported rather than guessed at, with the fix stated (add one rule there by hand, then re-run).',
+    'Verified on the real filter: adding one Rare-only rule produced exactly 20 creations, the new Magic rule came out Rarity Magic and the Normal one Rarity Normal (never Rare), neither inherited the Rare rule\u2019s red visuals, both carried the intended conditions, and a second run found nothing left to do.'
+  ]},
   {v:'5.226',changes:[
     'NEW \u2014 Resources \u2192 Maintenance & Data \u2192 Base Item Data. The weak point of the tooltip feature was never the data, it was REMEMBERING to rebuild it after a patch: where the script went, and what to do with its output. This panel removes all three problems.',
     'The extractor script is now EMBEDDED IN index.html and downloadable from that panel. It cannot be lost \u2014 restoring index.html from any backup restores the script with it.',
