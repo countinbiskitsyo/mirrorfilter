@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.227
+  MirrorFilter Web — VERSION 5.228
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -886,6 +886,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       <div id="stageSave" style="margin-bottom:22px">
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:14px">1</span><span style="font-size:15px;font-weight:700;color:#e0b050">Save — your game-ready .filter</span></div>
         <p style="font-size:12.5px">Your work auto-saves in the browser as you edit. <strong>Export</strong> / <strong>Quick-Save</strong> writes the <code>.filter</code> the game reads into your Path of Exile 2 folder.</p>
+        <div id="saveDestCtl"></div>
         <div id="multiSaveSetup" style="margin-top:12px;padding:14px;border:1px solid rgba(var(--stage-rgb),.35);border-radius:10px;background:rgba(var(--stage-rgb),.04)">
           <div style="font-size:13.5px;font-weight:700;color:var(--stage);margin-bottom:8px">📍 Multi-Location Save</div>
           <div class="ibox" style="margin-bottom:8px">Add up to 4 folders and every save writes to all of them. Each folder has a dropdown for <em>what</em> goes there:
@@ -1497,10 +1498,17 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           <span style="font-size:11px;color:var(--text2);font-weight:600">Keep in target (never overwritten):</span>
           <input type="text" id="mirrorPreserveKeys" value="Rarity, AreaLevel, ItemLevel" style="flex:1" data-tip="Comma-separated condition names the target keeps as its own. Everything else is copied from the Rare rule.">
         </div>
-        <label class="sir" style="margin-bottom:8px;cursor:pointer;align-items:flex-start">
-          <input type="checkbox" id="mirrorCreateMissing" style="margin-top:3px">
-          <span style="font-size:12px;line-height:1.5"><strong style="color:var(--text)">Also create missing rules and sections</strong>
-            <span style="color:var(--text2)">— mirror the Rare tree's <em>structure</em>, not just its conditions. A new rule copies the Rare rule's conditions but takes its <strong>Rarity, AreaLevel and visuals from an existing rule in that same tree</strong>, so it doesn't arrive looking like a rare. Nothing is ever deleted.</span></span>
+        <!-- NOT .sir: that class sets flex:1 on its input, which stretched the
+             checkbox across the row and pushed the label to the far edge. -->
+        <label style="display:flex;gap:9px;align-items:flex-start;margin-bottom:9px;cursor:pointer;padding:9px 11px;border:1px solid rgba(90,200,138,.3);border-radius:var(--radius);background:rgba(90,200,138,.05)">
+          <input type="checkbox" id="mirrorCreateMissing" style="flex:0 0 auto;width:14px;height:14px;margin:2px 0 0 0;cursor:pointer">
+          <span style="font-size:12px;line-height:1.55;flex:1;min-width:0"><strong style="color:var(--text)">Also create missing rules and sections</strong>
+            <div style="color:var(--text2);margin-top:3px">Mirrors the Rare tree's <em>structure</em>, not just its conditions. A new rule copies the Rare rule's conditions but takes its <strong>Rarity, AreaLevel and visuals from an existing rule in that same tree</strong>, so it doesn't arrive looking like a rare. Nothing is ever deleted.</div></span>
+        </label>
+        <label style="display:flex;gap:9px;align-items:flex-start;margin-bottom:9px;cursor:pointer;padding:9px 11px;border:1px solid rgba(90,156,245,.3);border-radius:var(--radius);background:rgba(90,156,245,.05)">
+          <input type="checkbox" id="mirrorRenameRarity" checked style="flex:0 0 auto;width:14px;height:14px;margin:2px 0 0 0;cursor:pointer">
+          <span style="font-size:12px;line-height:1.55;flex:1;min-width:0"><strong style="color:var(--text)">Rename "Rare" to "Magic" / "Normal" in copies</strong>
+            <div style="color:var(--text2);margin-top:3px">A rule called <code>Rare (Corrupted)</code> becomes <code>Magic (Corrupted)</code> in the Magic tree and <code>Normal (Corrupted)</code> in the Normal tree. Applies to section names too. Matching understands the swap, so an already-renamed twin is still recognised and never duplicated.</div></span>
         </label>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <button class="sh-btn" onclick="previewMirrorRarity()" data-tip="Shows every rule that would change, condition by condition. Writes nothing.">🔍 Preview Mirror</button>
@@ -31424,7 +31432,7 @@ function updateSidebarColorMode(mode){
     const donor=(S.rules||[]).find(r=>r.name===c.donorName&&_mirrorRootOf(r.section)===c.troot);
     const id='r_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*100000);
     const rule={
-      id, name:src.name, section:secId, enabled:true,
+      id, name:c.name||src.name, section:secId, enabled:true,
       action:src.action||'Show',
       conditions:JSON.parse(JSON.stringify(c.conds||{})),
       // visuals come from the donor, NOT the Rare rule -- otherwise a new
@@ -32210,6 +32218,22 @@ function _mirrorCreateOn(){
   const el=document.getElementById('mirrorCreateMissing');
   return !!(el&&el.checked);
 }
+function _mirrorRenameOn(){
+  const el=document.getElementById('mirrorRenameRarity');
+  return !!(el&&el.checked);
+}
+// Swap the word "Rare" for the target rarity, preserving the writer's casing
+// so RARE -> MAGIC, Rare -> Magic, rare -> magic. Whole word only: "Rarefied"
+// and "Prepared" must not be touched.
+function _mirrorRenameFor(name, label){
+  if(!_mirrorRenameOn()||!name)return name;
+  return String(name).replace(/\bRARE\b|\bRare\b|\brare\b/g, m=>
+    m==='RARE' ? label.toUpperCase() : (m==='rare' ? label.toLowerCase() : label));
+}
+function _mirrorRenamePath(rel, label){
+  if(!rel)return rel;
+  return rel.split(' \u203a ').map(p=>_mirrorRenameFor(p,label)).join(' \u203a ');
+}
 function _mirrorRootOf(secId){
   let cur=secId, root=null, guard=0;
   while(cur&&guard++<50){ root=cur; const p=findParent(S.sectionTree||[],cur); cur=p?p.id:null; }
@@ -32273,7 +32297,15 @@ function buildMirrorPlan(){
     // they used to be declared only inside the "twin exists" path.
     const sc=src.conditions||{};
     targets.forEach(([label,troot])=>{
-      const hits=index[troot+'|'+rel+'|'+src.name]||[];
+      // Try the literal name first, then the rarity-renamed form. Without the
+      // second lookup a twin that was already renamed would look missing and
+      // be re-created on every single run.
+      const relT=_mirrorRenamePath(rel,label), nameT=_mirrorRenameFor(src.name,label);
+      const hits=index[troot+'|'+rel+'|'+src.name]
+              || index[troot+'|'+relT+'|'+nameT]
+              || index[troot+'|'+relT+'|'+src.name]
+              || index[troot+'|'+rel+'|'+nameT]
+              || [];
       if(!hits.length){
         // No twin exists. Either plan to CREATE it (when structural mirroring
         // is on and a donor can supply this tree's identity), or report it.
@@ -32284,7 +32316,8 @@ function buildMirrorPlan(){
         const conds={};
         Object.keys(donor.conditions||{}).forEach(k=>{ if(preserve.has(k)) conds[k]=donor.conditions[k]; });
         Object.keys(sc).forEach(k=>{ if(!preserve.has(k)) conds[k]=sc[k]; });
-        creates.push({label,rel,name:src.name,srcId:src.id,troot,
+        creates.push({label,rel:relT,name:nameT,srcId:src.id,troot,
+          renamedFrom:(nameT!==src.name||relT!==rel)?(rel||'(root)')+' \u2192 '+src.name:null,
           donorName:donor.name,
           donorRel:_mirrorRelPath(donor.section),
           identity:[...preserve].filter(k=>!/Op$/.test(k)&&k in (donor.conditions||{}))
@@ -32362,6 +32395,7 @@ function previewMirrorRarity(){
     cre.slice(0,40).forEach(c=>{
       const col=c.label==='Magic'?'#5a9cf5':'#9a9a9a';
       html+='<div style="font-size:11.5px;margin-bottom:4px"><span style="color:'+col+';font-weight:700">'+esc(c.label)+'</span> <span style="color:var(--text3)">'+esc(c.rel||'(root)')+' \u2192</span> <strong>'+esc(c.name)+'</strong>'
+        +(c.renamedFrom?'<div style="font-size:10.5px;color:#5a9cf5;margin-left:8px">renamed from \u201C'+esc(c.renamedFrom)+'\u201D</div>':'')
         +'<div style="font-size:10.5px;color:var(--text3);margin-left:8px">identity from \u201C'+esc(c.donorName)+'\u201D'+(c.identity.length?' \u2014 '+esc(c.identity.join(', ')):'')+'</div></div>';
     });
     if(cre.length>40)html+='<div style="font-size:11px;color:var(--text3)">\u2026 and '+(cre.length-40)+' more</div>';
@@ -33253,6 +33287,13 @@ const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.228',changes:[
+    'Fixed the Mirror checkbox layout. It used the .sir class, whose rule sets flex:1 on any input inside it \u2014 so the checkbox stretched across the whole row and threw its label to the far edge. Both Mirror toggles are now proper checkbox-beside-label rows.',
+    'NEW \u2014 \u201CRename Rare to Magic / Normal in copies\u201D (on by default). A rule named \u201CRare (Corrupted)\u201D becomes \u201CMagic (Corrupted)\u201D in the Magic tree and \u201CNormal (Corrupted)\u201D in the Normal tree; section names too. Whole-word only, casing preserved, so RARE\u2192MAGIC and rare\u2192magic while \u201CRarefied\u201D is left alone.',
+    'Matching understands the swap. Without that, an already-renamed twin would look missing and be re-created on every single run \u2014 verified: a second pass creates ZERO duplicates.',
+    'Saving Your Work now answers \u201Cwhere does this go?\u201D in each stage instead of only in the summary at the top. \u2460 Save shows the folder the .filter is written to and when it last saved, or warns that no folder is linked and Export will just download. \u2461 Back up already named its folder and now has a \u201CChange folder\u2026\u201D button \u2014 previously the destination could not be moved without turning disk backup off first.',
+    'Both banners note that browsers only expose a folder\u2019s NAME and never its full path, so it is clear that the short name is the most any web app can show.'
+  ]},
   {v:'5.227',changes:[
     'Mirror can now copy STRUCTURE, not just conditions. New checkbox \u201CAlso create missing rules and sections\u201D makes the Magic and Normal trees match the Rare tree\u2019s shape \u2014 any Rare rule with no counterpart gets one created, and any missing section is created to hold it. Off by default; nothing is ever deleted.',
     'The hazard this had to solve: a brand-new rule has no identity of its own, so blindly copying the Rare rule would hand it Rarity Rare and rare-coloured visuals. Instead each new rule takes its Rarity, AreaLevel and VISUALS from a DONOR \u2014 an existing rule already in that tree \u2014 and only its matching conditions from the Rare rule. The preview names the donor for every creation.',
@@ -42125,11 +42166,32 @@ function renderMultiSaveLocations(){
 }
 function syncMultiSaveUI(){
   renderMultiSaveLocations();
-  renderLocationsSummary();
+  renderLocationsSummary(); if(typeof renderSaveDest==='function')renderSaveDest();
 }
 // A single, honest at-a-glance list of everywhere your work currently goes:
 // the primary export destination, any extra Multi-Location Save folders, and the
 // disk auto-backup folder. Reflects live state so you always know your coverage.
+// Stage 1 never said WHERE a save goes -- the information existed only in the
+// summary box further up. Both stages should answer "where does this write?"
+// on their own.
+function renderSaveDest(){
+  const el=document.getElementById('saveDestCtl'); if(!el)return;
+  const linked=!!(window.MF_WEB&&window.MF_WEB.dirLinked);
+  const name=(window.MF_WEB&&window.MF_WEB.dirName)||null;
+  // fmtDate is a local of renderLocationsSummary, and the stored key is
+  // __lastExport (not __lastExportAt) -- both caught by testing rather than
+  // by reading.
+  const last=S.__lastExport?new Date(S.__lastExport).toLocaleString():null;
+  if(linked&&name){
+    el.innerHTML='<div style="font-size:11.5px;margin:8px 0;padding:6px 9px;border-left:3px solid var(--stage);background:rgba(var(--stage-rgb),.08);border-radius:0 4px 4px 0">'
+      +'\uD83D\uDCC1 Writing the <code>.filter</code> to folder: <strong style="color:var(--stage)">'+esc(name)+'</strong>'
+      +(last?'<div style="color:var(--text3);font-size:10.5px;margin-top:2px">Last saved: '+esc(last)+'</div>':'')
+      +'<div style="color:var(--text3);font-size:10.5px;margin-top:2px">Browsers only expose a folder\u2019s name, never its full path \u2014 this is the most any web app can show you.</div>'
+      +'</div>';
+  } else {
+    el.innerHTML='<div class="warn-box" style="margin:8px 0"><strong style="color:#e87820">No folder linked yet.</strong> Export will download the <code>.filter</code> to your browser\u2019s Downloads folder instead of writing it where the game reads it. Use <strong>Export</strong> once and pick your Path of Exile 2 folder to link it.</div>';
+  }
+}
 function renderLocationsSummary(){
   const el=document.getElementById('locationsSummary');
   if(!el)return;
@@ -42755,7 +42817,7 @@ function setupChecklistDialog(profile){
           }
         }catch(err){ if(!(err&&err.name==='AbortError')) toast('Couldn\u2019t link that folder','err'); }
         if(typeof renderMultiSaveLocations==='function')renderMultiSaveLocations();
-        if(typeof renderLocationsSummary==='function')renderLocationsSummary();
+        if(typeof renderLocationsSummary==='function')renderLocationsSummary(); if(typeof renderSaveDest==='function')renderSaveDest();
         if(typeof refreshBackupPanel==='function')refreshBackupPanel();
         render();     // redraw so the row flips to ✓
       };
@@ -42763,7 +42825,7 @@ function setupChecklistDialog(profile){
     if(confirmForget){
       box.querySelector('#_scForgetYes').onclick=async (e)=>{ e.stopPropagation(); close();
         S.__importedSetupProfile=null; S.__setupChecklistDone=true; await saveState();
-        if(typeof renderLocationsSummary==='function')renderLocationsSummary();
+        if(typeof renderLocationsSummary==='function')renderLocationsSummary(); if(typeof renderSaveDest==='function')renderSaveDest();
         toast('Saved setup forgotten. You can still set folders up in Saving Your Work.','ok'); };
       // "Keep it" just disarms and redraws — nothing was changed or saved.
       box.querySelector('#_scForgetNo').onclick=(e)=>{ e.stopPropagation(); confirmForget=false; render(); };
@@ -42914,7 +42976,7 @@ function refreshBackupPanel(){
   const listEl=document.getElementById('backupList');
   const mon=document.getElementById('healthMonitor');
   const mx=document.getElementById('bkMax'); if(mx)mx.textContent=String(MAX_BACKUPS);
-  if(typeof renderLocationsSummary==='function')renderLocationsSummary();
+  if(typeof renderLocationsSummary==='function')renderLocationsSummary(); if(typeof renderSaveDest==='function')renderSaveDest();
   // Health monitor: recompute section integrity live.
   if(mon){
     const ids={}; (function t(n){for(const x of (n||[])){ids[x.id]=(ids[x.id]||0)+1;t(x.children||[]);}})(S.sectionTree);
@@ -42958,6 +43020,10 @@ function refreshBackupPanel(){
             +(!(window.MF_WEB&&window.MF_WEB.dirLinked)
               ? '<div style="color:#e0a030;font-size:10.5px;margin-top:3px">\u26A0 The folder link is not active in this browser session \u2014 click \u201CChoose a folder\u2026\u201D to re-link it.</div>' : '')
           +'</div>'
+          // Changing the folder was previously impossible without turning the
+          // feature off first -- the panel named the destination but offered no
+          // way to move it.
+          +'<button class="sh-btn" style="background:var(--stage);color:var(--bg);border-color:var(--stage);font-weight:800" onclick="enableDiskAutoBackup()">\uD83D\uDCC1 Change folder\u2026</button> '
           +'<button class="sh-btn" onclick="disableDiskAutoBackup()">Turn off disk backup</button> <span style="font-size:11px;color:var(--text2);margin-left:6px">Use \u201C\uD83D\uDCBE Back up now\u201D below to write immediately.</span>'
         : '<button class="sh-btn" style="background:var(--stage);color:var(--bg);border-color:var(--stage);font-weight:800" onclick="enableDiskAutoBackup()">Choose a folder…</button>')
       +'</div>';
@@ -43089,7 +43155,7 @@ async function restoreFromDiskFile(){
       await saveState(); if(typeof renderList==='function')renderList(); refreshBackupPanel();
       if(typeof applyTheme==='function')applyTheme(S.theme);
       if(typeof renderLeagueContent==='function')renderLeagueContent();
-      if(typeof renderLocationsSummary==='function')renderLocationsSummary();
+      if(typeof renderLocationsSummary==='function')renderLocationsSummary(); if(typeof renderSaveDest==='function')renderSaveDest();
       toast('Restored from '+f.name+' (saved '+when+')'+scMsg,'ok');
     };
     inp.click();
