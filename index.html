@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.228
+  MirrorFilter Web — VERSION 5.229
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -31423,29 +31423,6 @@ function getSidebarColorMode(){
 }
 function updateSidebarColorMode(mode){
   S.sidebarColorMode=mode;
-  // Creations: sections first, then rules, each taking its identity and
-  // visuals from the donor so it looks and behaves like the tree it joins.
-  const createdSecs=[]; let made=0;
-  (plan.creates||[]).forEach(c=>{
-    const src=byId[c.srcId]; if(!src)return;
-    const secId=_mirrorEnsureSection(c.troot,c.rel,createdSecs);
-    const donor=(S.rules||[]).find(r=>r.name===c.donorName&&_mirrorRootOf(r.section)===c.troot);
-    const id='r_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*100000);
-    const rule={
-      id, name:c.name||src.name, section:secId, enabled:true,
-      action:src.action||'Show',
-      conditions:JSON.parse(JSON.stringify(c.conds||{})),
-      // visuals come from the donor, NOT the Rare rule -- otherwise a new
-      // magic rule would look like a rare one on the ground.
-      visuals:JSON.parse(JSON.stringify((donor&&donor.visuals)||src.visuals||{})),
-      tier:null, chaosValue:0, showTier:false,
-      tierSortTarget:false, tierSortUnpriced:false
-    };
-    const lastInSec=S.rules.map((r,i)=>r.section===secId?i:-1).filter(i=>i>=0).pop();
-    if(lastInSec!==undefined)S.rules.splice(lastInSec+1,0,rule); else S.rules.push(rule);
-    made++;
-  });
-
   saveState();
   renderList();
 }
@@ -32447,6 +32424,29 @@ async function applyMirrorRarity(){
     Object.keys(sc).forEach(k=>{ if(!preserve.has(k)) next[k]=JSON.parse(JSON.stringify(sc[k])); });
     tgt.conditions=next; n++;
   });
+  // Creations: sections first, then rules, each taking its identity and
+  // visuals from the donor so it looks and behaves like the tree it joins.
+  const createdSecs=[]; let made=0;
+  (plan.creates||[]).forEach(c=>{
+    const src=byId[c.srcId]; if(!src)return;
+    const secId=_mirrorEnsureSection(c.troot,c.rel,createdSecs);
+    const donor=(S.rules||[]).find(r=>r.name===c.donorName&&_mirrorRootOf(r.section)===c.troot);
+    const id='r_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*100000);
+    const rule={
+      id, name:c.name||src.name, section:secId, enabled:true,
+      action:src.action||'Show',
+      conditions:JSON.parse(JSON.stringify(c.conds||{})),
+      // visuals come from the donor, NOT the Rare rule -- otherwise a new
+      // magic rule would look like a rare one on the ground.
+      visuals:JSON.parse(JSON.stringify((donor&&donor.visuals)||src.visuals||{})),
+      tier:null, chaosValue:0, showTier:false,
+      tierSortTarget:false, tierSortUnpriced:false
+    };
+    const lastInSec=S.rules.map((r,i)=>r.section===secId?i:-1).filter(i=>i>=0).pop();
+    if(lastInSec!==undefined)S.rules.splice(lastInSec+1,0,rule); else S.rules.push(rule);
+    made++;
+  });
+
   saveState();
   renderList();
   const ar=(typeof byId==='function'&&typeof activeId!=='undefined')?byId(activeId):null;
@@ -33287,6 +33287,10 @@ const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.229',changes:[
+    'FIXED \u2014 Mirror\u2019s \u201Ccreate missing rules and sections\u201D never actually created anything. The preview listed the new rules correctly, but Apply threw \u201Cmade is not defined\u201D and stopped: the whole creation block had been inserted into the WRONG FUNCTION (updateSidebarColorMode), because the edit matched the first \u201CsaveState(); renderList();\u201D in the file instead of the one inside applyMirrorRarity.',
+    'Verified end-to-end through the real Apply button this time, not a reimplementation of it: a Rare-only rule now produces its Magic and Normal copies, with Rarity=Magic/Normal, the right AreaLevel, donor visuals rather than the Rare rule\u2019s, correct renaming, and a second pass creating ZERO duplicates. updateSidebarColorMode was restored and re-checked.'
+  ]},
   {v:'5.228',changes:[
     'Fixed the Mirror checkbox layout. It used the .sir class, whose rule sets flex:1 on any input inside it \u2014 so the checkbox stretched across the whole row and threw its label to the far edge. Both Mirror toggles are now proper checkbox-beside-label rows.',
     'NEW \u2014 \u201CRename Rare to Magic / Normal in copies\u201D (on by default). A rule named \u201CRare (Corrupted)\u201D becomes \u201CMagic (Corrupted)\u201D in the Magic tree and \u201CNormal (Corrupted)\u201D in the Normal tree; section names too. Whole-word only, casing preserved, so RARE\u2192MAGIC and rare\u2192magic while \u201CRarefied\u201D is left alone.',
