@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.229
+  MirrorFilter Web — VERSION 5.230
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -33287,6 +33287,11 @@ const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.230',changes:[
+    'FIXED \u2014 the backup folder (and the Choose/Change folder button) were invisible. The disk-backup control is rendered on demand by refreshBackupPanel(), which was only ever called when arriving through a \u201Cgo\u201D link. Expanding Saving Your Work by CLICKING ITS HEADER never called it, so that whole block rendered empty and the feature looked like it did not exist.',
+    'Opening Saving Your Work now renders all of its live panels \u2014 disk-backup control, the \u201Cwhere your work goes\u201D summary, the save destination banner and the multi-location list \u2014 however you got there. Base Item Data refreshes on open too.',
+    'With that fixed, all three stages name their destination: \u2460 Save shows the folder the .filter is written to, \u2461 Back up shows the backup folder plus Change folder\u2026, and \u2462 Restore points at the same folder for finding your backup files.'
+  ]},
   {v:'5.229',changes:[
     'FIXED \u2014 Mirror\u2019s \u201Ccreate missing rules and sections\u201D never actually created anything. The preview listed the new rules correctly, but Apply threw \u201Cmade is not defined\u201D and stopped: the whole creation block had been inserted into the WRONG FUNCTION (updateSidebarColorMode), because the edit matched the first \u201CsaveState(); renderList();\u201D in the file instead of the one inside applyMirrorRarity.',
     'Verified end-to-end through the real Apply button this time, not a reimplementation of it: a Rare-only rule now produces its Magic and Normal copies, with Rarity=Magic/Normal, the right AreaLevel, donor visuals rather than the Rare rule\u2019s, correct renaming, and a second pass creating ZERO duplicates. updateSidebarColorMode was restored and re-checked.'
@@ -34871,6 +34876,18 @@ function toggleSS(id){
   if(open&&id==='ss-tiers'){renderTierCfg();renderInferredBorderSectionList();}
   if(open&&id==='ss-themes')buildThemeGrid();
   if(open&&id==='ss-cleanup')autoShowRelevantCleanupReport();
+  // Saving Your Work renders its live panels on demand. refreshBackupPanel()
+  // was only ever called when arriving via a "go" link or scrollToSaveStage,
+  // so expanding this section by clicking its header left the disk-backup
+  // control (and with it the backup FOLDER and the Choose/Change button)
+  // completely blank -- the panel looked like the feature did not exist.
+  if(open&&id==='ss-saving'){
+    if(typeof refreshBackupPanel==='function')refreshBackupPanel();
+    if(typeof renderLocationsSummary==='function')renderLocationsSummary();
+    if(typeof renderSaveDest==='function')renderSaveDest();
+    if(typeof renderMultiSaveLocations==='function')renderMultiSaveLocations();
+  }
+  if(open&&id==='ss-basedata'&&typeof renderBasedataStatus==='function')renderBasedataStatus();
   if(open&&id==='ss-custom'){
     const unusedBTs=(S.customBTs||[]).some(c=>!S.rules.some(r=>Array.isArray(r.conditions&&r.conditions[c.kind])&&r.conditions[c.kind].includes(c.value)));
     const unusedSounds=(S.customSounds||[]).some(s=>!S.rules.some(r=>r.visuals&&r.visuals.sound==='custom:'+s.path));
