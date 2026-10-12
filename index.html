@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.233
+  MirrorFilter Web — VERSION 5.234
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -868,9 +868,9 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
     </div>
     <div class="ss-body" id="ss-saving-body" style="display:none">
       <div class="save-pulse" style="border:1px solid var(--accent);border-radius:10px;padding:14px 16px;margin-bottom:18px;background:rgba(var(--accent-rgb),.06)">
-        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:8px">💾 Save, Back up &amp; Restore</div>
+        <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:8px">💾 Save &amp; Restore</div>
         <div style="display:flex;flex-direction:column;gap:9px;font-size:12.5px;line-height:1.5">
-          <div style="display:flex;align-items:center;gap:10px"><span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:15px">1</span><span><strong style="color:#e0b050">Save</strong> — write the <code>.filter</code> to disk. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go</span></span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#5ac88a;color:#08160e;font-weight:800;font-size:15px">1</span><span><strong style="color:#5ac88a">Save</strong> — write the <code>.filter</code> to disk. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go</span></span></div>
           
           <div style="display:flex;align-items:center;gap:10px"><span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:15px">2</span><span><strong style="color:#5a9cf5">Restore</strong> — load a backup back in one click. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go</span></span></div>
         </div>
@@ -922,7 +922,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
       <!-- ───────────── STAGE ② RESTORE ───────────── -->
       <div id="stageRestore">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--stage);color:#0b0b0d;font-weight:800;font-size:14px">3</span><span style="font-size:15px;font-weight:700;color:var(--stage)">Restore — load a backup back</span></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--stage);color:#0b0b0d;font-weight:800;font-size:14px">2</span><span style="font-size:15px;font-weight:700;color:var(--stage)">Restore — load a backup back</span></div>
         <p style="font-size:12.5px">Pick a saved backup and load it. Your current state is backed up first, so it's always reversible.</p>
         <div class="tip-box" style="margin-bottom:8px"><strong style="color:var(--accent)">From your backup folder?</strong> Backups are <code>mirrorfilter-backup-DATE_TIME.json</code> — newest = latest date. (The <code>.filter</code>/<code>.meta.json</code> there are the game files, not full backups — load a <code>.filter</code> via <strong>Import</strong> at the top.)</div>
         <div id="restoreFolderHint" style="margin-bottom:8px"></div>
@@ -33317,6 +33317,10 @@ const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.234',changes:[
+    'Tidied up leftovers from removing the Back up stage: the panel was still titled \u201CSave, Back up & Restore\u201D, the summary\u2019s Save badge was still gold while the stage heading below it was green, and the Restore stage was still numbered \u2462 after becoming the second step.',
+    'Green now means Save and blue means Restore everywhere in the section \u2014 summary badges, stage headings and the welcome cards all read their colour from one place, verified by checking the computed styles rather than by eye.'
+  ]},
   {v:'5.233',changes:[
     'Saving Your Work is now just \u2460 SAVE and \u2461 RESTORE. The separate \u201CBack up\u201D stage is gone \u2014 a Multi-Location Save folder set to \u201CEverything\u201D writes the .filter, its .meta.json and a rotating full backup in one action, so configuring a second folder for backups was duplicated work.',
     'Verified before removing it: the file an \u201CEverything\u201D folder writes is a genuine full backup \u2014 _kind \u201Cmirrorfilter-full-backup\u201D, passes the restore check, and carries rules, tiers, sections, custom BaseTypes, custom conditions, custom sounds, build toggles, UI layout, league-filter settings, the removed-values log and your save-location list.',
