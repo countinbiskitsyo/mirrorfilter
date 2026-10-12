@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.230
+  MirrorFilter Web — VERSION 5.231
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -30578,6 +30578,14 @@ async function fsChooseFolder(){
   await kvSet(K_DIRHANDLE,_dirHandle);
   return _dirHandle.name;
 }
+// Pick a folder for a SPECIFIC save location. Deliberately does NOT touch
+// _dirHandle: that single shared handle is what made every Multi-Location
+// Save entry write to whichever folder was linked last.
+async function fsPickLocationHandle(){
+  if(!FS_SUPPORTED) throw new Error("This browser has no folder picker. Use Download instead.");
+  const h = await window.showDirectoryPicker({mode:"readwrite"});
+  return h;
+}
 async function fsEnsurePerm(h){
   const opts={mode:"readwrite"};
   if(await h.queryPermission(opts)==="granted") return true;
@@ -30818,6 +30826,9 @@ async function webAPI(path, method="GET", body=null){
 
 /* ---------- install ---------- */
 window.MF_WEB = {
+  // Used by Multi-Location Save so each folder keeps its OWN handle.
+  async pickLocationHandle(){ return await fsPickLocationHandle(); },
+  async ensurePerm(h){ try{ return await fsEnsurePerm(h); }catch(_){ return false; } },
   install(embeddedState){
     window.API = webAPI;
     if(!window._mfFetchWrapped){
@@ -33287,6 +33298,13 @@ const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.231',changes:[
+    'MAJOR FIX \u2014 Multi-Location Save never actually saved to multiple locations. Every entry stored only a folder NAME, and the write used \u201Centry.handle || _dirHandle\u201D where entry.handle was never set \u2014 so all locations wrote to the ONE shared folder that was linked most recently. Setting \u201CPath of Exile 2 = just the .filter\u201D and then linking a backup folder sent the game file to the backup folder instead.',
+    'Each location now keeps its OWN folder handle, picked without touching the shared one. Handles persist through IndexedDB (structured clone keeps them; JSON would not), so they survive a reload. That also means picking a folder for one purpose can no longer silently re-point Export or disk auto-backup \u2014 the cause of save locations seeming to be \u201Cforgotten\u201D and needing re-adding.',
+    'FIXED \u2014 the \u201CEverything\u201D scope was missing from the per-location dropdown even though it is the DEFAULT for a new location, so the dropdown showed the wrong value for every folder you added.',
+    'Each location now shows \u2713 when its folder is linked, or \u26a0 plus a \u201CRe-link\u201D button when it is not \u2014 which is the honest state after restoring a backup or moving PC, since a folder handle cannot travel in a JSON file.',
+    'Backups now carry your save-location list (paths and scopes) and the disk-backup flag, so restoring keeps your setup instead of dropping it.'
+  ]},
   {v:'5.230',changes:[
     'FIXED \u2014 the backup folder (and the Choose/Change folder button) were invisible. The disk-backup control is rendered on demand by refreshBackupPanel(), which was only ever called when arriving through a \u201Cgo\u201D link. Expanding Saving Your Work by CLICKING ITS HEADER never called it, so that whole block rendered empty and the feature looked like it did not exist.',
     'Opening Saving Your Work now renders all of its live panels \u2014 disk-backup control, the \u201Cwhere your work goes\u201D summary, the save destination banner and the multi-location list \u2014 however you got there. Base Item Data refreshes on open too.',
@@ -42138,20 +42156,36 @@ async function doExport(){
   }catch(e){toast('Export failed: '+(e.message||e),'err');setStatus('Error');console.error('Export:',e);}
 }
 async function addMultiSaveLocation(){
-  if(!confirmFolderOverwrite('multi'))return;
+  // No confirmFolderOverwrite any more: a location now keeps its OWN handle,
+  // so picking one can no longer re-point Export or disk backup.
   try{
-    const d=await API('/api/browse-folder','POST',{});
-    if(!d.path)return;  // user cancelled the dialog
+    if(!(window.MF_WEB&&window.MF_WEB.pickLocationHandle)){toast('This browser has no folder picker','err');return;}
+    const h=await window.MF_WEB.pickLocationHandle();
+    if(!h)return;                       // cancelled
     if(!S.multiSaveLocations)S.multiSaveLocations=[];
     if(S.multiSaveLocations.length>=4){toast('Maximum 4 locations — remove one first','err');return;}
-    if(S.multiSaveLocations.some(l=>l.path===d.path)){toast('That location is already added','inf');return;}
-    S.multiSaveLocations.push({path:d.path,scope:'all'});
+    if(S.multiSaveLocations.some(l=>l.path===h.name)){toast('That location is already added','inf');return;}
+    // The handle rides along in state. IndexedDB stores it by structured
+    // clone, so it survives a reload -- unlike JSON, which would drop it.
+    S.multiSaveLocations.push({path:h.name,scope:'all',handle:h});
     renderMultiSaveLocations();if(typeof renderLocationsSummary==="function")renderLocationsSummary();
     saveState();
     toast('Added save location','ok');
   }catch(e){
-    toast('Could not open folder picker: '+(e.message||e),'err');
+    if(!(e&&e.name==='AbortError')) toast('Could not open folder picker: '+(e.message||e),'err');
   }
+}
+// Re-attach a folder to an existing location -- needed after restoring a
+// backup or moving PC, where the handle cannot travel (JSON can't carry it).
+async function relinkMultiSaveLocation(i){
+  const loc=(S.multiSaveLocations||[])[i]; if(!loc)return;
+  try{
+    const h=await window.MF_WEB.pickLocationHandle();
+    if(!h)return;
+    loc.handle=h; loc.path=h.name;
+    saveState(); syncMultiSaveUI();
+    toast('Re-linked \u201C'+h.name+'\u201D','ok');
+  }catch(e){ if(!(e&&e.name==='AbortError')) toast('Could not re-link','err'); }
 }
 function removeMultiSaveLocation(i){
   S.multiSaveLocations.splice(i,1);
@@ -42171,15 +42205,24 @@ function renderMultiSaveLocations(){
     div.innerHTML='<div style="font-size:11px;color:var(--text3)">No extra locations configured yet — this feature is entirely opt-in.</div>';
     return;
   }
+  // 'all' is the DEFAULT scope but was missing from this list entirely, so
+  // the dropdown silently displayed the wrong option for every new location.
   const SCOPE_OPTIONS=[
     ['filter','Just the .filter'],
     ['filter_json','.filter + .meta.json'],
+    ['all','Everything'],
   ];
   div.innerHTML=locs.map((loc,i)=>{
     const scope=loc.scope||'all';
     const optsHtml=SCOPE_OPTIONS.map(([v,label])=>'<option value="'+v+'"'+(v===scope?' selected':'')+'>'+esc(label)+'</option>').join('');
+    const linked=!!loc.handle;
     return '<div class="sli" style="flex-wrap:wrap;gap:6px">'
-      +'<span class="sli-lbl" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 100%" data-tip="'+esc(loc.path)+'">'+esc(loc.path)+'</span>'
+      +'<span class="sli-lbl" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 100%" data-tip="'+esc(loc.path)+'">'
+        +(linked?'<span style="color:var(--green)">\u2713</span> ':'<span style="color:#e87820">\u26a0</span> ')
+        +esc(loc.path)
+        +(linked?'':'<span style="color:#e87820;font-size:10.5px"> \u2014 folder not linked on this PC, nothing is written here. Re-link \u2192</span>')
+      +'</span>'
+      +(linked?'':'<button class="sh-btn" onclick="relinkMultiSaveLocation('+i+')" data-tip="Pick this folder again on this PC">\uD83D\uDCC1 Re-link</button>')
       +'<select onchange="setLocationScope('+i+',this.value)" style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:3px 6px;border-radius:var(--radius);font-size:11px;flex:1" data-tip="What to save specifically to this location">'+optsHtml+'</select>'
       +'<span class="sli-x" onclick="removeMultiSaveLocation('+i+')" data-tip="Remove this location">\u00d7</span>'
       +'</div>';
@@ -42241,11 +42284,13 @@ function renderLocationsSummary(){
   const scopeLabel={filter:'just the .filter','filter_json':'.filter + .meta.json',all:'everything'};
   if(locs.length){
     locs.forEach(l=>{
-      const stale = dirName && l.path && l.path!==dirName;
+      // A location with its OWN handle is never stale -- that warning existed
+      // only because every entry used to share one folder handle.
+      const stale = !l.handle && dirName && l.path && l.path!==dirName;
       rows.push(['📁 Extra save location',
         esc(l.path||l.name||'?')+' <span style="color:var(--text3)">('+(scopeLabel[l.scope||'all']||l.scope)+')</span>'
         +(stale
-          ? '<div style="color:#e0a030;font-size:11px;margin-top:2px">The shared linked folder is now \u201C'+esc(dirName)+'\u201D \u2014 this won\u2019t actually be written to until you re-add it (pick this same folder again).</div>'
+          ? '<div style="color:#e0a030;font-size:11px;margin-top:2px">No folder is linked for this entry on this PC, so nothing is written here \u2014 use <strong>Re-link</strong> in Multi-Location Save.</div>'
           : (l.lastSaved?('<div style="color:var(--text3);font-size:11px;margin-top:1px">last saved: '+esc(fmtDate(l.lastSaved))+'</div>'):'')),
         stale?'warn':'ok']);
     });
@@ -42481,6 +42526,10 @@ function buildFullSnapshot(){
     customConds:S.customConds, customBTs:S.customBTs, customSounds:S.customSounds,
     buildToggles:S.buildToggles, uiLayout:S.uiLayout, exportPath:S.exportPath,
     btLifecycle:S.btLifecycle, leagueFilterExport:S.leagueFilterExport,
+    // Paths + scopes only; a folder handle cannot be JSON-encoded, so these
+    // come back needing a re-link rather than silently writing nowhere.
+    multiSaveLocations:(S.multiSaveLocations||[]).map(l=>({path:l.path,scope:l.scope})),
+    __autoBackupDisk:S.__autoBackupDisk,
     leagueFilterComments:S.leagueFilterComments,
     // Where this filter was set up to save/back up, so a different PC can offer
     // a re-link checklist instead of making you remember. Never restored
