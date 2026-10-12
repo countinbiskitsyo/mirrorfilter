@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.231
+  MirrorFilter Web — VERSION 5.232
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -137,8 +137,11 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
    (1 gold Save, 2 green Back up, 3 blue Restore) — keep them in sync.
    Buttons rendered later by JS (e.g. the disk-backup controls) pick this up
    automatically, since it's a descendant rule rather than inline style. */
-#stageSave{--stage:#e0b050;--stage-rgb:224,176,80}
-#stageBackup{--stage:#5ac88a;--stage-rgb:90,200,138}
+/* Save is the thing you do constantly, so it carries the green that used
+   to belong to Back up; backing up is now part of saving (a location set to
+   "Everything" writes the full backup). */
+#stageSave{--stage:#5ac88a;--stage-rgb:90,200,138}
+#stageBackup{--stage:#e0b050;--stage-rgb:224,176,80}
 #stageRestore{--stage:#5a9cf5;--stage-rgb:90,156,245}
 #stageSave .sh-btn,#stageBackup .sh-btn,#stageRestore .sh-btn{
   border-color:var(--stage);color:var(--stage);
@@ -755,18 +758,18 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px">
 
-            <div role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" data-tip="Go to Saving Your Work → ① Save" style="background:var(--card);border:1px solid #e0b05044;border-left:3px solid #e0b050;border-radius:8px;padding:11px 13px;cursor:pointer">
+            <div role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" data-tip="Go to Saving Your Work → ① Save" style="background:var(--card);border:1px solid #5ac88a44;border-left:3px solid #5ac88a;border-radius:8px;padding:11px 13px;cursor:pointer">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-                <span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:13px">1</span>
-                <span style="font-weight:800;font-size:13px;color:#e0b050">Save</span>
+                <span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#5ac88a;color:#08160e;font-weight:800;font-size:13px">1</span>
+                <span style="font-weight:800;font-size:13px;color:#5ac88a">Save</span>
               </div>
               <div style="font-size:12px;line-height:1.5;color:var(--text2)">Writes the <code>.filter</code> to your game folder.</div>
             </div>
 
-            <div role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" data-tip="Go to Saving Your Work → ② Back up" style="background:var(--card);border:1px solid #5ac88a44;border-left:3px solid #5ac88a;border-radius:8px;padding:11px 13px;cursor:pointer">
+            <div role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" data-tip="Go to Saving Your Work → ② Back up" style="background:var(--card);border:1px solid #e0b05044;border-left:3px solid #e0b050;border-radius:8px;padding:11px 13px;cursor:pointer">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-                <span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#5ac88a;color:#08160e;font-weight:800;font-size:13px">2</span>
-                <span style="font-weight:800;font-size:13px;color:#5ac88a">Back up</span>
+                <span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:13px">2</span>
+                <span style="font-weight:800;font-size:13px;color:#e0b050">Back up</span>
               </div>
               <div style="font-size:12px;line-height:1.5;color:var(--text2)">A full copy of everything. <strong style="color:var(--text)">Do this first.</strong></div>
             </div>
@@ -782,7 +785,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           </div>
 
           <div style="margin-top:12px;font-size:11.5px;color:var(--text2)">
-            <strong style="color:#e0b050">Saving the .filter is not a backup</strong> — it holds rules only, not your tiers or sections. Only <strong style="color:#5ac88a">② Back up</strong> does that.
+            <strong style="color:#5ac88a">Saving the .filter is not a backup</strong> — it holds rules only, not your tiers or sections. Only <strong style="color:#5ac88a">② Back up</strong> does that.
           </div>
 
         </div>
@@ -884,17 +887,17 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
       <!-- ───────────── STAGE ① SAVE ───────────── -->
       <div id="stageSave" style="margin-bottom:22px">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:14px">1</span><span style="font-size:15px;font-weight:700;color:#e0b050">Save — your game-ready .filter</span></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--stage);color:#0b0b0d;font-weight:800;font-size:14px">1</span><span style="font-size:15px;font-weight:700;color:var(--stage)">Save — your game-ready .filter</span></div>
         <p style="font-size:12.5px">Your work auto-saves in the browser as you edit. <strong>Export</strong> / <strong>Quick-Save</strong> writes the <code>.filter</code> the game reads into your Path of Exile 2 folder.</p>
         <div id="saveDestCtl"></div>
         <div id="multiSaveSetup" style="margin-top:12px;padding:14px;border:1px solid rgba(var(--stage-rgb),.35);border-radius:10px;background:rgba(var(--stage-rgb),.04)">
           <div style="font-size:13.5px;font-weight:700;color:var(--stage);margin-bottom:8px">📍 Multi-Location Save</div>
           <div class="ibox" style="margin-bottom:8px">Add up to 4 folders and every save writes to all of them. Each folder has a dropdown for <em>what</em> goes there:
-            <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:8px;line-height:1.5">
-              <strong style="white-space:nowrap">Just the .filter</strong><span>The game folder — it only reads this.</span>
-              <strong style="white-space:nowrap">.filter + .meta.json</strong><span>Plus the sidecar that keeps your tier setup.</span>
-              <strong style="white-space:nowrap">Everything</strong><span>A full working copy — best for a cloud folder.</span>
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin-top:8px;line-height:1.5">
+              <strong style="white-space:nowrap">Just the .filter</strong><span>For your <strong>Path of Exile 2 folder</strong> — the game reads this one file and nothing else.</span>
+              <strong style="white-space:nowrap">Everything</strong><span>For a <strong>cloud folder</strong> — the <code>.filter</code>, its <code>.meta.json</code> sidecar, and a timestamped full backup (newest 20 kept). The backup is the only file that can rebuild your custom BaseTypes, conditions, sounds, build toggles, UI layout and removed-values log.</span>
             </div>
+            <div class="tip-box" style="margin-top:8px"><strong style="color:var(--accent)">One folder set to “Everything” is a complete safety net.</strong> It saves and backs up in the same action, so there is nothing separate to remember.</div>
           </div>
           <div id="multiSaveLocList" style="margin:8px 0"></div>
           <button class="sh-btn" onclick="addMultiSaveLocation()" data-tip="Pick a folder to add as an extra save destination">📁 Add save location</button>
@@ -912,7 +915,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
       <!-- ───────────── STAGE ② BACK UP ───────────── -->
       <div id="stageBackup" style="margin-bottom:22px">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#5ac88a;color:#08160e;font-weight:800;font-size:14px">2</span><span style="font-size:15px;font-weight:700;color:#5ac88a">Back up — a full copy you can recover from</span></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--stage);color:#0b0b0d;font-weight:800;font-size:14px">2</span><span style="font-size:15px;font-weight:700;color:var(--stage)">Back up — a full copy you can recover from</span></div>
         <p style="font-size:12.5px">A backup captures <em>everything</em> — rules, sections, tiers, sounds, settings — not just the <code>.filter</code>. MirrorFilter backs up automatically before anything risky, and can keep timestamped copies in a folder you control.</p><div class="tip-box"><strong style="color:var(--accent)">The ten-second version:</strong> click the button below and pick a folder inside <strong>OneDrive, Google Drive or Dropbox</strong>. Every save then drops a fresh timestamped copy there — which gets you off-browser safety, version history to roll back through, and your work waiting on any other PC, all at once.</div><div class="warn-box"><strong style="color:#e87820">Why this matters more than anything else here.</strong> Your filter lives in this browser’s storage — not a file on your computer, with no cloud copy or account behind it. Anything that clears browser data takes it with it: clearing history, a &ldquo;cleaner&rdquo; utility, a browser reset or reinstall, a wiped profile, a new PC. It goes without warning and cannot be recovered afterwards. A folder backup is the only thing standing between you and starting over.</div><div class="ibox"><strong>The <code>.filter</code> is not a backup.</strong> It is the <em>output</em> the game reads, and holds no tier setup, auto-tier configuration or section structure — so it cannot rebuild your editor. The backup JSON is your actual work.</div>
         <div id="healthMonitor" style="margin:12px 0"></div>
         <div id="diskBackupCtl"></div>
@@ -924,7 +927,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
 
       <!-- ───────────── STAGE ③ RESTORE ───────────── -->
       <div id="stageRestore">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:14px">3</span><span style="font-size:15px;font-weight:700;color:#5a9cf5">Restore — load a backup back</span></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--stage);color:#0b0b0d;font-weight:800;font-size:14px">3</span><span style="font-size:15px;font-weight:700;color:var(--stage)">Restore — load a backup back</span></div>
         <p style="font-size:12.5px">Pick a saved backup and load it. Your current state is backed up first, so it's always reversible.</p>
         <div class="tip-box" style="margin-bottom:8px"><strong style="color:var(--accent)">From your backup folder?</strong> Backups are <code>mirrorfilter-backup-DATE_TIME.json</code> — newest = latest date. (The <code>.filter</code>/<code>.meta.json</code> there are the game files, not full backups — load a <code>.filter</code> via <strong>Import</strong> at the top.)</div>
         <div id="restoreFolderHint" style="margin-bottom:8px"></div>
@@ -30781,12 +30784,30 @@ async function webAPI(path, method="GET", body=null){
         if(handle && await fsEnsurePerm(handle)){
           await fsWriteFile(handle, safe+".filter", content);
           if(scope!=="filter") await fsWriteFile(handle, safe+".filter.meta.json", JSON.stringify(meta,null,2));
+          // "Everything" used to write the SAME two files as .filter+.meta.json
+          // -- it promised a full working copy and never wrote one. It now also
+          // drops a rotating timestamped full backup, which is the only file
+          // that can rebuild custom BaseTypes, conditions, sounds, build
+          // toggles, UI layout and the removed-values log.
+          if(scope==="all" && typeof buildFullSnapshot==="function"){
+            try{
+              const snapJson=JSON.stringify(buildFullSnapshot(),null,2);
+              await window.MF_WEB.fsWriteTimestampedBackup(
+                'mirrorfilter-backup-', 'mirrorfilter-backup-'+_bkStamp()+'.json', snapJson, 20, handle);
+              out.fullBackup=true;
+            }catch(e){ out.backupError=String(e&&e.message||e); }
+          }
           out.filterPath=loc+"/"+safe+".filter"; out.ok=true;
         } else { downloadText(safe+".filter", content); out.filterPath="(downloaded)"; out.ok=true; }
       }catch(e){ out.error=String(e&&e.message||e); }
       results.push(out);
     }
     return {results};
+  }
+
+  function _bkStamp(){
+    const d=new Date(), p=n=>String(n).padStart(2,'0');
+    return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds());
   }
 
   if(path==="/api/import"){
@@ -30884,20 +30905,23 @@ window.MF_WEB = {
   // Write a timestamped backup file, then prune the folder to the newest `keep`
   // MirrorFilter backup files (matched by the given prefix) so it never grows
   // without bound. Returns {ok, filename, pruned} or {ok:false}.
-  async fsWriteTimestampedBackup(prefix, filename, content, keep){
-    if(!_dirHandle) return {ok:false};
+  async fsWriteTimestampedBackup(prefix, filename, content, keep, handle){
+    // handle is optional: a Multi-Location Save folder set to "Everything"
+    // passes its OWN handle so it keeps its own rotating backup set.
+    const dir = handle || _dirHandle;
+    if(!dir) return {ok:false};
     const opts={mode:'readwrite'};
-    let perm = await _dirHandle.queryPermission(opts);
-    if(perm!=='granted'){ perm = await _dirHandle.requestPermission(opts); }
+    let perm = await dir.queryPermission(opts);
+    if(perm!=='granted'){ perm = await dir.requestPermission(opts); }
     if(perm!=='granted') return {ok:false};
     // write the new file
-    const fh=await _dirHandle.getFileHandle(filename,{create:true});
+    const fh=await dir.getFileHandle(filename,{create:true});
     const w=await fh.createWritable(); await w.write(content); await w.close();
     // list existing backups matching the prefix
     const names=[];
     try{
-      for await (const [name,handle] of _dirHandle.entries()){
-        if(handle.kind==='file' && name.startsWith(prefix) && name.endsWith('.json')) names.push(name);
+      for await (const [name,h2] of dir.entries()){
+        if(h2.kind==='file' && name.startsWith(prefix) && name.endsWith('.json')) names.push(name);
       }
     }catch(_){ /* entries() unsupported — skip prune */ return {ok:true, filename, pruned:0}; }
     // filenames sort lexicographically == chronologically because the timestamp
@@ -30907,7 +30931,7 @@ window.MF_WEB = {
     const excess = names.length - (keep||20);
     if(excess>0){
       for(let i=0;i<excess;i++){
-        try{ await _dirHandle.removeEntry(names[i]); pruned++; }catch(_){}
+        try{ await dir.removeEntry(names[i]); pruned++; }catch(_){}
       }
     }
     return {ok:true, filename, pruned};
@@ -33298,6 +33322,12 @@ const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.232',changes:[
+    'FIXED \u2014 \u201CEverything\u201D never wrote everything. The save code only ever branched on \u201Cis this scope just-the-filter or not\u201D, so \u201CEverything\u201D produced the IDENTICAL two files as \u201C.filter + .meta.json\u201D despite promising a full working copy. Three options, two behaviours, and the most important one was a no-op.',
+    '\u201CEverything\u201D now also writes a timestamped full backup into that folder (newest 20 kept, rotated). That is the only file carrying your custom BaseTypes, custom conditions, custom sounds, build toggles, UI layout, league-filter settings and removed-values log \u2014 so one folder set to Everything now saves AND backs up in a single action.',
+    'The dropdown is down to two real choices: \u201CJust the .filter\u201D for the game folder, \u201CEverything\u201D for a cloud folder. The middle option is gone; existing entries using it are migrated to Everything, which writes strictly more and loses nothing.',
+    'Save is now GREEN and Back up gold, swapping the two. Saving is the thing you do constantly, and backing up is now part of it. Stage headings read their colour from the stage itself rather than hardcoding it, so they cannot drift apart again.'
+  ]},
   {v:'5.231',changes:[
     'MAJOR FIX \u2014 Multi-Location Save never actually saved to multiple locations. Every entry stored only a folder NAME, and the write used \u201Centry.handle || _dirHandle\u201D where entry.handle was never set \u2014 so all locations wrote to the ONE shared folder that was linked most recently. Setting \u201CPath of Exile 2 = just the .filter\u201D and then linking a backup folder sent the game file to the backup folder instead.',
     'Each location now keeps its OWN folder handle, picked without touching the shared one. Handles persist through IndexedDB (structured clone keeps them; JSON would not), so they survive a reload. That also means picking a folder for one purpose can no longer silently re-point Export or disk auto-backup \u2014 the cause of save locations seeming to be \u201Cforgotten\u201D and needing re-adding.',
@@ -42207,11 +42237,16 @@ function renderMultiSaveLocations(){
   }
   // 'all' is the DEFAULT scope but was missing from this list entirely, so
   // the dropdown silently displayed the wrong option for every new location.
+  // Only TWO real choices. ".filter + .meta.json" existed as a third option
+  // but "Everything" wrote the identical two files, so it was a distinction
+  // with no behaviour behind it. Now Everything genuinely adds the full
+  // backup, and the middle option is folded into it -- strictly more data,
+  // nothing lost. Legacy entries are migrated on render.
   const SCOPE_OPTIONS=[
-    ['filter','Just the .filter'],
-    ['filter_json','.filter + .meta.json'],
-    ['all','Everything'],
+    ['filter','Just the .filter \u2014 the game folder'],
+    ['all','Everything \u2014 a full working copy you can restore from'],
   ];
+  locs.forEach(l=>{ if(l.scope==='filter_json') l.scope='all'; });
   div.innerHTML=locs.map((loc,i)=>{
     const scope=loc.scope||'all';
     const optsHtml=SCOPE_OPTIONS.map(([v,label])=>'<option value="'+v+'"'+(v===scope?' selected':'')+'>'+esc(label)+'</option>').join('');
