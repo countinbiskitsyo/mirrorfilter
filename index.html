@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.232
+  MirrorFilter Web — VERSION 5.233
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -688,7 +688,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   <button class="tb-btn sec" onclick="openTestItemModal()" data-tip="Paste an item's copied text (Ctrl+C in-game) or fill in attributes manually, and see exactly which rule would match it and why" style="border-color:#b478f5;color:#b478f5">🧪 Test Item</button>
   <button class="tb-btn sec" id="quickSaveBtn" onclick="quickSave()" data-tip="One-click save to the same location as your last export" style="border-color:var(--green);color:var(--green);min-width:100px;text-align:center">💾 Quick-Save</button>
   <span id="statusBar" data-tip="Your work auto-saves in your browser as you go. Click Export or Quick-Save to write your .filter to disk." style="white-space:nowrap;flex-shrink:0">Ready</span>
-  <span id="filesHint" onclick="switchTab('settings');setTimeout(()=>scrollToSaveStage('stageBackup'),250)"
+  <span id="filesHint" onclick="switchTab('settings');setTimeout(()=>scrollToSaveStage('stageSave'),250)"
         data-tip="THE 3 FILES THAT MATTER — .filter: what the game reads (Export/Quick-Save). .filter.meta.json: rides beside it, carries tier config and section structure. mirrorfilter-backup-*.json: your COMPLETE work, the only one that restores everything. Click to open Back up."
         style="white-space:nowrap;flex-shrink:0;margin-left:10px;font-size:10.5px;color:var(--text3);cursor:pointer;border-left:1px solid var(--border2);padding-left:10px">
     📁 <span style="color:var(--text2)">.filter</span> + <span style="color:var(--text2)">.meta.json</span> + <span style="color:var(--accent);font-weight:700">backup.json</span>
@@ -753,7 +753,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
         <div style="padding:16px 18px">
 
           <div style="font-size:12.5px;line-height:1.55;color:var(--text2);margin-bottom:13px">
-            Your filter lives <strong style="color:var(--text)">inside this browser</strong>, not in a file. Clearing browsing data or moving to a new PC <strong style="color:#e87820">deletes it — no cloud copy, no recovery</strong><strong style="color:#5ac88a">…unless you ② Back up.</strong>
+            Your filter lives <strong style="color:var(--text)">inside this browser</strong>, not in a file. Clearing browsing data or moving to a new PC <strong style="color:#e87820">deletes it — no cloud copy, no recovery</strong><strong style="color:#5ac88a">…unless you save to an Everything folder.</strong>
           </div>
 
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px">
@@ -766,17 +766,10 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
               <div style="font-size:12px;line-height:1.5;color:var(--text2)">Writes the <code>.filter</code> to your game folder.</div>
             </div>
 
-            <div role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" data-tip="Go to Saving Your Work → ② Back up" style="background:var(--card);border:1px solid #e0b05044;border-left:3px solid #e0b050;border-radius:8px;padding:11px 13px;cursor:pointer">
+            
+            <div role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" data-tip="Go to Saving Your Work → ② Restore" style="background:var(--card);border:1px solid #5a9cf544;border-left:3px solid #5a9cf5;border-radius:8px;padding:11px 13px;cursor:pointer">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-                <span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:13px">2</span>
-                <span style="font-weight:800;font-size:13px;color:#e0b050">Back up</span>
-              </div>
-              <div style="font-size:12px;line-height:1.5;color:var(--text2)">A full copy of everything. <strong style="color:var(--text)">Do this first.</strong></div>
-            </div>
-
-            <div role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" data-tip="Go to Saving Your Work → ③ Restore" style="background:var(--card);border:1px solid #5a9cf544;border-left:3px solid #5a9cf5;border-radius:8px;padding:11px 13px;cursor:pointer">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-                <span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:13px">3</span>
+                <span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:13px">2</span>
                 <span style="font-weight:800;font-size:13px;color:#5a9cf5">Restore</span>
               </div>
               <div style="font-size:12px;line-height:1.5;color:var(--text2)">Bring your work back, or move PCs.</div>
@@ -785,7 +778,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
           </div>
 
           <div style="margin-top:12px;font-size:11.5px;color:var(--text2)">
-            <strong style="color:#5ac88a">Saving the .filter is not a backup</strong> — it holds rules only, not your tiers or sections. Only <strong style="color:#5ac88a">② Back up</strong> does that.
+            <strong style="color:#5ac88a">Saving the .filter is not a backup</strong> — it holds rules only, not your tiers or sections. Only an <strong style="color:#5ac88a">Everything</strong> save folder does that.
           </div>
 
         </div>
@@ -878,8 +871,8 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
         <div style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:8px">💾 Save, Back up &amp; Restore</div>
         <div style="display:flex;flex-direction:column;gap:9px;font-size:12.5px;line-height:1.5">
           <div style="display:flex;align-items:center;gap:10px"><span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#e0b050;color:#1a1205;font-weight:800;font-size:15px">1</span><span><strong style="color:#e0b050">Save</strong> — write the <code>.filter</code> to disk. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageSave')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go</span></span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#5ac88a;color:#08160e;font-weight:800;font-size:15px">2</span><span><strong style="color:#5ac88a">Back up</strong> — save a full copy you can recover from. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageBackup')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go</span></span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:15px">3</span><span><strong style="color:#5a9cf5">Restore</strong> — load a backup back in one click. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go</span></span></div>
+          
+          <div style="display:flex;align-items:center;gap:10px"><span style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#5a9cf5;color:#04101f;font-weight:800;font-size:15px">2</span><span><strong style="color:#5a9cf5">Restore</strong> — load a backup back in one click. <span role="button" tabindex="0" onclick="scrollToSaveStage('stageRestore')" style="color:var(--accent);text-decoration:underline;cursor:pointer">go</span></span></div>
         </div>
       </div>
 
@@ -914,18 +907,20 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
       </div>
 
       <!-- ───────────── STAGE ② BACK UP ───────────── -->
-      <div id="stageBackup" style="margin-bottom:22px">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--stage);color:#0b0b0d;font-weight:800;font-size:14px">2</span><span style="font-size:15px;font-weight:700;color:var(--stage)">Back up — a full copy you can recover from</span></div>
-        <p style="font-size:12.5px">A backup captures <em>everything</em> — rules, sections, tiers, sounds, settings — not just the <code>.filter</code>. MirrorFilter backs up automatically before anything risky, and can keep timestamped copies in a folder you control.</p><div class="tip-box"><strong style="color:var(--accent)">The ten-second version:</strong> click the button below and pick a folder inside <strong>OneDrive, Google Drive or Dropbox</strong>. Every save then drops a fresh timestamped copy there — which gets you off-browser safety, version history to roll back through, and your work waiting on any other PC, all at once.</div><div class="warn-box"><strong style="color:#e87820">Why this matters more than anything else here.</strong> Your filter lives in this browser’s storage — not a file on your computer, with no cloud copy or account behind it. Anything that clears browser data takes it with it: clearing history, a &ldquo;cleaner&rdquo; utility, a browser reset or reinstall, a wiped profile, a new PC. It goes without warning and cannot be recovered afterwards. A folder backup is the only thing standing between you and starting over.</div><div class="ibox"><strong>The <code>.filter</code> is not a backup.</strong> It is the <em>output</em> the game reads, and holds no tier setup, auto-tier configuration or section structure — so it cannot rebuild your editor. The backup JSON is your actual work.</div>
-        <div id="healthMonitor" style="margin:12px 0"></div>
-        <div id="diskBackupCtl"></div>
-        <div class="ibox"><strong>Back up now</strong> saves both at once: an in-browser restore point (last <span id="bkMax">8</span> kept) and, if disk backup is on, a timestamped file in your folder. Also happens on every Quick-Save and every 5 minutes.</div>
-        <div style="display:flex;gap:6px;margin:10px 0;flex-wrap:wrap">
-          <button class="sh-btn" onclick="backupNowFromButton()" data-tip="Saves an in-browser restore point AND a timestamped file to your folder (if disk backup is on)">💾 Back up now</button>
+      <!-- Stage 2 (Back up) removed in 5.233: a Multi-Location Save folder set
+           to "Everything" now writes the full backup, so a separate backup
+           folder was duplicated work. Two pieces still earn their place and
+           move here: the section-health monitor, and a manual restore point
+           for "I'm about to do something risky". -->
+      <div id="healthMonitor" style="margin:12px 0"></div>
+      <div class="ibox" style="margin-top:10px"><strong>Restore points.</strong> MirrorFilter keeps the last <span id="bkMax">8</span> in-browser restore points automatically, and takes one before anything risky. They live in this browser — for off-machine safety use an <strong>Everything</strong> folder above. Load any of them from <strong>② Restore</strong> below.
+        <div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
+          <button class="sh-btn" onclick="backupNowFromButton()" data-tip="Saves an in-browser restore point now, and writes to your Everything folders">💾 Save a restore point now</button>
         </div>
       </div>
+      <div id="diskBackupCtl" style="display:none"></div>
 
-      <!-- ───────────── STAGE ③ RESTORE ───────────── -->
+      <!-- ───────────── STAGE ② RESTORE ───────────── -->
       <div id="stageRestore">
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid rgba(var(--stage-rgb),.5)"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--stage);color:#0b0b0d;font-weight:800;font-size:14px">3</span><span style="font-size:15px;font-weight:700;color:var(--stage)">Restore — load a backup back</span></div>
         <p style="font-size:12.5px">Pick a saved backup and load it. Your current state is backed up first, so it's always reversible.</p>
@@ -33322,6 +33317,12 @@ const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.233',changes:[
+    'Saving Your Work is now just \u2460 SAVE and \u2461 RESTORE. The separate \u201CBack up\u201D stage is gone \u2014 a Multi-Location Save folder set to \u201CEverything\u201D writes the .filter, its .meta.json and a rotating full backup in one action, so configuring a second folder for backups was duplicated work.',
+    'Verified before removing it: the file an \u201CEverything\u201D folder writes is a genuine full backup \u2014 _kind \u201Cmirrorfilter-full-backup\u201D, passes the restore check, and carries rules, tiers, sections, custom BaseTypes, custom conditions, custom sounds, build toggles, UI layout, league-filter settings, the removed-values log and your save-location list.',
+    'Kept, moved into Save: the section-health monitor, and automatic in-browser restore points (last 8, taken before anything risky) with a \u201CSave a restore point now\u201D button. Those protect you BETWEEN saves and are not something a folder can do.',
+    'Welcome screen is two cards instead of three, and the \u201Cnot a backup\u201D note now points at an Everything folder rather than a stage that no longer exists.'
+  ]},
   {v:'5.232',changes:[
     'FIXED \u2014 \u201CEverything\u201D never wrote everything. The save code only ever branched on \u201Cis this scope just-the-filter or not\u201D, so \u201CEverything\u201D produced the IDENTICAL two files as \u201C.filter + .meta.json\u201D despite promising a full working copy. Three options, two behaviours, and the most important one was a no-op.',
     '\u201CEverything\u201D now also writes a timestamped full backup into that folder (newest 20 kept, rotated). That is the only file carrying your custom BaseTypes, custom conditions, custom sounds, build toggles, UI layout, league-filter settings and removed-values log \u2014 so one folder set to Everything now saves AND backs up in a single action.',
@@ -33709,7 +33710,7 @@ const CHANGELOG=[
     'Cancelling the folder picker is now silent (no error toast).'
   ]},
   {v:'5.156',changes:[
-    'Reorganized everything about protecting your work into ONE place: Resources → Saving Your Work now flows as three clearly separated stages — ① Save (your game .filter, with Multi-Location Save), ② Back up (snapshots of your whole editor state, in-browser and on disk), and ③ Restore (load any backup back). The old separate "Backups & Filter Health" section was folded in, removing the overlap and back-and-forth.',
+    'Reorganized everything about protecting your work into ONE place: Resources → Saving Your Work now flows as three clearly separated stages — ① Save (your game .filter, with Multi-Location Save), ② Back up (snapshots of your whole editor state, in-browser and on disk), and ② Restore (load any backup back). The old separate "Backups & Filter Health" section was folded in, removing the overlap and back-and-forth.',
     'First-run prompt: if you haven\u2019t set up any off-browser protection yet, MirrorFilter now offers, right at the start, to pick a backup folder you control — one click and you\u2019re protected. You can choose "remind me later" or "no thanks", and change it anytime.',
     'Restore is now its own clearly-labeled step, including a new "Restore from a backup file…" button that loads a mirrorfilter-autobackup.json you pick off disk.',
     'Trimmed the wordiness and removed the redundant duplicate links that pointed to the same place; Save, Back up, and Restore each now have a single clear destination.'
@@ -34912,7 +34913,7 @@ function scrollToSaveStage(stageId){
 }
 // Back-compat shims (older callers / welcome links).
 function goToMultiSave(){ scrollToSaveStage('stageSave'); }
-function goToBackups(){ scrollToSaveStage('stageBackup'); }
+function goToBackups(){ scrollToSaveStage('stageSave'); }
 function toggleSS(id){
   const body=document.getElementById(id+'-body');
   const caret=document.getElementById(id+'-caret');
