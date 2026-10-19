@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.234
+  MirrorFilter Web — VERSION 5.236
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -29976,6 +29976,11 @@ const BASETYPE_LIFECYCLE_SEED={
   // left to the user because it is a documented, game-wide fact, not a
   // personal preference. state.btLifecycle still overrides it.
   'Sacred Bloom': { addedIn:'Forbidden Rites' },
+  // 0.5.5 added a brand-new tablet type. Recorded so a filter built for an
+  // older league comments these out instead of shipping a BaseType that
+  // league cannot drop. Fails open: unknown league means "it exists".
+  'Expedition Tablet': { addedIn:'Forbidden Rites' },
+  'Forgotten By Time Expedition Tablet': { addedIn:'Forbidden Rites' },
 };
 
 // Strip the Hardcore prefix — HC and SC share identical item content, so
@@ -33317,6 +33322,16 @@ const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.236',changes:[
+    'BaseType database: added \u201CPrecursor Tablet\u201D. Database is now 3,101 entries.',
+    'Checked first, because \u201CPrecursor Tablet\u201D is ALSO the umbrella term for every tablet type and could easily have been a category name rather than a real base. It is both: the wiki lists it as its own base type with its own drop rules, and Mobalytics states outright that a tablet specifically called \u201CPrecursor Tablet\u201D exists alongside the category. Safe to add.',
+    'No League Content entry for this one \u2014 unlike Expedition Tablet it is not new to Forbidden Rites, so it should not be commented out for older leagues.'
+  ]},
+  {v:'5.235',changes:[
+    'BaseType database: added \u201CExpedition Tablet\u201D and its unique \u201CForgotten By Time Expedition Tablet\u201D. Database is now 3,100 entries.',
+    'This is a NEW tablet type introduced in 0.5.5 Forbidden Rites \u2014 the database had the other sixteen tablets but not this one, so it was being flagged as an unknown BaseType despite being real.',
+    'Names verified against three sources (PoE2 wiki, Game8, poe2db) before adding, since an unrecognised BaseType stops PoE2 loading the filter at all. Both also get a League Content entry of addedIn: Forbidden Rites, so a filter built for an older league comments them out rather than shipping a base that league cannot drop.'
+  ]},
   {v:'5.234',changes:[
     'Tidied up leftovers from removing the Back up stage: the panel was still titled \u201CSave, Back up & Restore\u201D, the summary\u2019s Save badge was still gold while the stage heading below it was green, and the Restore stage was still numbered \u2462 after becoming the second step.',
     'Green now means Save and blue means Restore everywhere in the section \u2014 summary badges, stage headings and the welcome cards all read their colour from one place, verified by checking the computed styles rather than by eye.'
@@ -37757,6 +37772,9 @@ const CSUGG_BASETYPES_POE2=[
   'Uhtred\'s Chalice Transcendent Mana Flask','Undying Hate Timeless Jewel',
   'Unforeseen Consequences Abyss Tablet','Valako\'s Roar Topaz Charm',
   'Visions of Paradise Irradiated Tablet','Voices Sapphire','Wraeclast Besieged Breach Tablet',
+  // Added in 0.5.5 Forbidden Rites: a brand-new tablet type, plus its
+  // unique. Names verified against the PoE2 wiki, Game8 and poe2db.
+  'Expedition Tablet','Forgotten By Time Expedition Tablet','Precursor Tablet',
   // ── Equipment base audit, v5.211 ─────────────────────────────────────────
   // 499 long-standing equipment bases the database never carried (armour,
   // weapons, jewellery, flasks, charms, quivers, foci). These are NOT new
