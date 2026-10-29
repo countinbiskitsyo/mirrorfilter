@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.236
+  MirrorFilter Web — VERSION 5.237
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -93,6 +93,15 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .tb-btn.danger:hover{background:var(--red);color:#fff}
 #leagueSelect{background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:4px 5px;border-radius:var(--radius);font-size:12px;flex-shrink:0;max-width:130px}
 .tb-spacer{flex:1;min-width:0}
+/* Two compact lines instead of one long row. Each .tb-stack is a narrow
+   column: line 1 is its inline children, line 2 is the .tb-stack-2 child.
+   Halves the horizontal space these labels take while keeping every word. */
+.tb-stack{display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;line-height:1.2;flex-shrink:0;gap:0}
+/* .tb-line keeps several labels on ONE row inside a stack -- without it every
+   child becomes its own line and a two-line stack silently becomes three. */
+.tb-stack>.tb-line{display:inline-flex;align-items:baseline;white-space:nowrap}
+.tb-stack>.tb-stack-2{margin-left:0!important;opacity:.75}
+.tb-stack #statusBar,.tb-stack #filesHint{margin-left:0!important;border-left:none!important;padding-left:0!important}
 /* min-width/text-align reserve a stable slot for #statusBar: its text swings
    wildly in length ("Ready" vs "Fetching prices from poe.ninja…"), and since
    #topbar centers its whole content (justify-content:center + the .tb-spacer
@@ -290,7 +299,15 @@ input[type=checkbox]{cursor:pointer;accent-color:var(--accent)}
 .tag-x{color:var(--text3);cursor:pointer;font-size:14px;line-height:1}
 .tag-x:hover{color:#ef5350}
 .tag-add{background:transparent;border:1px dashed var(--border2);border-radius:3px;padding:2px 7px;font-size:12px;color:var(--text3);cursor:pointer;white-space:nowrap}
-.tag-add:hover{border-color:var(--accent);color:var(--accent)}
+.tag-add:hover{border-color:var(--accent);color:var(--accent);animation:none;box-shadow:0 0 12px rgba(var(--accent-rgb),.55)}
+/* These are ACTIONS sitting in a row of dozens of value chips that look very
+   similar. A slow glow pulse separates "add something" from "here is a value". */
+.tag-add{animation:tagAddPulse 2.6s ease-in-out infinite}
+@keyframes tagAddPulse{
+  0%,100%{border-color:var(--border2);box-shadow:0 0 0 rgba(var(--accent-rgb),0)}
+  50%{border-color:rgba(var(--accent-rgb),.75);box-shadow:0 0 9px rgba(var(--accent-rgb),.35)}}
+@media (prefers-reduced-motion:reduce){
+  .tag-add{animation:none;border-color:rgba(var(--accent-rgb),.6)}}
 .icon-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:5px}
 .icon-opt{padding:4px 2px;border:1px solid var(--border2);border-radius:var(--radius);text-align:center;cursor:pointer;color:var(--text2);transition:.11s;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px}
 .icon-opt:hover{border-color:var(--accent)}
@@ -668,7 +685,7 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   <!-- Pairs with the .tb-spacer at the end of this bar: two flex:1 spacers,
        one each side, split the leftover width evenly and centre the group. -->
   <div class="tb-spacer"></div>
-  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><em id="mfVerLabel">Web</em><em style="margin-left:7px;opacity:.7">by Adamg &amp; Claude</em><em id="mfGameVerLabel" style="margin-left:7px"></em></div>
+  <div class="logo"><span class="logo-text-wrap"><span class="logo-text">MirrorFilter</span><span class="logo-sparkle">&#x2726;</span><span class="logo-sparkle-orbit">&#x2726;</span></span><span class="tb-stack"><span class="tb-line"><em id="mfVerLabel">Web</em><em style="margin-left:6px;opacity:.7">by Adamg &amp; Claude</em></span><em id="mfGameVerLabel" class="tb-stack-2"></em></span></div>
   <input id="filterName" type="text" value="MyFilter" placeholder="Filter name…" data-tip="Name used when exporting your .filter file" oninput="autoSizeFilterName()">
   <span id="filterNameMeasure" style="position:absolute;visibility:hidden;white-space:pre;font-size:13px"></span>
   <span style="font-size:11px;color:var(--text3);flex-shrink:0;margin-right:-2px" data-tip="Which league's prices Auto-Tier pulls">League:</span>
@@ -687,12 +704,12 @@ html.theme-tex-storm .ss,html.theme-tex-storm .card,html.theme-tex-storm .ri,htm
   <button class="tb-btn sec" onclick="exportFilter()" data-tip="Export your filter — choose a save folder" style="border-color:#c85ae0;color:#c85ae0">📤 Export</button>
   <button class="tb-btn sec" onclick="openTestItemModal()" data-tip="Paste an item's copied text (Ctrl+C in-game) or fill in attributes manually, and see exactly which rule would match it and why" style="border-color:#b478f5;color:#b478f5">🧪 Test Item</button>
   <button class="tb-btn sec" id="quickSaveBtn" onclick="quickSave()" data-tip="One-click save to the same location as your last export" style="border-color:var(--green);color:var(--green);min-width:100px;text-align:center">💾 Quick-Save</button>
-  <span id="statusBar" data-tip="Your work auto-saves in your browser as you go. Click Export or Quick-Save to write your .filter to disk." style="white-space:nowrap;flex-shrink:0">Ready</span>
+  <span class="tb-stack"><span id="statusBar" data-tip="Your work auto-saves in your browser as you go. Click Export or Quick-Save to write your .filter to disk." style="white-space:nowrap;flex-shrink:0">Ready</span>
   <span id="filesHint" onclick="switchTab('settings');setTimeout(()=>scrollToSaveStage('stageSave'),250)"
         data-tip="THE 3 FILES THAT MATTER — .filter: what the game reads (Export/Quick-Save). .filter.meta.json: rides beside it, carries tier config and section structure. mirrorfilter-backup-*.json: your COMPLETE work, the only one that restores everything. Click to open Back up."
         style="white-space:nowrap;flex-shrink:0;margin-left:10px;font-size:10.5px;color:var(--text3);cursor:pointer;border-left:1px solid var(--border2);padding-left:10px">
     📁 <span style="color:var(--text2)">.filter</span> + <span style="color:var(--text2)">.meta.json</span> + <span style="color:var(--accent);font-weight:700">backup.json</span>
-  </span>
+  </span></span>
   <div class="tb-spacer"></div>
 </div>
   <div id="appRow">
@@ -33322,6 +33339,12 @@ const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.237',changes:[
+    'The value picker now CLEARS the search box the moment you select something, and refocuses it. Typing \u201CGlass Shank\u201D, clicking it, then having to select and delete the text before searching again was the slow part of adding several values. Deselecting a chip leaves the search text alone, since you are usually still looking at those results.',
+    '\u201C+ BaseType\u201D, \u201C+ Class\u201D, \u201C+ Add Condition\u201D and \u201C\uD83D\uDCCB Paste list\u201D now glow with a slow pulse. They are ACTIONS sitting in a row of dozens of near-identical value chips, and nothing set them apart. Pulse stops on hover and is disabled when the OS asks for reduced motion.',
+    'Header is two compact lines instead of one long row: \u201CWeb tool vX \u00b7 by Adamg & Claude\u201D over \u201Ccurrent with PoE2 patch\u201D on the left, and the saved-status over the three-files indicator on the right. Same words, about half the width.',
+    'Each save location now has an optional FULL PATH field. Browsers never expose a folder\u2019s absolute path \u2014 the File System Access API deliberately withholds it, so the folder name is genuinely all any web app can read. Typing the path once makes it visible here and in \u201CWhere your work currently goes\u201D. Saved on blur, not per keystroke.'
+  ]},
   {v:'5.236',changes:[
     'BaseType database: added \u201CPrecursor Tablet\u201D. Database is now 3,101 entries.',
     'Checked first, because \u201CPrecursor Tablet\u201D is ALSO the umbrella term for every tablet type and could easily have been a category name rather than a real base. It is both: the wiki lists it as its own base type with its own drop rules, and Mobalytics states outright that a tablet specifically called \u201CPrecursor Tablet\u201D exists alongside the category. Safe to add.',
@@ -38475,13 +38498,21 @@ function buildValuePicker(key, onCommit, onCancel){
           const idx=sel.indexOf(v);
           if(idx>=0){
             sel.splice(idx,1);
-          } else {
-            if(!isArray){sel.length=0;}
-            sel.push(v);
-            if(!isArray){onCommit([v]);return;}
+            refreshUI();
+            renderItemList(searchInp.value);
+            return;
           }
+          if(!isArray){sel.length=0;}
+          sel.push(v);
+          if(!isArray){onCommit([v]);return;}
+          // Clear the search box once something is picked. Typing "Glass
+          // Shank", clicking it, then having to select and delete the text
+          // before searching again was the slow part of adding several values.
+          searchInp.value='';
+          _lastClickedIdx=null;
           refreshUI();
-          renderItemList(searchInp.value);
+          renderItemList('');
+          searchInp.focus();
         };
         row.dataset.value=v;
         row.draggable=false;
@@ -42281,10 +42312,27 @@ function renderMultiSaveLocations(){
         +(linked?'':'<span style="color:#e87820;font-size:10.5px"> \u2014 folder not linked on this PC, nothing is written here. Re-link \u2192</span>')
       +'</span>'
       +(linked?'':'<button class="sh-btn" onclick="relinkMultiSaveLocation('+i+')" data-tip="Pick this folder again on this PC">\uD83D\uDCC1 Re-link</button>')
+      // Browsers never expose a folder's absolute path -- the File System
+      // Access API deliberately withholds it, so the folder NAME is all any
+      // web app can read. This lets the full path be recorded by hand once.
+      +'<input type="text" class="mslNote" data-i="'+i+'" value="'+esc(loc.note||'')+'" placeholder="Full path (optional, for your reference)" data-tip="Type the folder\u2019s full path so you can see where this writes. Browsers cannot read it, so MirrorFilter cannot fill it in for you." style="flex:1 1 100%;background:var(--bg);border:1px dashed var(--border2);color:var(--text2);padding:4px 8px;border-radius:var(--radius);font-size:11px;font-family:monospace">'
       +'<select onchange="setLocationScope('+i+',this.value)" style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:3px 6px;border-radius:var(--radius);font-size:11px;flex:1" data-tip="What to save specifically to this location">'+optsHtml+'</select>'
       +'<span class="sli-x" onclick="removeMultiSaveLocation('+i+')" data-tip="Remove this location">\u00d7</span>'
       +'</div>';
   }).join('');
+  // Wire the path notes. Saved on blur rather than per keystroke so typing a
+  // long path doesn't hit IndexedDB on every character.
+  div.querySelectorAll('.mslNote').forEach(inp=>{
+    inp.addEventListener('blur',()=>{
+      const i=+inp.dataset.i, l=(S.multiSaveLocations||[])[i];
+      if(!l)return;
+      const v=inp.value.trim();
+      if((l.note||'')===v)return;
+      l.note=v; saveState();
+      if(typeof renderLocationsSummary==='function')renderLocationsSummary();
+    });
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter')inp.blur(); });
+  });
 }
 function syncMultiSaveUI(){
   renderMultiSaveLocations();
@@ -42347,6 +42395,7 @@ function renderLocationsSummary(){
       const stale = !l.handle && dirName && l.path && l.path!==dirName;
       rows.push(['📁 Extra save location',
         esc(l.path||l.name||'?')+' <span style="color:var(--text3)">('+(scopeLabel[l.scope||'all']||l.scope)+')</span>'
+        +(l.note?'<div style="color:var(--text3);font-size:10.5px;font-family:monospace;margin-top:1px">'+esc(l.note)+'</div>':'')
         +(stale
           ? '<div style="color:#e0a030;font-size:11px;margin-top:2px">No folder is linked for this entry on this PC, so nothing is written here \u2014 use <strong>Re-link</strong> in Multi-Location Save.</div>'
           : (l.lastSaved?('<div style="color:var(--text3);font-size:11px;margin-top:1px">last saved: '+esc(fmtDate(l.lastSaved))+'</div>'):'')),
