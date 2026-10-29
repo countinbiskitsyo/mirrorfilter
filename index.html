@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  MirrorFilter Web — VERSION 5.237
+  MirrorFilter Web — VERSION 5.238
   (The version shown here always matches the newest Changelog entry, which the
    app also displays live next to "Web" in the header. To confirm which build a
    given index.html is, check this line or the header in the running app.)
@@ -96,12 +96,18 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 /* Two compact lines instead of one long row. Each .tb-stack is a narrow
    column: line 1 is its inline children, line 2 is the .tb-stack-2 child.
    Halves the horizontal space these labels take while keeping every word. */
-.tb-stack{display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;line-height:1.2;flex-shrink:0;gap:0}
+.tb-stack{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2;flex-shrink:0;gap:0;text-align:center}
 /* .tb-line keeps several labels on ONE row inside a stack -- without it every
    child becomes its own line and a two-line stack silently becomes three. */
 .tb-stack>.tb-line{display:inline-flex;align-items:baseline;white-space:nowrap}
 .tb-stack>.tb-stack-2{margin-left:0!important;opacity:.75}
-.tb-stack #statusBar,.tb-stack #filesHint{margin-left:0!important;border-left:none!important;padding-left:0!important}
+.tb-stack #statusBar,.tb-stack #filesHint{margin-left:0!important;border-left:none!important;padding-left:0!important;text-align:center}
+/* The stack holding statusBar keeps a fixed footprint for the same reason
+   #statusBar does: #topbar centres its row, so any width change here slides
+   every button in the bar. Both lines centre within that fixed width. */
+.tb-stack:has(#statusBar){width:240px;flex:0 0 240px}
+.tb-stack #statusBar{min-width:100%;max-width:100%}
+.tb-stack #filesHint{max-width:100%;overflow:hidden;text-overflow:ellipsis}
 /* min-width/text-align reserve a stable slot for #statusBar: its text swings
    wildly in length ("Ready" vs "Fetching prices from poe.ninja…"), and since
    #topbar centers its whole content (justify-content:center + the .tb-spacer
@@ -33339,6 +33345,10 @@ const BASEDATA_GENERATED='2026-10-07';
 const GAME_PATCH_LEAGUE='Runes of Aldur';
 
 const CHANGELOG=[
+  {v:'5.238',changes:[
+    'The two stacked header lines are now centred on each other instead of left-aligned, on both sides: \u201CWeb tool vX \u00b7 by Adamg & Claude\u201D over \u201Ccurrent with PoE2 patch\u201D, and the saved-status over the three-files indicator.',
+    'Centring the right-hand pair needed care: #statusBar holds a fixed-width slot on purpose \u2014 it is the 5.207 fix that stops the whole centred toolbar sliding sideways when the status text changes length. Rather than letting it shrink to its text, the stack itself now owns that fixed footprint and both lines centre inside it. Re-ran the shift test: 0.00px movement when the status goes from \u201CReady\u201D to \u201CFetching prices from poe.ninja\u2026\u201D and back.'
+  ]},
   {v:'5.237',changes:[
     'The value picker now CLEARS the search box the moment you select something, and refocuses it. Typing \u201CGlass Shank\u201D, clicking it, then having to select and delete the text before searching again was the slow part of adding several values. Deselecting a chip leaves the search text alone, since you are usually still looking at those results.',
     '\u201C+ BaseType\u201D, \u201C+ Class\u201D, \u201C+ Add Condition\u201D and \u201C\uD83D\uDCCB Paste list\u201D now glow with a slow pulse. They are ACTIONS sitting in a row of dozens of near-identical value chips, and nothing set them apart. Pulse stops on hover and is disabled when the OS asks for reduced motion.',
